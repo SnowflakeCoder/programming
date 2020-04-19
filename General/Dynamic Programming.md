@@ -1,5 +1,3 @@
-[TOC]
-
 ## Dynamic Programming 
 
 Dynamic Programming is an algorithmic paradigm that solves a complex problem by <u>breaking it into sub-problems</u> and <u>stores the results of sub-problems</u> to <u>avoid computing the same results</u> again. Following are the two main properties of a problem that suggest that the given problem can be solved using Dynamic programming.
@@ -8,13 +6,15 @@ Dynamic Programming is an algorithmic paradigm that solves a complex problem by 
 
 Dynamic Programming is mainly used when **solutions of same subproblems are needed again** and again. In dynamic programming, computed solutions of subproblems are stored in a table so that these don’t have to recomputed. So Dynamic Programming is not useful when there are no common (overlapping) subproblems because there is no point storing the solutions if they are not needed again. For example, **Binary Search doesn’t have common subproblems**. But if we see the recursive program for Fibonacci Numbers, there are many subproblems which are solved again and again.
 
-> `/* recursive program for Fibonacci numbers */`
-> `int fib(int n)` 
-> `{` 
-> `if ( n <= 1 )` 
-> 	`return n;` 
-> `return fib(n-1) + fib(n-2);` 
-> `}`
+```
+/* recursive program for Fibonacci numbers */
+int fib(int n)
+{ 
+if ( n <= 1 )
+	return n; 
+return fib(n-1) + fib(n-2);
+}
+```
 
 ### 2) Optimal Substructure
 
