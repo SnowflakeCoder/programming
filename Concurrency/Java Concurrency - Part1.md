@@ -1,5 +1,7 @@
 ## Java Concurrency - Part1
 
+[TOC]
+
 ### Multithreading
 
 Multithreading means that you have **multiple threads of execution** inside the same application. A thread is like a separate CPU executing your application. Thus, a multithreaded application is like an application that has **multiple CPUs executing different parts of the code** at the same time. Usually **a single CPU will share its execution time among multiple threads**, switching between executing each of the threads for a given amount of time. It is also possible to have the threads of an application be **executed by different CPUs**. We need to use multiple threads for an application to be able to <u>utilize all of the CPUs or CPU cores</u>.
@@ -723,5 +725,7 @@ You may be tempted to always call notifyAll() instead notify(), but this is a **
 
 **Don't use global objects, string constants** etc. for wait() / notify() mechanisms. The problem is the JVM/Compiler **internally translates constant strings into the same object**.
 
+### References
 
+http://tutorials.jenkov.com/java-concurrency/index.html
 

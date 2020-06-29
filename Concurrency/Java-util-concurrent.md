@@ -767,3 +767,7 @@ AtomicReferenceArray array = new AtomicReferenceArray(source);
 AtomicReferenceArray<String> array = new AtomicReferenceArray<String>(source);
 ```
 
+### References
+
+http://tutorials.jenkov.com/java-util-concurrent/index.html
+
