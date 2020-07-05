@@ -1,4 +1,4 @@
-package com.snowflake.leetcode.subsets;
+package com.snowflake.subsets;
 
 import java.util.ArrayList;
 import java.util.List;
