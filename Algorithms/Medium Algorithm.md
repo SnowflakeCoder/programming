@@ -10,34 +10,34 @@
   - check for value > n and duplicate values.
 
 - ```java
-  	public static boolean uniqueArray(int[] arr) {
-    		for (int i = 0; i < arr.length; i++) {
-    			if (arr[i] != i+1) { // if index and value are not same swap.
-    				if (!swap(arr, i)) {
-    					return false;
-    				}
-    			}
-    		}
-    		return true;
-    	}
-    	private static boolean swap(int[] arr, int i) {
-    		if (arr[i] > arr.length) { // exceeds the arr.length
-    			return false;
-    		}
-    		int temp1 = arr[i];
-    		if (arr[temp1-1] == temp1) { // temp1 came twice. arr[i] & arr[temp1]
-    			return false;
-    		}
-    		// else swap and run swap again.
-    		int temp2 = arr[temp1 - 1];
-    		arr[i] = temp2;
-    		arr[temp1 - 1] = temp1;
-    		if (arr[i] == i+1) {
-    			return true;
-    		} else {
-    			return swap(arr, i);
-    		}
-    	}
+  public static boolean uniqueArray(int[] arr) {
+   		for (int i = 0; i < arr.length; i++) {
+   			if (arr[i] != i+1) { // if index and value are not same swap.
+   				if (!swap(arr, i)) {
+   					return false;
+   				}
+   			}
+   		}
+   		return true;
+   	}
+   	private static boolean swap(int[] arr, int i) {
+   		if (arr[i] > arr.length) { // exceeds the arr.length
+   			return false;
+   		}
+   		int temp1 = arr[i];
+   		if (arr[temp1-1] == temp1) { // temp1 came twice. arr[i] & arr[temp1]
+   			return false;
+   		}
+   		// else swap and run swap again.
+   		int temp2 = arr[temp1 - 1];
+   		arr[i] = temp2;
+   		arr[temp1 - 1] = temp1;
+   		if (arr[i] == i+1) {
+   			return true;
+   		} else {
+   			return swap(arr, i);
+   		}
+   	}
   ```
 
 - Time Complexity - O(n)
@@ -192,12 +192,13 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 - https://leetcode.com/problems/number-of-islands/
 
-- Input : mat[][] = {{**1, 1**, 0, 0, 0},		Output : 6
-						 {0, **1**, 0, 0, **1**},
-                     	  {**1**, 0, 0, **1, 1**},
-                     	  {0, 0, 0, 0, 0},
-                     	  {**1**, 0, **1**, 0, **1**} 
-  
+     - Input : Matrix[[]][][] =	  {{**1, 1**, 0, 0, 0},		
+          										{0, **1**, 0, 0, **1**},
+                          						{**1**, 0, 0, **1, 1**},
+                          						{0, 0, 0, 0, 0},
+                          						{**1**, 0, **1**, 0, **1**}}
+     - Output : 6
+
 - Use a **boolean matrix** with same size to **keep track of visited nodes**.
 
   - run countIslands() method on each node.
@@ -237,7 +238,13 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 ### Spiral Traverse
 
-![image-20200705192325827](C:\Users\arun.kumar.ms\AppData\Roaming\Typora\typora-user-images\image-20200705192325827.png)
+- Input Matrix => { { 1, 2, 3, 4 }, 
+
+  ​								{ 5, 6, 7, 8 }, 
+
+  ​								{ 9, 10, 11, 12 }, 
+
+  ​								{ 13, 14, 15, 16 } }
 
 **Output = [1, 2, 3, 4, 8, 12, 16, 15, 14, 13, 9, 5, 6, 7, 11, 10]**
 
@@ -270,4 +277,16 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 - Time Complexity - O(n). Need to traverse all the nodes once.
 
 - Space Complexity - O(n). Result will include all the nodes.
+
+
+
+
+
+
+
+
+
+
+
+
 
