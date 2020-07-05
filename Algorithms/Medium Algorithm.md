@@ -192,13 +192,15 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 - https://leetcode.com/problems/number-of-islands/
 
-     - Input : Matrix
-          												- **1, 1**, 0, 0, 0
-                      - 0, **1**, 0, 0, **1**
-                      - **1**, 0, 0, **1, 1**
-                      - 0, 0, 0, 0, 0
-                      - **1**, 0, **1**, 0, **1**
-     - Output : 6
+- Input : Matrix
+
+     - **1, 1**, 0, 0, 0
+     - 0, **1**, 0, 0, **1**
+     - **1**, 0, 0, **1, 1**
+     - 0, 0, 0, 0, 0
+     - **1**, 0, **1**, 0, **1**
+
+- Output : 6
 
 - Use a **boolean matrix** with same size to **keep track of visited nodes**.
 
