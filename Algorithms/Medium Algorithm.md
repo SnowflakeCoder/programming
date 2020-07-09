@@ -182,6 +182,12 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 - Space Complexity - O(1)
 
+### Longest Peak
+
+- Peak should have atleast length 3 and they are strictly increasing till they reach the peak and then they strictly decreasing.
+- Same numbers are not considered and peak cannot start from top and then decreasing.
+- Define a peak - A peak should be strictly greater than its adjacent numbers.
+
 ------
 
 ------
@@ -239,6 +245,8 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 - Space Complexity - O(n). need one extra matrix for tracking visited nodes.
 
+------
+
 ### Spiral Traverse
 
 - Input Matrix => 
@@ -259,7 +267,7 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 - ```java
   List<Integer> result = new ArrayList<>(arr.length*arr[0].length);
   int startRow = 0, endRow = arr.length -1, startCol = 0, endCol = arr[0].length-1;
-  while(startRow < endRow && startCol < endCol){
+  while(startRow < endRow && startCol < endCol){ // adding each perimeter.
       for(int i = startCol; i < endCol; i++){
           result.add(arr[startRow][i]); // adding first Row from the perimeter.
       }
