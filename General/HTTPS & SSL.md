@@ -61,11 +61,11 @@ SSL is the **standard security technology** for establishing an encrypted link b
 
 #### Advantage of https
 
-**Secure Communication**: https makes a secure connection between two systems.
-**Data Integrity**: provides **data integrity by encrypting the data**, so hackers cannot read or modify it.
-**Privacy and Security**: https protects the **privacy and security of website users** by preventing hackers to passively listen to communication between the browser and the server.
-**Faster Performance**: https increases the speed of data transfer compared to http by **encrypting and reducing the size of the data**.
-**SEO Ranking**: Use of https **increases SEO (Search Engine Optimization) ranking**. This ranking refers to your content's position on the search engine results pages (**SERPs**). In Google Chrome, Google shows the **Not Secure label** in the browser if users' data is collected over http.
+- **Secure Communication**: https makes a secure connection between two systems.
+- **Data Integrity**: provides **data integrity by encrypting the data**, so hackers cannot read or modify it.
+- **Privacy and Security**: https protects the **privacy and security of website users** by preventing hackers to passively listen to communication between the browser and the server.
+- **Faster Performance**: https increases the speed of data transfer compared to http by **encrypting and reducing the size of the data**.
+- **SEO Ranking**: Use of https **increases SEO (Search Engine Optimization) ranking**. This ranking refers to your content's position on the search engine results pages (**SERPs**). In Google Chrome, Google shows the **Not Secure label** in the browser if users' data is collected over http.
 
 #### How SSL works?
 
