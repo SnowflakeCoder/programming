@@ -1,11 +1,3 @@
-## Choosing the Best Database
-
-
-
-
-
-
-
 ## WhatsApp (Chat Application S/M)
 
 Design a **chat application** like a whatsapp or a facebook messenger
