@@ -1,3 +1,23 @@
+- [Choosing the Best Database](#choosing-the-best-database)
+  * [Three factors](#three-factors)
+  * [Caching Solution - Redis](#caching-solution---redis)
+  * [File Storage Options (Blob = S3+CDN)](#file-storage-options--blob---s3-cdn-)
+  * [Text Searching capabilities (elastic search and solar)](#text-searching-capabilities--elastic-search-and-solar-)
+    + [Support for Fuzzy search](#support-for-fuzzy-search)
+    + [Search Engine are Not Primary Data Source](#search-engine-are-not-primary-data-source)
+  * [Time Series Database (TSDB)](#time-series-database--tsdb-)
+  * [Analytics Requirements](#analytics-requirements)
+  * [Relational Database](#relational-database)
+  * [Document Database](#document-database)
+  * [Column Oriented Database(Columnar DB)](#column-oriented-database-columnar-db-)
+  * [Combination of Databases](#combination-of-databases)
+    + [E-commerce platform](#e-commerce-platform)
+    + [Reporting Application](#reporting-application)
+  * [Summary](#summary)
+  * [Reference](#reference)
+
+
+
 ## Choosing the Best Database
 
 Database is generally **do not impact your functional requirements** but the **non-functional** requirements are the ones which are impacted. The choice of database would impact how well your design can scale up to the requirements that are given as part of your non-functional requirements. 

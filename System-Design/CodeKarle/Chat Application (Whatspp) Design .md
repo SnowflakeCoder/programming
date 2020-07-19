@@ -1,3 +1,22 @@
+- [WhatsApp (Chat Application S/M)](#whatsapp--chat-application-s-m-)
+  * [Functional Requirements](#functional-requirements)
+  * [Non-functional requirements](#non-functional-requirements)
+  * [Scalability Numbers](#scalability-numbers)
+  * [Diagram](#diagram)
+  * [Main Components](#main-components)
+  * [One to One User flow](#one-to-one-user-flow)
+  * [Websocket Handler Cache](#websocket-handler-cache)
+  * [Message Status](#message-status)
+  * [Race Condition](#race-condition)
+  * [User device was offline](#user-device-was-offline)
+  * [Handle Group messages](#handle-group-messages)
+  * [Encryption](#encryption)
+  * [Uploading assets](#uploading-assets)
+  * [Components](#components)
+  * [Monitoring and Alerting](#monitoring-and-alerting)
+
+
+
 ## WhatsApp (Chat Application S/M)
 
 Design a **chat application** like a whatsapp or a facebook messenger
@@ -37,6 +56,8 @@ now let's look at some functional and non-functional requirements that this plat
 ![whatsapp-design.png](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/whatsapp-design.png?raw=true)
 
 Users can use mobiles, web browsers, smartwatches etc to connect to WhatsApp.
+
+### Main Components
 
 #### Websocket Handler
 
@@ -149,7 +170,7 @@ When using hashing there would be various problems like **duplicate hash outputs
 
 ### Components
 
-- **User App : **it could be a browser as well which talk to all of these below components.
+- **User App :** it could be a browser as well which talk to all of these below components.
 
 - **User Service :** A service which **owns the user profile information** like name, userID, profile picture and other user preferences. All of this data would be residing in a **clustered mysql (say userDB)**. All of those user profile information would also be **cached in Redis cluster** against a key (userID).
 
@@ -166,8 +187,8 @@ When using hashing there would be various problems like **duplicate hash outputs
 
 There are two kinds of events that are spawned.
 
-- **Events that are spawned by the app : **Example could be as soon as you turn the internet on the app would make a websocket connection and pull in some requests. Now that is not a user activity so that would not be captured in the last seen service.
-- **Events that are spawned by the users : ** but as soon as the person opens the app or closes the app or does anything within the context of an app those are actually the events that last seen service would be looking at.
+- **Events that are spawned by the app :** Example could be as soon as you turn the internet on the app would make a websocket connection and pull in some requests. Now that is not a user activity so that would not be captured in the last seen service.
+- **Events that are spawned by the users :** but as soon as the person opens the app or closes the app or does anything within the context of an app those are actually the events that last seen service would be looking at.
 
 All of those services are horizontally scalable so when your number of users or anything increases you just add more number of nodes and that should be able to handle itself.
 
