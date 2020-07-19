@@ -75,3 +75,10 @@ Let's build an **e-commerce platform** like an Amazon. Now when you are **managi
 
 let's say if you want to **build a reporting kind** of a thing which lets you query something like it get me all the users who have bought sugar in last five days. There are a lot of sellers selling different sugar alternates of different companies. So sugar would then be like a lot of item IDs.  On top of those lot of item IDs there must be lot of orders. As explained above orders would either be in Cassandra or MySQL. But if you are doing random queries where you might want to query on who bought sugar or who bought TV etc logically should be using a **documentDB**. So what you could do is you could store a **subset of order information** (basically store the querying part over there) into a **MongoDB** (documentDB). This querying part can be userID, orderID for a particular date range and on this database you could run a query which will return you a list of users and a list of orders and then you could take those orderIDs and query on both of these systems (Cassandra & MySQL) . So here we are using all the **three databases in combination** to provide various querying capabilities. So in any real world scenario you would have to use a combination of such databases to fulfill the functional and non-functional requirements that you have.
 
+### Summary
+
+![Database Choice.jpg](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/Database%20Choice.jpg?raw=true)
+
+### Reference
+
+https://www.youtube.com/watch?v=cODCpXtPHbQ

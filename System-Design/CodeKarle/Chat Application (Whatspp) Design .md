@@ -34,7 +34,7 @@ now let's look at some functional and non-functional requirements that this plat
 
 ### Diagram
 
-![img](https://raw.githubusercontent.com/SnowflakeCoder/programming/master/images/whatsapp-design.png)
+![whatsapp-design.png](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/whatsapp-design.png?raw=true)
 
 Users can use mobiles, web browsers, smartwatches etc to connect to WhatsApp.
 
