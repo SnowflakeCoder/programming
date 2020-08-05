@@ -6,7 +6,7 @@ Design an ecommerce application similar to Amazon.
 
 ## Functional Requirements
 
-- People should be **able to search** for whatever product they want to buy and along with searching we should also be able to tell them whether we can deliver it to them or not or if you are delivering then when should we be able to deliver it.
+- People should be **able to search** for whatever product they want to buy. Along with searching we should also be able to tell them whether we can deliver it to them or not and if you are delivering then when should we be able to deliver it.
 - There should be a concept of a **cart or a wishlist** so that people can add a particular item into a cart.
 - People should be able to check out which means making a payment and then completing the order.
 - People should be able to view all of their past orders, both delivered not been delivered also.
