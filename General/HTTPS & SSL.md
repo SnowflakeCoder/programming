@@ -77,7 +77,7 @@ SSL fundamentally works using  **two concepts**, asymmetric cryptography and sym
 
 Asymmetric cryptography (also known as **Asymmetric Encryption** or **Public Key Cryptography**) uses a **mathematically-related key pair** to encrypt and decrypt data. In a key pair, one key is shared with anyone who is interested in a communication. This is called **Public Key**. The other key in the key pair is kept secret and is called **Private Key**. In the asymmetric cryptography, the **data can be signed with a private key**, which can **only be decrypted using the related public key** in a pair.
 
-Here, the keys referred to a mathematical value and were **created using a mathematical algorithm which encrypts or decrypts the data**. SSL uses asymmetric cryptography to initiate the communication which is known as **SSL handshake**. Most commonly used **asymmetric key encryption algorithms** include EIGamal, RSA, DSA, Elliptic curve techniques and PKCS.
+Here, the keys referred to a mathematical value and were **created using a mathematical algorithm** which encrypts or decrypts the data. SSL uses asymmetric cryptography to initiate the communication which is known as **SSL handshake**. Most commonly used **asymmetric key encryption algorithms** include EIGamal, RSA, DSA, Elliptic curve techniques and PKCS.
 
 ##### Symmetric Cryptography
 

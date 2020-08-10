@@ -134,7 +134,7 @@ Parallel Garbage Collector is suitable on **multi-core machines** in cases where
 
 The G1 collector is a **parallel, concurrent**, and incrementally compacting **low-pause garbage collector**. This approach involves **segmenting the memory heap into multiple small regions** (typically 2048). Each region is marked as either young generation (further divided into **eden regions** or **survivor regions**) or old generation. This allows the GC to **avoid collecting the entire heap at once**, and instead approach the problem incrementally. It means that only a subset of the regions is considered at a time.
 
-G1 keep tracking of the **amount of live data that each region** contains. This information is used in determining the **regions that contain the most garbage**; so they are collected first. That’s why it is name garbage-first collection.
+G1 keep tracking of the **amount of live data that each region** contains. This information is used in determining the **regions that contain the most garbage**; so they are collected first. That’s why it is name **garbage-first collection**.
 
 Just like other algorithms, unfortunately, the compacting operation takes place using the **Stop the World approach**. But as per it’s design goal, you can **set specific performance goals** to it. You can configure the **pauses duration** e.g. no more than 10 milliseconds. Garbage-First GC will do its best to meet this goal with high probability (but not with certainty, that would be hard real-time due to **OS level thread management**).
 

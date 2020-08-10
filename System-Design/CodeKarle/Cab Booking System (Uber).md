@@ -93,3 +93,10 @@ On top of this Kafka cluster we can run few **spark streaming jobs** and save al
 
 
 
+
+
+
+
+## Reference
+
+https://www.youtube.com/watch?v=Tp8kpMe-ZKw

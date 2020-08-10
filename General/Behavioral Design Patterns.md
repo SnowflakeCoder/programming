@@ -1,670 +1,33 @@
-## Java Design Patterns
+# Behavioral Design Patterns
 
-Design patterns are just convenient ways of **reusing object-oriented code**. The idea behind design patterns is simple -- `write down and catalog common interactions between objects` that programmers have frequently found useful. Design patterns describe `how objects communicate without become entangled in each other’s data models and methods`.  Keep **objects minding their own business**. Design patterns are not just about the design of objects, but also **the design of simple, but elegant, methods of communication** between objects.
+Behavioral patterns are patterns that are specifically concerned with **communication between objects**.
 
- **Model-View- Controller framework** divided the user interface problem into three parts. The parts were referred to as a **data model** which contain the computational parts of the program, the **view**, which presented the user interface, and the **controller**, which interacted between the user and the view. Each of these parts is a separate object and each has its own rules for managing its data. Three objects `talking to each other using this restrained set of connections` is an example of a powerful design pattern.
+- The **Observer pattern** defines the way a number of classes can be **notified of a change**.
 
-The fundamental reason for using varies design patterns is to keep classes separated and prevent them from having to know too much about one another. There are a number of strategies that OO programmers use to achieve this separation, among them **encapsulation** and **inheritance**. Design Patterns suggests that you always Program to an interface and not to an implementation. The other major concept you should recognize is that of **object composition**. This is simply the construction of objects that contain others: encapsulation of several objects inside another one. Design Patterns favors object composition over inheritance. The new object can have the interface that is best for what you want to accomplish without having all the methods of the parent classes.
+- The **Mediator** defines how **communication between classes can be simplified** by using another class to keep all classes from having to know about each other.
 
-The fundamental reason for using varies design patterns is to `keep classes separated and prevent them from having to know too much about one another`. Few strategies that we used to achieve this separation are **encapsulation** and **inheritance**. Design Patterns also suggests that you always Program to an interface and not to an implementation. Another major concept is **object composition**. This is simply the construction of objects that contain others: encapsulation of several objects inside another one. `Design Patterns favors object composition over inheritance`. The new object can have the interface that is best for what you want to accomplish without having all the methods of the parent classes. 
+- The **Chain of Responsibility** allows an even further **decoupling between classes**, by **passing a request** between classes until it is recognized.
+
+- The **Template pattern** provides an **abstract definition** of an algorithm.
+
+- The **Interpreter** provides a definition of how to **include language elements** in a program.
+
+- The **Strategy pattern** encapsulates an algorithm inside a class.
+
+- The **Visitor pattern** adds function to a class.
+
+- The **State pattern** provides a memory for a class’s instance variables.
+
+- The **Command pattern** provides a simple way to **separate execution of a command** from the interface environment that produced it.
+
+- The **Iterator pattern** formalizes the way we **move through a list of data** within a class. 
+
 
 ------
 
-Design patterns are divided into three types **creational, structural and behavioral**.
+------
 
-➢  **Creational patterns** `create objects` for you, rather than having you instantiate objects directly. This gives your program more flexibility in deciding which objects need to be created for a given case.
-
-➢  Structural patterns help you `compose groups of objects into larger structures`, such as complex user interfaces or accounting data.
-
-➢  Behavioral patterns help you define the `communication between objects` in your system and how the flow is controlled in a complex program.
-
-### Creational Patterns
-
-Creational patterns deal with the `best way to create instances of objects` because your <u>program should not depend on how objects are created and arranged</u>. In many cases, the exact nature of the object that is created could vary with the needs of the program and `abstracting the creation process` into a special “creator” class can make your program more flexible and general.
-
-➢  The **Factory Method** provides a simple decision making class that `return an instance of a several possible subclasses of an abstract base class depending on the data that are provided`.
-
-➢  The **Abstract Factory Method** provides an interface to `create and return one of several families of related objects`.
-
-➢  The **Builder Pattern** `separates the construction of a complex object` from its representation, so that several different representations can be created depending on the needs of the program.
-
-➢  The **Prototype Pattern** starts with an initialized and instantiated class and `copies or clones it to make new instances rather than creating new instances`.
-
-➢  The **Singleton Pattern** is a class of which there can be `no more than one instance`. It provides a single global point of access to that instance.
-
-  
-
-**SUMMARY OF CREATIONAL PATTERNS**
-
-➢  
-
-➢  The Abstract Factory Pattern is used to return one of several groups of classes. In some cases it actually returns a Factory for that group of classes.
-
-➢  The Builder Pattern assembles a number of objects to make a new object, based on the data with which it is presented. Frequently, the choice of which way the objects are assembled is achieved using a Factory.
-
-➢  The Prototype Pattern copies or clones an existing class rather than creating a new instance when creating new instances is more expensive.
-
-➢  The Singleton Pattern is a pattern that insures there is one and only one instance of an object, and that it is possible to obtain global access to that one instance.
-
- 
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-**THE FACTORY PATTERN**
-
- 
-
-A Factory pattern is one that returns an instance of one of several possible classes depending on the data provided to it. Usually all of the classes it returns have a common parent class and common methods, but each of them performs a task differently and is optimized for different kinds of data.
-
-The Factory class decides which of these subclasses to return depending on the arguments you give it. Which one it returns doesn't matter to the programmer since they all have the same methods, but different implementations. How it decides which one to return is entirely up to the factory.
-
- 
-
-The fundamental principle of Factory patterns is you create an abstraction which decides which of several possible classes to return and returns one. Then you call the methods of that class instance without ever knowing which derived class you are actually using. This approach keeps the issues of data dependence separated from the classes’ useful methods.
-
- 
-
-**When to Use a Factory Pattern**
-
-➢  A class can’t anticipate which kind of class of objects it must create.
-
-➢  A class uses its subclasses to specify which objects it creates.
-
-➢  You want to localize the knowledge of which class gets created.
-
- 
-
-**THE ABSTRACT FACTORY PATTERN**
-
- 
-
-The Abstract Factory pattern is one level of abstraction higher than the factory pattern. You can use this pattern when you want to return one of several related classes of objects, each of which can return several different objects on request. In other words, the Abstract Factory is a factory object that returns one of several factories.
-
- 
-
-One classic application of the abstract factory is the case where your system needs to support multiple “look-and-feel” user interfaces, such as Windows-9x, Motif or Macintosh. You tell the factory that you want your program to look like Windows and it returns a GUI factory which returns Windows-like objects. Then when you request specific objects such as buttons, check boxes and windows, the GUI factory returns Windows instances of these UI components.
-
- 
-
-**Consequences of Abstract Factory**
-
- 
-
-One of the main purposes of the Abstract Factory is that it isolates the concrete classes that are generated. The actual class names of these classes are hidden in the factory and need not be known at the client level at all. While all of the classes that the Abstract Factory generates have the same base class, there is nothing to prevent some derived classes from having additional methods that differ from the methods of other classes. This presents a problem because the client doesn't know whether it can call a class method unless you know the derived class is one that allows those methods. This problem has two solutions : you can either define all of the methods in the base class, even if they don’t always have a actual function, or you can test to see which kind of class you have (using instance of).
-
- 
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-**THE SINGLETON PATTERN**
-
- 
-
-The Singleton pattern is a case where you need to make sure that there can be one and only one instance of a class. For example, your system can have only one window manager or a single point of access to a database engine.
-
- 
-
-**Creating Singleton Using a Static Method**
-
-The easiest way is using a static method to issue and keep track of instances. To prevent instantiating the class more than once, we make the constructor private so an instance can only be created from within the static method of the class.
-
- 
-
-**Static Classes as Singleton Patterns**
-
-There already is a kind of Singleton class in the standard Java class libraries: the **Math class**. This is a class that is declared final and all methods are declared static. The purpose of the Math class is to wrap a number of common mathematical functions such as sin and log in a class-like structure, since the Java language does not support functions that are not methods in a class. You can use the same approach to a Singleton pattern, making it a final class. You can’t create any instance of classes like Math, and can only call the static methods directly in the existing final class.
-
- 
-
-The disadvantage of final class approach is that if you would like to drop the restrictions of Singleton status, this is easier to do it in the static method approach. But in static approach we’d have a lot of reprogramming to do to make it allow multiple instances.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
-**THE BUILDER PATTERN**
-
- 
-
-This is a little more than just a Factory pattern, because we aren’t returning objects which are simple descendents of a base class. The Builder Pattern assembles a number of objects in various ways depending on the data. The main difference is that while the Abstract Factory returns a family of related classes (using data decide **which class** to return), the Builder constructs a complex object step by step depending on the data presented to it (decide **how to** make using the data). Some cases we use builder class inside a factory class to return a complex object. Here factory decide which builder to call and builder decide how to make a complex object using the data.
-
- 
-
-For example We can use our Builder class to generate a UI that vary depends on the number of items to be displayed, and yet have the same methods for returning the results (getUI()).
-
- 
-
-**Consequences of the Builder Pattern**
-
-➢  A Builder lets you vary the internal representation of the product it builds. It also hides the details of how the product is assembled.
-
-➢  Each specific builder is independent of the others and of the rest of the program. This improves modularity and makes the addition of other builders relatively simple.
-
-➢  Because each builder constructs the final product step-by-step, depending on the data, you have more control over each final product that a Builder constructs.
-
- 
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
-**THE PROTOTYPE PATTERN**
-
- 
-
-The Protoype pattern is used when creating an instance of a class is very time-consuming or complex in some way. Then, rather than creating more instances, you make copies of the original instance, modifying them as appropriate. Prototypes can also be used whenever you need classes that differ only in the type of processing they offer. We clone the data because creating a new class instance would be much slower, and we want to keep the data in both forms.
-
- 
-
-In Java the clone method is a **shallow copy** of the original class. In other words, the references to the data objects are copies, but they refer to the same underlying data. Thus, any operation we perform on the copied data will also occur on the original data in the Prototype class. If you want to make a **deep copy** of the data, use the serializable interface. A class is said to be serializable if you can write it out as a stream of bytes and read those bytes back in to reconstruct the class. This is how Java remote method invocation (RMI) is implemented.
-
- 
-
-**Consequences of the Prototype Pattern**
-
- 
-
-Using the Prototype pattern, you can add and remove classes at run time by cloning them as needed. You can revise the internal data representation of a class at run time based on program conditions. You can also specify new objects at run time without creating a proliferation of classes and inheritance structures.
-
- 
-
-One difficulty in implementing the Prototype pattern in Java is that if the classes already exist, you may not be able to change them to add the required clone or deepClone methods. The deepClone method can be particularly difficult if all of the class objects contained in a class cannot be declared to implement Serializable. In addition, classes that have circular references to other classes cannot really be cloned.
-
- 
-
-Finally, the idea of having prototype classes to copy implies that you have sufficient access to the data or methods in these classes to change them after cloning. This may require adding data access methods to these prototype classes so that you can modify the data once you have cloned the class.
-
- 
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-Structural Patterns
-
- 
-
-Structural patterns describe how classes and objects can be combined to form larger structures. The difference between **class patterns** and **object patterns** is that class patterns describe how inheritance can be used to provide more useful program interfaces. Object patterns, on the other hand, describe how objects can be composed into larger structures using object composition, or the inclusion of objects within other objects.
-
- 
-
-**Adapter pattern** can be used to make one class interface match another to make programming easier. The **Composite pattern**, for instance, is a composition of objects, each of which may be either simple or itself a composite object. The **Proxy pattern** is frequently a simple object that takes the place of a more complex object that may be invoked later, for example when the program runs in a network environment.
-
- 
-
-The **Flyweight pattern** is a pattern for sharing objects, where each instance does not contain its own state, but stores it externally. This allows efficient sharing of objects to save space, when there are many instances, but only a few different types.
-
- 
-
-The **Façade pattern** is used to make a single class represent an entire subsystem, and the **Bridge pattern** separates an object’s interface from its implementation, so you can vary them separately. **Decorator pattern** can be used to add responsibilities to objects dynamically.
-
- 
-
- 
-
- 
-
-**SUMMARY OF STRUCTURAL PATTERNS**
-
-➢  The **Adapter pattern**, used to change the interface of one class to that of another one.
-
-➢  The **Bridge pattern**, intended to keep the interface to your client program constant while allowing you to change the actual kind of class you display or use. You can then change the interface and the underlying class separately.
-
-➢  The **Composite pattern**, a collection of objects, any one of which may be either itself a Composite, or just a primitive object.
-
-➢  The **Decorator pattern**, a class that surrounds a given class, adds new capabilities to it, and passes all the unchanged methods to the underlying class.
-
-➢  The **Façade pattern**, which groups a complex object hierarchy and provides a new, simpler interface to access those data.
-
-➢  The **Flyweight pattern**, which provides a way to limit the proliferation of small, similar class instances by moving some of the class data outside the class and passing it in during various execution methods.
-
-➢  The **Proxy pattern**, which provides a simple place-holder class for a more complex class which is expensive to instantiate.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-**THE ADAPTER PATTERN**
-
- 
-
-The Adapter pattern is used to convert the programming interface of one class into that of another. We use adapters whenever we want unrelated classes to work together in a single program. The concept of an adapter is thus pretty simple; we **write a class that has the desired interface** and then make it communicate with the class that has a different interface.
-
- 
-
-There are two ways to do this: by **inheritance**, and by **object composition**. **In both case we write a class that implements the desired interface**. In the first case, we derive a new class from the nonconforming one and add the methods we need to make the new derived class match the desired interface. The other way is to include the original class inside the new one and create the methods to translate calls within the new class. These two approaches, termed **class adapters** and **object adapters** are both fairly easy to implement in Java. In class based adapter some of the methods refer to the enclosing class instead of an encapsulated class.
-
- 
-
-There are also some differences between the class and the object adapter approaches.
-
- 
-
-**The Class adapter**
-
-➢  Won’t work when we want to adapt a class and all of its subclasses, since you define the class it derives from when you create it.
-
-➢  Lets the adapter change some of the adapted class’s methods but still allows the others to be used unchanged.
-
-**An Object adapter**
-
-➢  Could allow subclasses to be adapted by simply passing them in as part of a constructor.
-
-➢  Requires that you specifically bring any of the adapted object’s methods to the surface that you wish to make available.
-
- 
-
-**Two Way Adapters**
-
- 
-
-The two-way adapter is a clever concept that allows an object to be viewed by different classes. This is most easily carried out using a **class adapter**, since all of the methods of the base class are automatically available to the derived class. However, this can only work if you do not override any of the base class’s methods with ones that behave differently. For an ideal two-way adapter the two classes shouldn't have any methods in common.
-
- 
-
-**Pluggable Adapters**
-
- 
-
-A pluggable adapter is one that adapts dynamically to one of several classes. Of course, the adapter can only adapt to classes it can recognize, and usually the adapter decides which class it is adapting based on differing constructors or setParameter methods.
-
- 
-
-Java has yet another way for adapters to recognize which of several classes it must adapt to: reflection. You can use reflection to discover the names of public methods and their parameters for any class. For any arbitrary object you can use the **getClass()** method to obtain its class and the **getMethods()** method to obtain an array of the method names and then it is easier if you know the name of the method you are looking for and simply want to find out which arguments that method requires. From that method signature, you can then deduce the adapting you need to carry out. However, since Java is a strongly typed language, it is more likely that you would simply invoke the adapter using one of several constructors, where each constructor is tailored for a specific class that needs adapting.
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
-**THE BRIDGE PATTERN**
-
- 
-
-The Bridge pattern is used to separate the interface of a class from its implementation, so that either can be varied separately. At first sight, the bridge pattern looks much like the Adapter pattern, in that a class is used to convert one kind of interface to another. However, the intent of the Adapter pattern is to make one or more classes’ interfaces look the same as that of a particular class. The Bridge pattern is designed to separate a class’s interface from its implementation, so that you can vary or replace the implementation without changing the client code.
-
- 
-
-**Example**
-
-Suppose that we have a program that displays a list of products and we need to produce two kinds of displays from our product data, a customer view that is just the list of products (list view class), and an executive view which also shows the number of units shipped (table view class).
-
- 
-
-Now suppose that we need to make some changes in the way these lists display the data. For example, you might want to have the products displayed in alphabetical order. In order to continue with this approach, you’d need to either modify or subclass both of these display classes. This can quickly get to be a maintenance nightmare, especially if more than two such displays eventually are needed. So rather than deriving new classes whenever we need to change these displays further, let’s build a single bridge that does this work for us. We want the bridge class to return an appropriate visual component from our product data.
-
- 
-
-When we design a bridge class, we have to decide how the bridge will determine which of the several classes it is to instantiate. It could decide based on the values or quantity of data to be displayed, or it could decide based on some simple constants.
-
- 
-
-**Consequences of the Bridge Pattern**
-
-➢  The Bridge pattern is intended to keep the interface to your client program constant while allowing you to change the actual kind of class you display or use. This can prevent you from recompiling a complicated set of user interface modules, and only require that you recompile the bridge itself and the actual end display class.
-
-➢  You can extend the implementation class and the bridge class separately, and usually without much interaction with each other.
-
-➢  You can hide implementation details from the client program much more easily.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
-**THE FAÇADE PATTERN**
-
- 
-
-In design pattern terminology, the Façade is a way of hiding a complex system inside a simpler interface, while Decorator adds function by wrapping a class. The Façade pattern allows you to simplify the complexity by providing a simplified interface to the subsystems. This simplification may in some cases reduce the flexibility of the underlying classes, but usually provides all the function needed for all but the most sophisticated users. These users can still, of course, access the underlying classes and methods.
-
- 
-
-**Consequences of the Façade**
-
-The Façade pattern shields clients from complex subsystem components and provides a simpler programming interface for the general user. However, it does not prevent the advanced user from going to the deeper, more complex classes when necessary. In addition, the Façade allows you to make changes in the underlying subsystems without requiring changes in the client code, and reduces compilation dependencies.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
-**THE COMPOSITE PATTERN**
-
-A component can be an individual object or it may represent a collection of objects. The Composite pattern is designed to accommodate both cases. You can use the Composite to build part-whole hierarchies or to construct data representations of trees. In summary, a composite is a collection of objects, any one of which may be either a composite, or just a primitive object.
-
- 
-
-Design Patterns suggests that each element should have the same interface, whether it is a composite or a primitive element. The problem is to have a single, simple interface to access all the objects in a composite, and the ability to distinguish between nodes and leaves. For example, every node or leaf can return an Enumeration of the children. If there are no children, the hasMoreElements() method returns false at once.
-
- 
-
-**Consequences of the Composite Pattern**
-
-The Composite pattern allows you to define a class hierarchy of simple objects and more complex composite objects so that they appear to be the same to the client program. Because of this simplicity, the client can be that much simpler, since nodes and leaves are handled in the same way. The Composite pattern also makes it easy for you to add new kinds of components to your collection, as long as they support a similar programming interface. On the other hand, this has the disadvantage of making your system overly general. You might find it harder to restrict certain classes, where this would normally be desirable. For example, Nodes have children and can have children added to them, while leaves do not have children, and in some implementations may be prevented from having children added to them.
-
- 
-
-The composite is essentially a singly-linked tree, in which any of the objects may themselves be additional composites. Normally, these objects do not remember their parents and only know their children. However, it is perfectly possible for any composite element to have its parent also. This simplifies searching for particular members and moving up the tree when needed.
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
-**THE PROXY PATTERN**
-
-The Proxy pattern is used when you need to represent a complex object by a simpler one. If creating an object is expensive in time or computer resources, Proxy allows you to postpone this creation until you need the actual object. A Proxy usually has the same methods as the object it represents, and once the object is loaded, it passes on the method calls from the Proxy to the actual object. There are several cases where a Proxy can be useful:
-
-➢  If an object, such as a large image, takes a long time to load.
-
-➢  If the object is on a remote machine and loading it over the network may be slow, especially during peak network load periods.
-
-➢  If the object has limited access rights, the proxy can validate the access permissions for that user.
-
- 
-
-Proxies can also be used to distinguish between requesting an instance of an object and the actual need to access it. For example, program initialization may set up a number of objects which may not all be used right away. In that case, the proxy can load the real object only when it is needed. Let’s consider the case of a large image that a program needs to load and display. When the program starts, there must be some indication that an image is to be displayed so that the screen lays out correctly, but the actual image display can be postponed until the image is completely loaded. An image proxy can note the image and begin loading it in the background, while drawing a simple rectangle or other symbol to represent the image’s extent on the screen before it appears. The proxy can even delay loading the image at all until it receives a paint request, and only then begin the process.
-
- 
-
-**Copy-on-Write**
-
-You can also use proxies to keep copies of large objects that may or may not change. If you create a second instance of an expensive object, a Proxy can decide there is no reason to make a copy yet. It simply uses the original object. Then, if the program makes a change in the new copy, the Proxy can copy the original object and make the change in the new instance. This can be a great time and space saver when objects do not always change after they are instantiated.
-
- 
-
-**Comparison with Related Patterns**
-
-Both the Adapter and the Proxy constitute a thin layer around an object. However, Adapter provides a different interface for an object, while the Proxy provides the same interface for the object, but interposes itself where it can save processing effort. A Decorator also has the same interface as the object it surrounds, but its purpose is to add additional function to the original object. A proxy, by contrast, controls access to the contained class.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
-**THE DECORATOR PATTERN**
-
- 
-
-The Decorator pattern provides us with a way to modify the behavior of individual objects **without having to create a new derived class**. For example, we wanted to draw a special border around a button. So we create a Decorator class that decorates the buttons. Then we derive any number of specific Decorators from the main Decorator class, each of which performs a specific kind of decoration.
-
- 
-
-In order to decorate a button, the Decorator has to receive the paint method calls and forward calls to other useful graphic methods to the object that it is decorating. This is another case where object containment is favored over object inheritance. The decorator contains the object it is decorating. It may intercept some method calls, perform some additional computation and then may pass them on to the underlying object it is decorating.
-
- 
-
-The class **FilterInputStream** itself simply overrides all methods of InputStream with versions that pass all requests to the underlying input stream. Subclasses of FilterInputStream may further override some of these methods as well as provide additional methods and fields. The FilterInputStream class is thus a Decorator that can be wrapped around any input stream class. It is essentially an abstract class that doesn’t do any processing, but provides a layer where the relevant methods have been duplicated. It normally forwards these method calls to the enclosed parent stream class. The classes derived from FilterInputStream include
-
-➢  **BufferedInputStream** : Adds buffering to stream so that every call does not cause I/O to occur.
-
-➢  **CheckedInputStream** : Maintains a checksum of bytes as they are read.
-
-➢  **DataInputStream** : Reads primitive types (Long, Boolean, Float, etc.) from the input stream.
-
-➢  **DigestInputStream** : Computes a MessageDigest of any input stream.
-
-➢  **InflaterInputStream** : Implements methods for uncompressing data.
-
-➢  **PushbackInputStream** Provides a buffer where data can be “unread,” if during parsing you discover you need to back up.
-
- 
-
-These **decorators can be nested**, so that a pushback, buffered input stream is quite possible.
-
- 
-
-**Decorators, Adapters and Composites**
-
-Adapters also seem to “decorate” an existing class. However, their function is to change the interface of one or more classes to one that is more convenient for a particular program. Decorators add methods to particular instances of classes, rather than to all of them. You could also imagine that a composite consisting of a single item is essentially a decorator. Once again, however, the intent is different
-
- 
-
-**Consequences of the Decorator Pattern**
-
-The Decorator pattern provides a more flexible way to add responsibilities to a class than by using inheritance, since it can add these responsibilities to selected instances of the class. It also allows you to customize a class without creating subclasses high in the inheritance hierarchy. Design Patterns points out **two disadvantages** of the Decorator pattern.
-
-➢  A Decorator and its enclosed component are not identical. Thus tests for object type will fail.
-
-➢  Decorators can lead to a system with “lots of little objects” that all look alike to the programmer trying to maintain the code. This can be a maintenance headache.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
-**THE FLYWEIGHT PATTERN**
-
- 
-
-There are cases in programming where you need to generate a very large number of small class instances to represent data. Sometimes you can greatly reduce the number of different classes that you need to instantiate if you can recognize that the instances are fundamentally the same except for a few parameters. If you can move those variables outside the class instance and pass them in as part of a method call, the number of separate instances can be greatly reduced.
-
- 
-
-The Flyweight design pattern provides an approach for handling such classes. It refers to the instance’s **intrinsic data** that makes the instance unique, and the **extrinsic data** which is passed in as arguments. The Flyweight is appropriate for small, fine-grained classes like individual characters or icons on the screen.
-
- 
-
-Flyweights are sharable instances of a class. The number of instances that are allocated must be decided as the class instances are needed, and this is usually accomplished with a FlyweightFactory class. This factory class usually is a Singleton, since it needs to keep track of whether or not a particular instance has been generated yet. It then either returns a new instance or a reference to one it has already generated. To decide if some part of your program is a candidate for using Flyweights, consider whether it is possible to remove some data from the class and make it extrinsic. If this makes it possible to reduce greatly the number of different class instances your program needs to maintain, this might be a case where Flyweights will help.
-
- 
-
-For example, if you are drawing a series of icons on the screen in a folder window, where each represents a person or data file, it does not make sense to have an individual class instance for each of them that remembers the person’s name and the icon’s screen position. Typically these icons are one of a few similar images and the position where they are drawn is calculated dynamically based on the window’s size in any case.
-
- 
-
-In another example in Design Patterns, each character in a font is represented as a single instance of a character class, but the positions where the characters are drawn on the screen are kept as external data so that there needs to be only one instance of each character, rather than one for each appearance of that character.
-
- 
-
-**Sharable Objects**
-
- 
-
-Sharable objects are much like Flyweights, although the purpose is somewhat different. When you have a very large object containing a lot of complex data, such as tables or bitmaps, you would want to minimize the number of instances of that object. Instead, in such cases, you’d return one instance to every part of the program that asked for it and avoid creating other instances.
-
- 
-
-A problem with such sharable objects occurs when one part of a program wants to change some data in a shared object. You then must decide whether to change the object for all users, prevent any change, or create a new instance with the changed data. If you change the object for every instance, you may have to notify them that the object has changed.
-
- 
-
-Sharable objects are also useful when you are referring to large data systems outside of Java, such as databases. The Database class could be a candidate for a sharable object. We might not want a number of separate connections to the database from different program modules, preferring that only one be instantiated. However, should several modules in different threads decide to make queries simultaneously, the Database class might have to queue the queries or spawn extra connections.
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
- 
-
- 
-
-Behavioral Patterns
-
- 
-
-Behavioral patterns are those patterns that are most specifically concerned with communication between objects.
-
- 
-
-➢  The **Observer pattern** defines the way a number of classes can be notified of a change.
-
-➢  The **Mediator** defines how communication between classes can be simplified by using another class to keep all classes from having to know about each other.
-
-➢  The **Chain of Responsibility** allows an even further decoupling between classes, by passing a request between classes until it is recognized.
-
-➢  The **Template pattern** provides an abstract definition of an algorithm.
-
-➢  The **Interpreter** provides a definition of how to include language elements in a program.
-
-➢  The **Strategy pattern** encapsulates an algorithm inside a class.
-
-➢  The **Visitor pattern** adds function to a class.
-
-➢  The **State pattern** provides a memory for a class’s instance variables.
-
-➢  The **Command pattern** provides a simple way to separate execution of a command from the interface environment that produced it.
-
-➢  The **Iterator pattern** formalizes the way we move through a list of data within a class.
-
- 
-
- 
-
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
-**CHAIN OF RESPONSIBILITY**
+## CHAIN OF RESPONSIBILITY
 
  
 
@@ -722,23 +85,11 @@ The most obvious example of the Chain of Responsibility is the class inheritance
 
 ➢  Finally, since Java can not provide multiple inheritance, the basic Chain class needs to be an interface rather than an abstract class, so that the individual objects can inherit from another useful hierarchy. The disadvantage of this approach is that you often have to implement the linking, sending and forwarding code in each module separately.
 
- 
+------
 
- 
+------
 
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
-**THE COMMAND PATTERN**
+## THE COMMAND PATTERN
 
  
 
@@ -776,41 +127,18 @@ The main disadvantage of the Command pattern is a proliferation of little classe
 
 Another of the main reasons for using Command design patterns is that they provide a convenient way to store and execute an Undo function. Each command object can remember what it just did and restore that state when requested to do so if the computational and memory requirements are not too overwhelming.
 
- 
+------
 
- 
+------
 
- 
+## THE INTERPRETER PATTERN
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
- 
-
-**THE INTERPRETER PATTERN**
-
- 
-
-Some programs benefit from having a language to describe operations they can perform. The Interpreter pattern generally describes defining a grammar for that language and using that grammar to interpret statements in that language. When a program presents a number of different, but somewhat similar cases it can deal with, it can be advantageous to use a simple language to describe these cases and then have the program interpret that language.
-
- 
+Some programs benefit from **having a language to describe operations** they can perform. The Interpreter pattern generally describes **defining a grammar for that language** and using that grammar to interpret statements in that language. When a program presents a number of different, but somewhat similar cases it can deal with, it can be advantageous to use a simple language to describe these cases and then have the program interpret that language.
 
 One of the problems we must deal with is how to recognize when a language can be helpful. There are two general places where languages are applicable:
 
- 
-
-\1. When the program must parse an algebraic string. The program is asked to carry out its operations based on a computation where the user enters an equation of some sort. This frequently occurs in mathematical-graphics programs, where the program renders a curve or surface based on any equation it can evaluate.
-
- 
-
-\2. When the program must produce varying kinds of output. Consider a program that can display columns of data in any order and sort them in various ways based on simple user inputs.
-
- 
+1. When the program must parse an algebraic string. The program is asked to carry out its operations based on a computation where the user enters an equation of some sort. This frequently occurs in mathematical-graphics programs, where the program renders a curve or surface based on any equation it can evaluate.
+2. When the program must produce varying kinds of output. Consider a program that can display columns of data in any order and sort them in various ways based on simple user inputs.
 
 **Interpreting the Language**
 
@@ -842,23 +170,13 @@ When you have to have a way to specify the order of sequential operations, a lan
 
 programming problems.
 
- 
 
- 
 
- 
+------
 
- 
+------
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
- 
-
- 
-
- 
-
-**THE ITERATOR PATTERN**
+## THE ITERATOR PATTERN
 
  
 
@@ -906,11 +224,13 @@ Iterators, or in our case Enumerations, are also an excellent way to move throug
 
  
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
  
 
-**THE MEDIATOR PATTERN**
+------
+
+------
+
+## THE MEDIATOR PATTERN
 
  
 
@@ -950,25 +270,21 @@ One further operation that is best delegated to the Mediator is the initializati
 
 The Mediator pattern acts as a kind of **Observer pattern**, observing changes in the Colleague elements. Another approach is to have a single interface to your Mediator, and pass that method various constants or objects which tell the Mediator which operations to perform. In the same fashion, you could have a single Colleague interface that each Colleague would implement, and each Colleague would then decide what operation it was to carry out.
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
+ 
 
  
 
-**THE MEMENTO PATTERN**
+------
 
- 
+------
 
-Suppose you would like to save the internal state of an object so you can restore it later. Ideally, it should be possible to save and restore this state without making the object itself take care of this task, and **without violating encapsulation**. This is the purpose of the Memento pattern. This sort of information saving and restoration is common in systems that need to **support Undo commands**.
+## THE MEMENTO PATTERN
 
- 
+Suppose you would like to save the internal state of an object so you can restore it later. Ideally, it should be possible to save and restore this state without making the object itself take care of this task, and **without violating encapsulation**. This is the purpose of the Memento pattern. This sort of information **saving and restoration** is common in systems that need to **support Undo commands**.
 
 We usually expect data inside an object to be private and encapsulated from the outside world. The Memento pattern attempts to solve this problem by having privileged access to the state of the object you want to save. Other objects have only a more restricted access to the object, thus preserving their encapsulation.
 
- 
-
 This pattern defines three roles for objects:
-
- 
 
 ➢  The **Originator** is the object whose state we want to save.
 
@@ -1006,13 +322,15 @@ While supporting undo/redo operations is one significant use of the Memento patt
 
  
 
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
+  
 
  
 
-**THE OBSERVER PATTERN**
+------
+
+------
+
+## THE OBSERVER PATTERN
 
  
 
@@ -1064,13 +382,15 @@ When one client makes a change in the underlying data, you need to decide which 
 
 Finally, you can specify the kind of notification you choose to send by defining a number of update methods for the Observers to receive depending on the type or scope of change. In some cases, the clients will thus be able to ignore some of these notifications.
 
- 
-
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
+  
 
  
 
-**THE STATE PATTERN**
+------
+
+------
+
+## THE STATE PATTERN
 
 The State pattern is used when you want to have an enclosing class switch between a number of related contained classes, and pass method calls on to the current contained class. Design Patterns suggests that the State pattern switches between internal classes in such a way that the enclosing object appears to change its class. Many programmers have had the experience of creating a class which performs slightly different computations or displays different information based on the arguments passed into the class. This frequently leads to some sort of switch or if-else statements inside the class that determine which behavior to carry out. It is this inelegance that the State pattern seeks to replace.
 
@@ -1118,13 +438,11 @@ The transition between states can be specified internally or externally. In our 
 
  
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
+------
 
- 
+------
 
- 
-
-**THE TEMPLATE PATTERN**
+## THE TEMPLATE PATTERN
 
  
 
@@ -1148,23 +466,15 @@ The first significant point is that your base class may only define some of the 
 
  
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
-
  
 
  
 
- 
+------
 
- 
+------
 
- 
-
- 
-
- 
-
-**THE STRATEGY PATTERN**
+## THE STRATEGY PATTERN
 
  
 
@@ -1200,77 +510,62 @@ Strategy allows you to select one of several algorithms dynamically. These algor
 
  
 
-***\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\**\***
+------
 
- 
+------
 
-**THE VISITOR PATTERN**
-
- 
+## THE VISITOR PATTERN
 
 The Visitor pattern **creates an external class to act on data in other classes**. This is useful if there are a fair number of instances of a small number of classes and you want to perform some operation that involves all or most of them.
 
- 
+**What does visiting mean?**
 
-**what does visiting mean?**
+In the Visitor case, visiting each class means that you are calling a method(**accept** method) already installed for this purpose. The accept method has **one argument: the instance of the visitor**, and in return, it **calls the visit method** of the Visitor, **passing itself as an argument**. In this way, the Visitor object receives a reference to each of the instances, one by one, and can then call its public methods to obtain data, perform the required actions. Every object that you want to visit must have the following method:
 
-There is only one way that an outside class can gain access to another class, and that is by calling its public methods. In the Visitor case, visiting each class means that you are calling a method already installed for this purpose, called **accept**. The accept method has one argument: the instance of the visitor, and in return, it calls the visit method of the Visitor, passing itself as an argument. In this way, the Visitor object receives a reference to each of the instances, one by one, and can then call its public methods to obtain data, perform calculations, generate reports, or just draw the object. Every object that you want to visit must have the following method:
-
+```java
 public void accept(Visitor v)
-
 {
-
-v.visit(this);  //call visitor method
-
+	v.visit(this);  //call visitor method
 }
-
- 
+```
 
 **When to Use the Visitor Pattern**
 
-You should consider using a Visitor pattern when you want to perform an operation on the data contained in a number of objects that have different interfaces. Visitors are also valuable if you have to perform a number of unrelated operations on these classes. On the other hand, Visitors are a good choice only when you do not expect many new classes to be added to your program. Notice that there is no indication what the Visitor does with each class in either the client classes or the abstract Visitor class. We can in fact write a whole lot of visitors that do different things to the classes in our program.
-
- 
+You should consider using a Visitor pattern when you want to **perform an operation on the data contained in a number of objects that have different interfaces**. Visitors are also valuable if you have to **perform a number of unrelated operations** on these classes. On the other hand, Visitors are a good choice only when you do not expect many new classes to be added to your program. Notice that there is no indication what the Visitor does with each class in either the client classes or the abstract Visitor class. We can in fact write a whole lot of visitors that do different things to the classes in our program.
 
 **Sample Code**
 
 We have an Employee object which maintains a record of the employee’s name, salary, vacation taken and number of sick days taken. Now we want to prepare a report of the number of vacation that all employees have taken so far this year. We could write some code in the client to sum the results of calls to each Employee’s getVacDays function, or we could put this function into a Visitor. But your base Visitor class needs to have a suitable abstract visit method for each kind of class in your program. In this example, we only have Employees, so our basic abstract Visitor class is just
 
+```java
 public abstract class Visitor
-
 { 
-
-public abstract void visit(Employee emp); 
-
+	public abstract void visit(Employee emp);
 }
+```
 
 Let’s reiterate what happens for each visit:
 
-\1. We move through a loop of all the Employees.
+1. We move through a loop of all the Employees.
 
-\2. The Visitor calls each Employee’s accept method.
+2. The Visitor calls each Employee’s accept method.
+3. That instance of Employee calls the Visitor’s visit method.
+4. The Visitor fetches the vacation days and adds them into the total for each employee.
 
-\3. That instance of Employee calls the Visitor’s visit method.
+5. The main program when the loop is complete, ask the Visitor for the total and prints out the total.
 
-\4. The Visitor fetches the vacation days and adds them into the total for each employee.
-
-\5. The main program when the loop is complete, ask the Visitor for the total and prints out the total.
-
- 
 
 **Visiting Several Classes**
 
-The Visitor becomes more useful, when there are a number of different classes with different interfaces and we want to encapsulate how we get data from these classes. Let’s introduce a new Employee type called Boss and suppose that, Bosses are rewarded with bonus vacation days. When we add a class to our program, we have to add it to our Visitor as well. This says that any concrete Visitor classes we write must provide polymorphic visit methods for both the Employee and the Boss class. In the case of our vacation day counter, we need to ask the Bosses for both regular and bonus days taken, so the visits are now different.
+The Visitor becomes <u>more useful, when there are a number of different classes with different interfaces</u> and we want to encapsulate how we get data from these classes. Let’s introduce a new Employee type called Boss and suppose that, Bosses are rewarded with bonus vacation days. <u>When we add a class to our program, we have to add it to our Visitor as well</u>. This says that any concrete Visitor classes we write must provide polymorphic visit methods for both Employee and Boss class. In the case of our vacation day counter, we need to ask the Bosses for both regular and bonus days taken, so the visits are now different.
 
+```java
 public abstract class Visitor
-
 {
-
-public abstract void visit(Employee emp);
-
-public abstract void visit(Boss emp);
-
+	public abstract void visit(Employee emp);
+	public abstract void visit(Boss emp);
 }
+```
 
 Note that while in this case Boss is derived from Employee, it need not be related at all as long as it has an accept method for the Visitor class. It is quite important, however, that you implement a visit method in the Visitor for every class you will be visiting and not count on inheriting this behavior, since the visit method from the parent class is an Employee rather than a Boss visit method. Likewise, each of your derived classes (Boss, Employee, etc.) must have its own accept method rather than calling one in its parent class. The VacationVisitor will just treat Bosses as Employees and get only their vacation data. The bVacationVisitor will get both.
 
@@ -1298,27 +593,23 @@ btotal.setText(new Integer(bvac.getTotalDays()).toString());
 
 You are really dispatching a method twice for the Visitor to work. The Visitor calls the polymorphic accept method of a given object, and the accept method calls the polymorphic visit method of the Visitor. It is this bidirectional calling that allows you to add more operations on any class that has an accept method, since each new Visitor class we write can carry out whatever operations we might think of using the data available in these classes.
 
- 
-
 **Traversing a Series of Classes**
 
 The calling program that passes the class instances to the Visitor must know about all the existing instances of classes to be visited and must keep them in a simple structure such as an array or Vector. Another possibility would be to create an Enumeration of these classes and pass it to the Visitor. Finally, the Visitor itself could keep the list of objects that it is to visit.
 
- 
-
 **Consequence of the Visitor Pattern**
 
-The Visitor pattern is useful when you want to encapsulate fetching data from a number of instances of several classes. Design Patterns suggests that the Visitor can provide additional functionality to a class without changing it. We prefer to say that a Visitor can add functionality to a collection of classes and encapsulate the methods it uses. The Visitor cannot obtain private data from classes: it is limited to the data available from public methods. This might force you to provide public methods that you would otherwise not have provided. However, it can obtain data from a disparate collection of unrelated classes and utilize it to present the results of a global calculation to the user program.
-
- 
+The Visitor pattern is useful when you want to **encapsulate fetching data** from a number of instances of several classes. Design Patterns suggests that the Visitor can provide additional functionality to a class without changing it. We prefer to say that a Visitor can add functionality to a collection of classes and encapsulate the methods it uses. The Visitor cannot obtain private data from classes: it is limited to the data available from public methods. This might force you to provide public methods that you would otherwise not have provided. However, it can obtain data from a disparate collection of unrelated classes and utilize it to present the results of a global calculation to the user program.
 
 It is easy to add new operations to a program using Visitors, since the Visitor contains the code instead of each of the individual classes. Further, Visitors can gather related operations into a single class rather than forcing you to change or derive classes to add these operations. This can make the program simpler to write and maintain. Visitors are less helpful during a program’s growth stage, since each time you add new classes which must be visited, you have to add an abstract visit operation to the abstract Visitor class, and you must add an implementation for that class to each concrete Visitor you have written. Visitors can be powerful additions when the program reaches the point where many new classes are unlikely. Visitors can be used very effectively in a Composite systems (like boss-employee system).
 
-******************************************************************
+------
 
- 
+------
 
-Design Pattern By Arul Kumar
+
+
+## Design Pattern By Arul Kumar
 
  
 
