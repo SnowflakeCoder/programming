@@ -5,16 +5,22 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SentenceProcessor {
+	
+	/*
+	 * Giving less score for most occurred.
+	 */
+	
+	private static int score_for_most_occurred = 1;
+	private static int score_for_normal_occurred = 2;
 
+	
 	public static InputVO readNProcessInputFile(String inputFilePath, int numberOfQuestions) throws Exception {
 
 		File inputFile = new File(inputFilePath);
@@ -35,11 +41,11 @@ public class SentenceProcessor {
 			} else {
 
 				/*
-				 * Adding most occured words to stop words.
+				 * Adding most occured words. This should have less score compare to other words. Using temporary threshold 5.
 				 */
 				
 				List<Integer> maxOccurances = NGramStemmer.findMostOccuring(inputLines.get(0), 5);
-				Stopwords.stopWordIndexes.addAll(maxOccurances);
+				Stopwords.maxOccuredIndexes.addAll(maxOccurances);
 				
 				String[] paragraphLines = inputLines.get(0).split("\\.");
 				InputVO inputVO = new InputVO(paragraphLines.length, numberOfQuestions);
@@ -57,7 +63,7 @@ public class SentenceProcessor {
 
 				index = 0;
 				for (String answer : inputLines.get(numberOfQuestions + 1).split(";")) {
-					inputVO.addAnswer(answer, NGramStemmer.findStemIndexes(answer), index++);
+					inputVO.addAnswer(answer.trim(), NGramStemmer.findStemIndexes(answer), index++);
 				}
 
 				return inputVO;
@@ -74,8 +80,8 @@ public class SentenceProcessor {
 		Map<InputStemMappingVo, InputStemMappingVo> questionSentenceMap = findMatchingVoMap(inputVO.getQuestions(), inputVO.getParagraphLines());
 		Map<InputStemMappingVo, InputStemMappingVo> sentenceAnswerMap = findMatchingVoMap(new ArrayList<>(questionSentenceMap.values()), inputVO.getAnswers());
 
-		System.out.println("questionSentenceMap :: " + questionSentenceMap);
-		System.out.println("sentenceAnswerMap :: " + sentenceAnswerMap);
+//		System.out.println("questionSentenceMap :: " + questionSentenceMap);
+//		System.out.println("sentenceAnswerMap :: " + sentenceAnswerMap);
 		
 		List<String> answers = new ArrayList<>(inputVO.getQuestions().size());
 		for(InputStemMappingVo question : inputVO.getQuestions()) {
@@ -94,11 +100,20 @@ public class SentenceProcessor {
 		
 		for (InputStemMappingVo inputVo : inputList) {
 			for (InputStemMappingVo matchedVo : matchingSentences) {
-				long score = inputVo.getStemIndexes().stream()
-						.filter(stemIndex -> (Collections.binarySearch(matchedVo.getStemIndexes(), stemIndex) >= 0))
+				
+				List<Integer> commonIndexes = inputVo.getStemIndexes().stream()
+				.filter(stemIndex -> (Collections.binarySearch(matchedVo.getStemIndexes(), stemIndex) >= 0)).collect(Collectors.toList());
+				
+				long mostOccurredCount = commonIndexes.stream()
+						.filter(stemIndex -> (Collections.binarySearch(Stopwords.maxOccuredIndexes, stemIndex) >= 0))
 						.count();
-				if(score != 0) {
-					matchingScoreList.add(new MatchingScoreVO(inputVo, matchedVo, score));
+				
+				long normalCount = commonIndexes.size() - mostOccurredCount;
+				
+				long totalScore = (normalCount * score_for_normal_occurred) + (mostOccurredCount * score_for_most_occurred) ;
+				
+				if(totalScore != 0) {
+					matchingScoreList.add(new MatchingScoreVO(inputVo, matchedVo, totalScore));
 				}
 			}
 		}

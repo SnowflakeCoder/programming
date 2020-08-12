@@ -49,11 +49,18 @@ public class NGramStemmer {
 		if (isBlank(source)) {
 			return null;
 		}
-
+		
 		String[] words = Arrays.stream(source.trim().toLowerCase().split(" "))
 				.map(word -> word.replaceAll(Stopwords.invalidChars, "")).filter(word -> !(isBlank(word)))
 				.toArray(String[]::new);
+		
+//		System.out.println(Arrays.toString(words));
+		
+//		System.out.println(Arrays.stream(words).map(word -> StemCache.getStemIndex(word)).collect(Collectors.toList()));
 
+		List<Integer> stemIndexes1 = Arrays.stream(words).map(word -> StemCache.getStemIndex(word))
+				.collect(Collectors.toList());
+		
 		List<Integer> stemIndexes = Arrays.stream(words).map(word -> StemCache.getStemIndex(word))
 				.filter(index -> (Collections.binarySearch(Stopwords.stopWordIndexes, index) < 0))
 				.collect(Collectors.toList());

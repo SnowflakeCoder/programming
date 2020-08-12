@@ -23,14 +23,16 @@ public class MainApplication {
 	 */
 	
 	
-	public static void main(String[] args) {
+	
+	public static List<String> findMatchingAnswers(String filePath, int numberOfQns) {
 		try {
 			
 			/*
 			 * Find wordToken indexes for each sentences, questions and answers.
 			 */
-			InputVO inputVO = SentenceProcessor.readNProcessInputFile("E:\\temp\\sahaj\\inputFile.txt", 5);
-			System.out.println(inputVO);
+			InputVO inputVO = SentenceProcessor.readNProcessInputFile(filePath, numberOfQns);
+			
+//			System.out.println(inputVO);
 
 			/*
 			 * Sort the questions in descending order based on wordToken size and Find matching sentence for each question.
@@ -38,10 +40,12 @@ public class MainApplication {
 			 */
 
 			List<String> answers = SentenceProcessor.findMatchingAnswers(inputVO);
-			System.out.println(answers);
+			
+			return answers;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
 }

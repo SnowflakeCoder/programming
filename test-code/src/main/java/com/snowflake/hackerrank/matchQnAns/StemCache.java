@@ -28,4 +28,8 @@ public class StemCache {
 		return stemIndex;
 	}
 	
+	public static void displayCache() {
+		System.out.println(cache);
+	}
+	
 }
