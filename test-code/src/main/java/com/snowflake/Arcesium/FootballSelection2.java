@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class FootballSelection {
+public class FootballSelection2 {
 
 	public static void main(String[] args) {
 		
@@ -28,11 +28,9 @@ public class FootballSelection {
     private static final int MIN_GOALS_DEFENDED = 30;
     
     public static List<List<String>> getSelectionStatus(List<List<String>> applications) {
-    	
         if(applications == null || applications.isEmpty()){
             return Collections.emptyList();
         }
-        
         List<List<String>> players = new ArrayList<>();
         int noOfStrikers = 0;
         int noOfDefenders = 0;
