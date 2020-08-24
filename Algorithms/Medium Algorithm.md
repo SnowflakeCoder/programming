@@ -1,8 +1,8 @@
 
 
-## Array
+# Array
 
-### Unique1toN
+## Unique1toN
 
 - Given an array of size N make sure it contains 1-n numbers.
 
@@ -46,7 +46,7 @@
 
 ------
 
-### 3 Number Sum
+## 3 Number Sum
 
 **[-8, -6, 1, 2, 3, 5, 6, 12] ,	0	=>	Ans: [[-8, 2, 6], [-8, 3, 5], [-6, 1, 5]]**
 
@@ -111,7 +111,7 @@
 
 ------
 
-### Smallest Diff b/w 2 Arrays.
+## Smallest Diff b/w 2 Arrays.
 
 **A) [-1, 5, 10, 20, 28, 2]		B) [26, 134, 135, 15, 17]	=>	Ans: [28, 26]**
 
@@ -121,7 +121,7 @@
 
 ------
 
-### Move All Elements to End
+## Move All Elements to End
 
 Find all instances of the given integer in the array and move them to the end of the array.
 
@@ -133,7 +133,7 @@ Find all instances of the given integer in the array and move them to the end of
 
 ------
 
-### Monotonic Array
+## Monotonic Array
 
 Two ways an array can be monotonic, either **entirely non increasing** or either **entirely non decreasing**. Non is used because Monotonic array **can have duplicate values** next to next.
 
@@ -182,19 +182,353 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 - Space Complexity - O(1)
 
-### Longest Peak
+## Longest Peak
 
 - Peak should have atleast length 3 and they are strictly increasing till they reach the peak and then they strictly decreasing.
 - Same numbers are not considered and peak cannot start from top and then decreasing.
 - Define a peak - A peak should be strictly greater than its adjacent numbers.
 
+
+
+## Max Subset Sum No Adjacent
+
+Given an array, find the **maximum sum of a subset with no 2 numbers are adjacent**. 
+
+So 3 2 7 10 should return 13 (sum of 3 and 10) or 3 2 5 10 7 should return 15 (sum of 3, 5 and 7). 
+
+- **Time Complexity** - O(N)
+- **Space Complexity** - O(N).
+  - **O(1) - if we use for loop**.
+
+```java
+	// Recursive approach (We can also use dynamic programming)
+	private static int maxSubsetSumNoAdj(int arr[]) {
+		if (arr == null || arr.length <= 0) {
+			return 0;
+		}
+		return Math.max(maxSubsetSumNoAdj(arr, 0), maxSubsetSumNoAdj(arr, 1));
+	}
+	private static int maxSubsetSumNoAdj(int arr[], int index) {
+		if (arr.length <= index) {
+			return 0;
+		}
+		return arr[index] + Math.max(maxSubsetSumNoAdj(arr, index + 2), 			maxSubsetSumNoAdj(arr, index + 3));
+	}
+******************************************************************************
+	// for-loop approach with inclusive and exclusive
+	private static int maxSubsetSumNoAdj1(int arr[]) {
+    	if (arr == null || arr.length <= 0) {
+			return 0;
+		}
+		int inclusive = 0;
+		int exclusive = 0;
+
+		for (int index = 0; index < arr.length; index++) {
+			int newExclusive = inclusive + arr[index];
+			inclusive = exclusive;
+			exclusive = Math.max(newExclusive, exclusive);
+		}
+		return exclusive;
+	}
+```
+
+## Kadane's Algorithm / MaxSubArray
+
+Find the contiguous subarray (containing at least 1 number) which has the largest sum and return its sum.
+
+https://leetcode.com/problems/maximum-subarray/
+
+- **Time Complexity** - O(N) 
+- **Space Complexity** - O(1)
+
+```java
+public int maxSubArray(int[] nums) {
+    if(nums == null || nums.length == 0){
+        return 0;
+    }
+    int maxSum = nums[0], sum = nums[0]; // initialize with first element not minNumber.
+    for(int index = 1; index < nums.length; index++){
+        sum = Math.max(sum + nums[index], nums[index]);
+        maxSum = Math.max(sum, maxSum);
+    }
+    return maxSum;
+}
+```
+
+## Single Cycle Check
+
+- **Time Complexity** - O(N) 
+- **Space Complexity** - O(1) - No need to track all elements, Check only the **starting position repeated**.
+
+```java
+private static boolean singleCycleCheck(int[] arr) {
+    int currentIndex = 0;
+    for(int index =0; index < arr.length; index++) {
+        if(index >0 && currentIndex == 0) { // No need to track all elements
+            return false;
+        }
+        currentIndex = (currentIndex + arr[currentIndex]) % arr.length;// Note this !!!
+        if(currentIndex < 0) {
+            currentIndex += arr.length;
+        }
+    }
+    return(currentIndex == 0); // it should reach where it started.
+}
+```
+
+
+
+------
+
+------
+
+# Coin Problems
+
+## Number Of Ways To Make Change
+
+Write a function to compute the **number of combinations** that make up that amount. You may assume that you have infinite number of each kind of coin.
+
+https://leetcode.com/problems/coin-change-2/
+
+- **Time Complexity** - O(M*N) where N is the number of denominations and  M is the target amount.
+- **Space Complexity** - O(M) 
+
+```java
+public int change(int amount, int[] coins) {
+		int ways[] = new int[amount + 1];
+		ways[0] = 1; // initialize first element with value 1
+		for (int coinIndex = 0; coinIndex < coins.length; coinIndex++) {
+			for (int index = 0; index <= amount; index++) {
+				if(index < coins[coinIndex]) {
+					continue; // No need to continue if amount < coin denomination.
+				}
+				ways[index] = ways[index - coins[coinIndex]] + ways[index];
+			}
+		}
+
+		return ways[amount];
+	}
+```
+
+
+
+## Min Number Of Coins For Change
+
+Write a function to compute the **fewest number of coins** that you need to make up that amount M. If that amount of money cannot be made up by any combination of the coins, return -1.
+
+https://leetcode.com/problems/coin-change/
+
+- **Time Complexity** - O(M*N) where N is the number of denominations and  M is the target amount.
+- **Space Complexity** - O(M) 
+
+```java
+public int coinChange(int[] coins, int amount) {
+    int ways[] = new int[amount + 1];
+    for (int index = 1; index <= amount; index++) {
+        ways[index] = -1; //Cant use 0 so initialize with -1 as No value.
+    }
+    for (int CIndex = 0; CIndex < coins.length; CIndex++) {
+        for (int index = 0; index <= amount; index++) {
+            if (index < coins[CIndex]) {
+                continue;
+            }
+            if(ways[index - coins[CIndex]] != -1) {
+                if(ways[index] == -1) {
+                    ways[index] = ways[index - coins[CIndex]] + 1;					
+                }else {
+                    ways[index] = Math.min(ways[index - coins[CIndex]] + 1, ways[index]);                }
+            }
+        }
+    }
+    return ways[amount];
+}
+```
+
+# String problems
+
+## Levenshtein Distance /Edit Distance
+
+Find the minimum number of operations required to convert str1 to str2.
+
+https://leetcode.com/problems/edit-distance/
+
+- **Time Complexity** - O(M*N) where N is str1.lenght and  M is str2.length.
+- **Space Complexity** - O(M*N) 
+  - - O(min(N,M)) - if we use 2 array approach as defined below.
+
+```java
+/*if characters are same then no change reqd else (1 + min of 3 prev steps)
+if(str1[r-1]) == str2[c-1] then Mtrx[r][c] = Mtrx[r-1][c-1]
+	else Mtrx[r][c] = 1 + Min(Mtrx[r1][c-1], Mtrx[r1-1][c], Mtrx[r1-1][c-1]
+	Below solving it with 2 arrays of above matrix. No need to save entire matrix.
+*/
+public static int minDistance2(String word1, String word2) {
+		char[] str1, str2 =null;
+		int[] firstArr, secondArr = null;
+		// find the smallest column array.
+		if(word1.length() > word2.length()) {
+			str1 = word1.toCharArray();
+			str2 = word2.toCharArray();
+		}
+		else {
+			str2 = word1.toCharArray();
+			str1 = word2.toCharArray();
+		}
+		firstArr = new int[str2.length+1];
+		secondArr = new int[str2.length+1];
+		// intialize [0] array as 0, 1, 2, 3 etc 		
+		for (int index2 = 1; index2 <= str2.length; index2++) {
+			firstArr[index2] = 1 + firstArr[index2 - 1];
+		}
+		for (int index1 = 1; index1 <= str1.length; index1++) {
+            //initialize [0] column !!!
+			secondArr[0] = firstArr[0] + 1;
+			for (int index2 = 1; index2 <= str2.length; index2++) {
+				if (str1[index1 - 1] == str2[index2 - 1]) {
+                    secondArr[index2] = firstArr[index2 - 1];
+                } else {
+                    int min = Math.min(firstArr[index2], secondArr[index2 - 1]);
+                    secondArr[index2] = 1 + Math.min(min, firstArr[index2 - 1]);
+                } 
+			}
+			int[] temp = firstArr;// swich the rows at the end of forloop.
+			firstArr = secondArr;
+			secondArr = temp;
+		}
+		return firstArr[firstArr.length-1];
+	}
+```
+
+
+
 ------
 
 ------
 
-## Matrix
+# Tree
 
-### Number of Islands // River sizes
+## Inverting a BTree/Mirror Image.
+
+- **Time Complexity** - O(N)
+- **Space Complexity** - O(N) - Need a queue with all leaf nodes for each level.
+  - O(d) / **O(log N)** - if we use **recursive** method, longest recursive call = depth of the tree.
+
+```java
+public TreeNode invertTree(TreeNode root) {
+    if(root == null){ // Dont miss !!!
+        return root;
+    }
+
+    TreeNode temp = root.right;
+    root.right = invertTree(root.left);
+    root.left = invertTree(temp);
+    return root;
+}
+```
+
+## Breadthfirst Search / Level order traversal
+
+https://leetcode.com/problems/binary-tree-level-order-traversal/
+
+- **Time Complexity** - O(N)
+- **Space Complexity** - O(N)
+
+```java
+// Pass the list of nodes at each level to next level.
+public List<List<Integer>> levelOrder(List<TreeNode> nodes, List<List<Integer>> list) {
+    List<Integer> values = new ArrayList<>();
+    TreeNode[] nodeArr = nodes.toArray(new TreeNode[0]);
+    nodes.clear(); // clearing current level
+    for(TreeNode node : nodeArr){
+        values.add(node.val);
+        if(node.left != null){
+            nodes.add(node.left); // adding for next level
+        }
+        if(node.right != null){
+            nodes.add(node.right); // adding for next level
+        }
+    }
+    list.add(values);
+    if(!nodes.isEmpty()){
+        return levelOrder(nodes, list);
+    }
+    return list;
+}
+```
+
+## Youngest Common Ancestor
+
+Note: Below code only works **if both nodes are there in the tree**. Else we can use a Map which keep node as key and **value as {parent node, level}** then traverse from bottom to top to find the common ancestor.
+
+- **Time Complexity** - O(N)
+- **Space Complexity** - O(d) - No of recursive call will be proportional to Depth of the tree.
+
+```java
+public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+    if (root == null || root == p || root == q) return root;
+    TreeNode left = lowestCommonAncestor(root.left, p, q);
+    TreeNode right = lowestCommonAncestor(root.right, p, q);
+    return left == null ? right : right == null ? left : root;
+}
+```
+
+
+
+```java
+class Solution {
+
+    private TreeNode ans;
+
+    public Solution() {
+        // Variable to store LCA node.
+        this.ans = null;
+    }
+
+    private boolean recurseTree(TreeNode currentNode, TreeNode p, TreeNode q) {
+
+        // If reached the end of a branch, return false.
+        if (currentNode == null) {
+            return false;
+        }
+
+        // Left Recursion. If left recursion returns true, set left = 1 else 0
+        int left = this.recurseTree(currentNode.left, p, q) ? 1 : 0;
+
+        // Right Recursion
+        int right = this.recurseTree(currentNode.right, p, q) ? 1 : 0;
+
+        // If the current node is one of p or q
+        int mid = (currentNode == p || currentNode == q) ? 1 : 0;
+
+
+        // If any two of the flags left, right or mid become True
+        if (mid + left + right >= 2) {
+            this.ans = currentNode;
+        }
+
+        // Return true if any one of the three bool values is True.
+        return (mid + left + right > 0);
+    }
+
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        // Traverse the tree
+        this.recurseTree(root, p, q);
+        return this.ans;
+    }
+}
+```
+
+
+
+
+
+------
+
+------
+
+# Matrix
+
+## Number of Islands // River sizes
 
 - https://leetcode.com/problems/number-of-islands/
 
@@ -247,7 +581,7 @@ Two ways an array can be monotonic, either **entirely non increasing** or either
 
 ------
 
-### Spiral Traverse
+## Spiral Traverse
 
 - Input Matrix => 
   

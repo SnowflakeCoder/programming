@@ -9,7 +9,7 @@
 
 ## Non-Functional Requirements
 
-- This platform should be global and it should be accessible to people of all countries. So you need to have servers in a lot of geographies to make sure that people from a certain geography accessing the servers near to them and by reducing the latency.
+- This **platform should be global** and it should be accessible to people of all countries. So you need to have servers in a lot of geographies to make sure that people from a certain geography **accessing the servers near to them** and by reducing the latency.
 - Should work at a fairly low latency
 - High availability. System should not go down.
 - High consistency
