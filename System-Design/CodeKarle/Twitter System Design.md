@@ -49,9 +49,11 @@ The whole system is fairly big with lot of components.  So I have **divided it i
 
 This is the place where user come in and register themselves on our platform. 
 
+#### User Service
+
 **User Service** is the **source of truth of all the user related information** in our system and this Service will power the **login flow**, **registered flow**, **user profile screen** etc. User Service will also provide APIs required to get information about a user, set of **GET APIs** like get by userID, get by emailID etc and It'll also have some **post APIs to update the details** of a user and **bulk get API** to fetch the information of a lot of users.
 
-**Storage** : User information is a very much **relational information** and Twitter has millions of users, but they are still finite enough and it **will not go unboundedly**. So we use a **clustered MySQL DB**.
+**Storage** : User information is a very much **relational information** and Twitter has millions of users, but they are still finite enough and it **will not go unboundedly**. So we use a **clustered MySQL DB**. User information is something **not updated very very frequently**, most of the information is a constant information. So MySQL is a fairly good database for that.
 
 Also this user information **doesn't change too frequently**, so reads can be powered by using a **Redis cache**, which has a key of user ID. So when someone hits User Service to fetch details of a user it first tries to look up in Redis, if it has, it returns from there else it will query one of the **MySQL read slaves**, get the information, store it in Redis, and respond back to the client. So next time when the requests come for the same users they can be served out of this Redis cache.
 
