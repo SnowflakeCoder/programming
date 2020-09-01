@@ -1,8 +1,7 @@
 package com.snowflake.test;
 
 
-//A Dynamic programming solution for 
-//Word Wrap Problem in Java 
+//A Dynamic programming solution for Word Wrap Problem in Java 
 public class WordWrap 
 { 
 

@@ -1,6 +1,6 @@
 # Notification Service System Design
 
-No matter what kind of a system you are building, be it an e-commerce system or a content sharing platform, you will always have a notification service through which you will notify your customers of any new development. But how will you build such a system? Let’s have a look!
+No matter what kind of a system you are building, be it an e-commerce system or a content sharing platform, you will always have a notification service through which you will notify your customers of any new development.
 
 ## Functional Requirements
 
