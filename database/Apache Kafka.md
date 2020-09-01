@@ -101,7 +101,7 @@ Kafka is a message bus developed for high-ingress data replay and streams. Kafka
 
 #### Apache Kafka: Pull-based approach
 
-Kafka uses a pull model. Consumers request batches of messages from a specific offset. Kafka permits long-pooling, which prevents tight loops when there is no message past the offset.
+Kafka uses a pull model. Consumers **request batches of messages from a specific offset**. Kafka permits **long-pooling**, which prevents tight loops when there is no message past the offset.
 
 A pull model is logical for Kafka because of its partitions. Kafka provides message order in a partition with no contending consumers. This allows users to leverage the batching of messages for effective message delivery and higher throughput.
 
