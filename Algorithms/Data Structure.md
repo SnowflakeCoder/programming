@@ -1,141 +1,208 @@
-# Data Structure
+# Time Complexity
 
-https://leetcode.com/tag/design/
+## List
 
-## Insert Delete GetRandom O(1)
+|                          | **Add** | **Remove** | **Get** | **Contains** | **Data Structure** |
+| ------------------------ | ------- | ---------- | ------- | ------------ | ------------------ |
+| **ArrayList**            | O(1)    | **O(n)**   | O(1)    | O(n)         | Array              |
+| **LinkedList**           | O(1)    | O(1)       | O(n)    | O(n)         | Linked List        |
+| **CopyonWriteArrayList** | O(n)    | **O(n)**   | O(1)    | O(n)         | Array              |
 
-Design a data structure that supports Insert(val), Delete(val), GetRandom() operations in **average O(1) time**. getRandom(): Returns a random element from current set of elements. GetRandom choose a random index and then retrieve an element with that index. 
+Note: Removal for a singly-linked list is **only `O(1)` if you already have references to the node** you want to remove and the one before. All this is in contrast to an array-based list where insertions and removal are `O(n)` because you have to **shift elements** along.
 
-**Average insert time - O(1) **
+Otherwise if you want to delete a specific element from a singly-linked list, the **time complexity is `O(n)`** (where `n` is the number of elements) because you have to find the element first.
 
-Both Hashmap and ArrayList provides Insert in average constant time.
+| **Operation**         | **LinkedList time complexity** | **ArrayList time complexity**                          | **Preferred** |
+| --------------------- | ------------------------------ | ------------------------------------------------------ | ------------- |
+| Insert at last index  | O(1)                           | O(1) (If array copy operation is Considered then O(N)) | LinkedList    |
+| Insert at given index | O(N)                           | O(N)                                                   | LinkedList    |
+| Search by value       | O(N)                           | O(N)                                                   | ArrayList     |
+| Get by index          | O(N)                           | O(1)                                                   | ArrayList     |
+| Remove by value       | O(N)                           | O(N)                                                   | LinkedList    |
+| Remove by index       | O(N)                           | O(N)                                                   | LinkedList    |
 
-- **Hashmap**: provides **Insert and Delete in average constant time**, although has **problems with GetRandom**. But there is **no indexes in hashmap**, and hence to get true random value, we first need to **convert hashmap keys in a list**, that would take **linear time**. So the solution is to **build a list of keys aside** and to use this list to compute GetRandom in constant time.
+https://dzone.com/articles/performance-analysis-of-arraylist-and-linkedlist-i
 
-- **ArrayList**: **has indexes** and could provide **Insert and GetRandom in average constant time**, though has **problems with Delete**. To delete a value at arbitrary index takes linear time. The solution here is to **always delete the last value**:
+https://www.bigocheatsheet.com/
 
-  - Swap the element to delete with the last one.
-  - Pop the last element out.
+## Set
 
-  For that, one has to **compute an index of each element in constant time**, and hence needs a **hashmap which stores element -> its index dictionary**.
+|                         | **Add**  | **Contains** | **Next** | **Data Structure**       |
+| ----------------------- | -------- | ------------ | -------- | ------------------------ |
+| **HashSet**             | O(1)     | O(1)         | O(h/n)   | Hash Table               |
+| **LinkedHashSet**       | O(1)     | O(1)         | O(1)     | Hash Table + Linked List |
+| **EnumSet**             | O(1)     | O(1)         | O(1)     | Bit Vector               |
+| **TreeSet**             | O(log n) | O(log n)     | O(log n) | Red-black tree           |
+| **CopyonWriteArraySet** | O(n)     | O(n)         | O(1)     | Array                    |
+| **ConcurrentSkipList**  | O(log n) | O(log n)     | O(1)     | Skip List                |
 
-### Solution: HashMap + ArrayList
+## Queue
 
-So we use a **combination of data structures**: **HashMap + ArrayList**
+|                             | **Offer** | **Peak** | **Poll** | **Size** | **Data Structure** |
+| --------------------------- | --------- | -------- | -------- | -------- | ------------------ |
+| **PriorityQueue**           | O(log n ) | O(1)     | O(log n) | O(1)     | Priority Heap      |
+| **LinkedList**              | O(1)      | O(1)     | O(1)     | O(1)     | Array              |
+| **ArrayDequeue**            | O(1)      | O(1)     | O(1)     | O(1)     | Linked List        |
+| **ConcurrentLinkedQueue**   | O(1)      | O(1)     | O(1)     | O(n)     | Linked List        |
+| **ArrayBlockingQueue**      | O(1)      | O(1)     | O(1)     | O(1)     | Array              |
+| **PriorirityBlockingQueue** | O(log n)  | O(1)     | O(log n) | O(1)     | Priority Heap      |
+| **SynchronousQueue**        | O(1)      | O(1)     | O(1)     | O(1)     | None!              |
+| **DelayQueue**              | O(log n)  | O(1)     | O(log n) | O(1)     | Priority Heap      |
+| **LinkedBlockingQueue**     | O(1)      | O(1)     | O(1)     | O(1)     | Linked List        |
 
-- Hashmap =>  {element,  its index}.
-- Array List =>  {list of elements}.
+## Map
 
-> **Insert**
->
-> - Add -> {value,  its index} into Map, average O(1) time.
-> - Append value to array list, average O(1) time as well.
->
-> **Delete**
->
-> - Retrieve an index of element to delete from the Map, O(1) time.
-> - Move the last element to the place of the element to delete, O(1) time.
-> - Pop the last element out, O(1) time.
->
-> **GetRandom**
->
-> - GetRandom could be implemented in O(1) time using Random object in Java.
+|                           | **Get**  | **ContainsKey** | **Next** | **Data Structure**       |
+| ------------------------- | -------- | --------------- | -------- | ------------------------ |
+| **HashMap**               | O(1)     | O(1)            | O(h / n) | Hash Table               |
+| **LinkedHashMap**         | O(1)     | O(1)            | O(1)     | Hash Table + Linked List |
+| **IdentityHashMap**       | O(1)     | O(1)            | O(h / n) | Array                    |
+| **WeakHashMap**           | O(1)     | O(1)            | O(h / n) | Hash Table               |
+| **EnumMap**               | O(1)     | O(1)            | O(1)     | Array                    |
+| **TreeMap**               | O(log n) | O(log n)        | O(log n) | Red-black tree           |
+| **ConcurrentHashMap**     | O(1)     | O(1)            | O(h / n) | Hash Tables              |
+| **ConcurrentSkipListMap** | O(log n) | O(log n)        | O(1)     | Skip List                |
 
-```java
-class RandomizedSet {
-  Map<Integer, Integer> dict; // Initialize inside the constructure.
-  List<Integer> list; // Initialize inside the constructure.
-  Random rand = new Random();
-  
-  public boolean insert(int val) {
-    if (dict.containsKey(val)) 
-    	{return false;} // return false for duplicates
-    dict.put(val, list.size());
-    list.add(list.size(), val);
-    return true;
-  }
-  public boolean remove(int val) {
-    if (! dict.containsKey(val)) 
-    	{return false;}
-    int lastElement = list.get(list.size() - 1); // find last element
-    int idx = dict.get(val); // find index of the element to delete
-    list.set(idx, lastElement);//set last element to index of the element to delete
-    dict.put(lastElement, idx);// update index in map too.
-    list.remove(list.size() - 1);// delete the last element from list.
-    dict.remove(val); // delete element from map too.
-    return true;
-  }
+http://infotechgems.blogspot.com/2011/11/java-collections-performance-time.html
 
-  public int getRandom() {
-    return list.get(rand.nextInt(list.size()));
-  }
-}
-```
+# Collections.binarySearch()
 
-### Complexity Analysis
-
-- **Time complexity** : GetRandom is always O(1). Insert and Delete both have O(1) average time complexity, and **O(N) in the worst-case scenario** when the operation exceeds the capacity of currently allocated array/hashmap and invokes **space reallocation**.
-- **Space complexity** : O(N) to store N elements.
-
-------
-
-------
-
-## Insert Delete GetRandom O(1) - Duplicates allowed
-
-Only change is Hashmap =>  {element,  **Set{index}** }. Using **set {indexes} here instead of just one index**.
+- public static int binarySearch(List slist, T key)
+  - **Returns index** of key in sorted list **sorted in ascending order**
+- public static int binarySearch(List slist, T key, Comparator c)
+  - Returns index of key in sorted list sorted in order defined by Comparator c.
+- If key is not present, the it returns "(-(insertion point) - 1)". 
+  The insertion point is defined as the point at which the key would be inserted into the list.
 
 ```java
-	public boolean insert(int val) {
-        if (!idx.containsKey(val)) 
-	        {idx.put(val, new LinkedHashSet<Integer>());}
-        idx.get(val).add(lst.size()); // add new index to list of other indexes.
-        lst.add(val);
-        return idx.get(val).size() == 1;
-    }
-
-	public boolean remove(int val) { // find one index and then delete
-        if (!idx.containsKey(val) || idx.get(val).size() == 0) {return false;}
-        int remove_idx = idx.get(val).iterator().next();
-        idx.get(val).remove(remove_idx);
-        int last = lst.get(lst.size() - 1);
-        lst.set(remove_idx, last);
-        idx.get(last).add(remove_idx);
-        idx.get(last).remove(lst.size() - 1);
-        lst.remove(lst.size() - 1);
-        return true;
-    }
+int result1 = Collections.binarySearch(list, x, (a, b) -> Integer.compare(a, b)); 
 ```
 
-------
+# Hashtable
 
-------
+A Hashtable is an array of list. Each list is known as a bucket. The position of bucket is identified by calling the hashcode() method. A Hashtable contains values based on the key.
+It contains only unique elements.
+It may have not have any null key or value.
+It is synchronized.
+It is a legacy class.
 
-## LRU Cache
+- Hashtable is thread-safe.
+- Hashtable **doesn’t allow any null key or value**.
 
-Design and implement a data structure for LRU cache. It should support operations: **get and put in O(1) time complexity**. The cache is initialized with a positive capacity.
+# HashMap
 
-- **get(key)** - Get the value (will always be positive) of the key if key exists in the cache, otherwise return -1.
-- **put(key, value)** - Set or insert the value if the key is not already present. 
-  - **delete** - When the cache reached its capacity, it should **invalidate the least recently used item before inserting a new item**.
+- HashMap offers **0(1) lookup and insertion**. If you iterate through the keys, though, the ordering of the keys is essentially arbitrary. It is implemented by an **array of linked lists**.
+- A HashMap contains values based on the key.
+- It may have **one null key** and **multiple null values**.
+- It **maintains no order**.
+- HashMap is **not-thread safe** 
 
-### 1: Ordered dictionary
+Why HashTable doesn’t allow null and HashMap does?
+To successfully store and retrieve objects from a HashTable, the objects used as keys **must implement the hashCode method and the equals method**. Since null is not an object, it can’t implement these methods. HashMap is an advanced version and improvement on the Hashtable. HashMap was created later and it **returns 0 if key = null**.
 
-**Hashmap** provides get and put in O(1) time and using **linked list** we can remove least recently used item in O(1) time. There is a structure called **ordered dictionary**, it combines behind both hashmap and linked list. In Python this structure is called OrderedDict and in Java **LinkedHashMap**. Note that **insertion order is not affected** if a key is re-inserted into the LinkedHashMap.
+## Internal Structure
 
-#### Complexity Analysis
+Internally HashMap contains an **array of Node** and a node is represented as a class which contains 4 fields.
 
-- Time complexity : O(1) both for put and get since all operations with ordered dictionary : get/in/set/move_to_end/popitem (get/containsKey/put/remove) are done in a constant time.
-- Space complexity : O(capacity) since the space is used only for an **ordered dictionary with at most capacity + 1 elements**. 
+**HashMap.Node**
 
-### 2: Hashmap + DoubleLinkedList	
+```java
+static class Node<K,V> implements Map.Entry<K,V> {
+        final int hash; 
+        final K key;
+        V value;
+        Node<K,V> next; // to save next value in the linklist.
+```
 
-The problem can be solved with a **hashmap that keeps track of the keys** and its values in the double linked list. That results in O(1) time for put and get operations and allows to remove the first added node in O(1) time as well. One advantage of double linked list is that the **node can remove itself without other reference**. In addition, it takes constant time to add and remove nodes from the head or tail.
+# LinkedHashMap
 
-One particularity about the double linked list implemented here is that there are pseudo head and pseudo tail to mark the boundary, so that we don't need to check the null node during the update.
+- LinkedHashMap offers **0(1) lookup and insertion** (get/put/containsKey()). Keys are **ordered by their insertion order**. It is implemented by **doubly-linked buckets**.
+- A LinkedHashMap contains values based on the key.
+- It may have one null key and multiple null values.
+- It is same as HashMap but it **maintains insertion order**.
+- Returns **LinkedEntrySet** for keySet() and LinkedEntrySet for entryset(), 
 
-#### Complexity Analysis
+```java
+// linked hashmap fields     
+transient LinkedHashMap.Entry<K,V> head; // head (eldest) of the doubly linked list.
+transient LinkedHashMap.Entry<K,V> tail; // tail (youngest) of the doubly linked list.
+// iteration ordering method, true => access-order, false => insertion-order.
+final boolean accessOrder; 
+```
 
-Time complexity : O(1) both for put and get.
+## How LinkedHashMap work internally?
 
-Space complexity : O(capacity) since the space is used only for a hashmap and double linked list with at most capacity + 1 elements.
+LinkedHashMap **extends HashMap** **implements Map**
+
+In this class, the **data is stored in the form of nodes**. The implementation of the LinkedHashMap is very **similar to a doubly-linked list**.
+
+```java
+ static class Entry<K,V> extends HashMap.Node<K,V> {
+        Entry<K,V> before, after;
+// before and after are used to maintain the order. after give next value in the insertion order but next give next value in the hashed linklist.
+```
+
+
+
+# TreeMap
+
+- TreeMap offers **O(log N) lookup and insertion**(add, remove, containsKey). **Keys are ordered**, so if you need to iterate through the keys in sorted order, you can. This means that **keys must implement the Comparable interface**. TreeMap is implemented by a **Red-Black Tree**.
+- The map is sorted according to the **natural ordering of its keys**, or by a **Comparator provided at map creation time**, depending on which constructor is used. 
+- A TreeMap contains values based on the key. It implements the NavigableMap interface and extends AbstractMap class.
+- It **cannot have null** key but can have multiple null values.
+- It is same as HashMap instead **maintains ascending order**(Sorted using the natural order of its key).
+- TreeMap also provides some cool methods for first, last, floor and ceiling of keys.
+- TreeMap.entrySet() method returns a collection-view(Set<Map.Entry>) in sorted way.
+
+## floorEntry & floorKey()
+
+- floorEntry() : It returns a key-value mapping associated with the **greatest key less than or equal** to the given key, or null if there is no such key.
+- floorKey() : It returns the greatest key less than or equal to the given key, or null if there is no such key.
+
+# HashSet
+
+- HashSet uses HashMap internally.
+
+
+
+# Fail-fast and Fail-safe iterations
+
+First of all, there is **no term as fail-safe** as Java SE specifications does not use this term. Non-Fail Fast (a.k.a. Fail-safe) iterators **will not throw any exception** if the collection is modified while iterating over it. Eg: ArrayList, HashMap. Whereas **Fail-fast iterators** throw an exception (ConcurrentModificationException) if the collection is modified while iterating over it. Eg : CopyOnWriteArrayList, ConcurrentHashMap .
+
+## Fail-Fast Iterators internal working:
+
+Every fail fast collection has a **modCount** field, to represent how many times the collection has changed/modified. So at every modification of this collection we increment the modCount value. So the modCount is incremented in below cases:
+
+1. When one or more elements are removed.
+2. When one or more elements are added.
+3. When the collection is **replaced with other collection**.
+4. When the **collection is sorted**.
+
+when we create an iterator, iterator stores the current modCount value (field **expectedModCount**). Now while the iteration is going on, if there is any change made in the collection, the modCOunt will change, and <u>expectedModCount will not be hence equal to the modCount</u>, so **ConcurrentModificationException** will be thrown.
+
+**Note**: If we remove/add the element using the **remove() or add() of iterator** instead of collection, then in that case **no exception will occur**. Because the remove/add methods of iterators call the remove/add method of collection internally, and also it **reasigns the expectedModCount to new modCount value**.
+
+**Note 2**: The fail-fast behavior of an iterator **cannot be guaranteed** as it is, generally speaking, impossible to make any hard guarantees in the presence of **unsynchronized concurrent modification**. Fail-fast iterators throw ConcurrentModificationException on a **best-effort basis**. Therefore, it would be **wrong to write a program that depended on this exception** for its correctness: the fail-fast behavior of iterators should be used only to detect bugs.
+
+## Fail-Safe Iterators internal working:
+
+Unlike the fail-fast iterators, these **iterators traverse over the clone of the collection**. So even if the original collection gets structurally modified, **no exception will be thrown**. E.g. in case of CopyOnWriteArrayList the <u>original collections is passed and is stored in the iterator</u> (field **snapshot**). So all the iterator methods will work on this snapshot instance. So even if there is any change in the original collection, no exception will be thrown. But the **iterator will not reflect the latest state of the collection**. These iterators make a copy of the internal collection (object array) and iterates over the copied collection. So any <u>structural modification done to the iterator affects the copied collection, not original collection</u>. So, original collection remains structurally unchanged.
+
+**Note**: although it does not throw any exception, but the downsides of this iterator are:
+
+1. They will **not reflect the latest state** of the collection.
+2. It **requires extra memory** as it clones the collection.
+
+https://www.geeksforgeeks.org/fail-fast-fail-safe-iterators-java/
+
+### ConcurrentHashMap - weakly consistent
+
+**Note:** In case of **ConcurrentHashMap**, it **does not operate on a separate copy** although it is not fail-fast. Instead, it has semantics that is described by the official specification as **weakly consistent(memory consistency properties in Java)**. The iterators returned by ConcurrentHashMap is **weakly consistent**. This means that this iterator can tolerate concurrent modification, traverses elements as they existed when iterator was constructed and **may (but not guaranteed to) reflect modifications to the collection** after the construction of the iterator.
+
+# LinkedList
+
+LinkedList is a **linear data structure** where the elements are **not stored in contiguous locations** and every element is a separate object with a data part and address part. The elements are linked using pointers and addresses. Each element is known as a node. Few disadvantages are the nodes **cannot be accessed directly** instead we need to start from the head and follow through the link to reach to a node.
+
+## Internal Design
+
+Since a LinkedList acts as a dynamic array and we **do not have to specify the size** while creating it, the size of the list **automatically increases** when we dynamically add items. And also, the elements are not stored in a continuous fashion. Therefore, there is **no need to increase the size**. Internally, the LinkedList is implemented using the doubly linked list data structure. The main difference between a normal linked list and a doubly LinkedList is that a doubly linked list contains an extra pointer, typically called the previous pointer, together with the next pointer and data which are there in the singly linked list.

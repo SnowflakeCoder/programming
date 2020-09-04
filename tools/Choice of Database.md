@@ -114,6 +114,13 @@ Let's just say DC1 is the primary in this region(R1) and DC3 is the primary in R
 
 ![Database Choice.jpg](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/Database%20Choice.jpg?raw=true)
 
+### CAP Theorem
+
+![Database-Systems-according-to-the-CAP-Theorem.png](https://github.com/SnowflakeCoder/programming/blob/master/database/Database-Systems-according-to-the-CAP-Theorem.png?raw=true)
+
+![CAP-Databases.png](https://github.com/SnowflakeCoder/programming/blob/master/database/CAP-Databases.png?raw=true)
+
 ### Reference
 
 https://www.youtube.com/watch?v=cODCpXtPHbQ
+

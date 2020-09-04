@@ -1,4 +1,4 @@
-# Rust API
+# Rest API
 
 ## API
 
