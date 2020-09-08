@@ -19,6 +19,9 @@
    - A core part of the success is built on its **innovative use of technology**.
    - Good Exposure to new technologies and very strict to design and architecture principles.
    - Provides a comprehensive **training on many technologies** including several programming languages, databases and OS platforms.
+   
+   I'm really **driven by results**. I like it when I have a **concrete goal to meet** and enough time to **figure out a strong strategy for accomplishing it**. 
+   I was responsible for several projects where I directed development teams and implemented repeatable processes. The teams achieved 100% on-time delivery of software products. I was motivated both by the challenge of finishing the projects ahead of schedule and by managing the teams that achieved our goals.
 
 
 

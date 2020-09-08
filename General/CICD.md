@@ -6,7 +6,7 @@ First it was **Waterfall**, then **Agile**, and now it's **DevOps**.  This is ho
 
 The benefits of DevOps to enterprises is we focus on **accelerating the speed** and confidence of feedback between customers and developers. The results of this acceleration come in the form of **faster lead time for changes** to production, **increased deployment frequency** to production, **faster time to restore** service to production, and **reduction in the change failure rate** to production.
 
-Dev-ops four key software delivery metrics:
+Dev-ops **four key software delivery metrics**:
 
 - **Deployment frequency**: The frequency of production deployments tells you **how often you’re delivering** something of value to end users and/or getting feedback from users. 
 - **Lead time for changes**: lead time for change is “the time it takes to go from **code committed to code successfully running in production**”. 
@@ -15,7 +15,7 @@ Dev-ops four key software delivery metrics:
 
 # CI/CD
 
-Teams struggle to ship software into the customer’s hands due to **lack of consistency** and **excessive manual labor**. CI/CD deliver software to a production environment with speed, safety, and reliability.
+Teams struggle to ship software into the customer’s hands due to **lack of consistency** and **excessive manual labor**. CI/CD deliver software to a production environment with **speed, safety, and reliability**.
 
 ## CI/CD pipeline
 
@@ -23,7 +23,7 @@ Teams struggle to ship software into the customer’s hands due to **lack of con
 
 ### Continuous integration
 
-Continuous Integration (CI) is a **development practice** that requires developers to <u>integrate code into a shared repository</u> several times a day. Each check-in is then verified by an automated build, allowing teams to **detect problems early**. By integrating regularly, you can **detect errors quickly**, and **locate them more easily**. With CI, a developer practices <u>integrating the code changes continuously with the rest of the team</u>. The integration happens after a “**git push**” to a master branch. Then, in a dedicated server, an automated process builds the application and runs a set of tests to confirm that the newest code integrates with what’s currently in the master branch.
+Continuous Integration (CI) is a **development practice** that requires developers to <u>integrate code into a shared repository</u> several times a day. Each check-in is then **verified by an automated build**, allowing teams to **detect problems early**. By integrating regularly, you can **detect errors quickly**, and **locate them more easily**. With CI, a developer practices <u>integrating the code changes continuously with the rest of the team</u>. The integration happens after a “**git push**” to a master branch. Then, in a dedicated server, an automated process builds the application and **runs a set of tests to confirm** that the newest code integrates with what’s currently in the master branch.
 
 If you’re doing CI and for some reason the integration fails, that means the broken build becomes the **highest priority to fix** before continuing to add more features. CI works in <u>**three simple stages**: push, test, and fix</u>.  If the build can’t be fixed within minutes, the team should decide if they’ll <u>remove the code or turn the feature flag off</u>. 
 
@@ -38,6 +38,8 @@ In practice, a developer will often **discover boundary conflicts** between new 
 Integrating code daily doesn’t mean that a developer will push the code into a feature branch. The CI practice is about pushing code into the master branch, because that’s the branch that’s going to be used to release software. The “push to master” stage is also known as **trunk-based development**. When you practice CI (integrate code continually),  you amplify feedback then **branches become temporary**. A branch might live only for the day; then it’s integrated into the master branch.
 
 **What about incomplete changes**?  you can integrate incomplete changes by using **feature flags**. Feature flags are an <u>if condition determining whether to run the new code or not</u>. If a change isn’t complete yet, the flag is off by default. That way, when you integrate the code, the rest of the team has a chance to review it. The same technique applies if the new code has bugs.
+
+remove feature flag :: [https://dzone.com/articles/how-to-manage-outdated-feature-flags#:~:text=A%20Feature%20Flag%20Whose%20Job,a%20feature%20flag%20best%20practice.](https://dzone.com/articles/how-to-manage-outdated-feature-flags#:~:text=A Feature Flag Whose Job,a feature flag best practice.)
 
 #### Rely on automated reliable tests
 
@@ -61,7 +63,7 @@ Continuous delivery picks up where continuous integration ends. CD **automates t
 
 CI/CD tools help **store the environment-specific parameters** that must be packaged with each delivery. CI/CD automation then performs any necessary service calls to web servers, databases, and other services that may need to be restarted or follow other procedures when applications are deployed.
 
-In CD, the **software delivery process is automated** further to enable easy and confident deployments into production —at any time. A mature continuous delivery process exhibits **a codebase that is always deployable**—on the spot. With CD, software release becomes a routine event without any special testing. A build in CI happens only once and not for each environment. CD will always deploy the same artifact in all environments. Each environment, Development, testing, and staging should be a production-like environment. Use the same tooling, process, and configurations in all the environments. In CD, production is not a special environment; it’s just another stage in the pipeline.
+In CD, the **software delivery process is automated** further to enable easy and confident deployments into production —at any time. A mature continuous delivery process exhibits **a codebase that is always deployable**—on the spot. With CD, **software release becomes a routine event** without any special testing. A build in CI happens only once and not for each environment. CD will always deploy the same artifact in all environments. Each environment, Development, testing, and staging should be a production-like environment. Use the same tooling, process, and configurations in all the environments. In CD, production is not a special environment; it’s just another stage in the pipeline.
 
 ### Continuous Testing
 
@@ -75,7 +77,7 @@ The following are the vital principles for continuous delivery, they’ll help y
 Every time a deployment happens, the application’s stability is at risk. Therefore, we <u>tend to distance deployments</u> from each other. But the problem with that approach is that we **end up accumulating many changes**. Chances are that one of those changes might have problems, forcing us to roll back the other changes that were working. What CD implies is that we should **work in small batches**. When you need to make a significant change in the application, use **feature flags** or apply the **strangler pattern** and split complicated changes into small and simple changes. If you do deployments more often and work in small batches, the risk of doing deployments will be lower.
 
 **Automation with a human touch**
-All repeated manual labor that humans or engineers do all the time in every deployment should be automated. Machines are perfect candidates for repetitive tasks. <u>Automation is a critical principle in CD</u> because it helps to **increase the sustainability** of the process. CD will help to produce one-click deployments that can be triggered on demand.
+All repeated manual labor that humans or engineers do all the time in every deployment should be automated. Machines are perfect candidates for repetitive tasks. <u>Automation is a critical principle in CD</u> because it helps to **increase the sustainability** of the process. CD will help to produce **one-click deployments** that can be triggered on demand.
 
 **Always improving**
 If you try to implement all together you’ll get overwhelmed and might decide not to do anything at all. If you know there are a lot of improvement opportunities, start with simple things like automate compiling the application or build the application using a dedicated server then start automating the copying/pasting process. There’s always going to be something to improve. CD doesn’t have an end date.

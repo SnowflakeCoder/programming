@@ -2,31 +2,24 @@
 
 ### Spring MVC Application
 
-A typical Spring MVC Application basically need 3 types of jars.
+A typical Spring MVC Application basically need **3 types of jars**.
 
 - Spring Core jars
 - View Resolvers
 - Tomcat Server Jars
 
-If you go into details you can see a Spring MVC Application generally need below libraries.
+A Spring MVC Application generally need these libraries: 
 
-- Spring core jar file
-- AOP jar
-- Web jar
-- MVC jar
+- Spring core jar file, Spring transaction jar, Logging jar
+- AOP jar, Web jar, MVC jar
 - Servlet container jar
 - Server jars for deployment like tomcat, jetty
-- JDBC jar - if you want to interact with the DB.
-- ORM jar
-- Spring transaction jar - if you are managing the transactions
-- Logging jar - for debugging purposes.
+- JDBC jar - if you want to interact with the DB, ORM jar
 
-You need to put all these jars and create the instances and put that into spring context, so that when container starts it can take those into account. So if you want any other things also you need to put libraries of that and you need to put that also into context. These are the things that you **need to do manually**.
-
-Apart from this you also need to take care of the configurations like
+You need to put all these jars and create the instances and put that into **spring context**, so that when container starts it can take those into account. So if you want any other things also you need to put libraries of that and you need to put that also into context. These are the things that you **need to do manually**. Apart from this you also need to **take care of the configurations** like
 
 - Which port application is running.
-- Properties
+- Properties.
 - Profiling - dev, stage and prod environments.
 
 Every developer who is developing an application has to do all these things (**repetitive things**) manually. Ideally most of the time of a developer should **spend around the business logic** to build the application. Instead every developer spending a good amount of time in adding these jars and then putting these into context and then in the container. To avoid this we need the **spring boot concept**.
@@ -37,11 +30,11 @@ Every developer who is developing an application has to do all these things (**r
 
 Main thing that spring boot does is all the libraries that you were doing it manually, spring boot use **starters**. So if you want to add DB specific libraries you can use **spring JDBC starter jar**. When you add that jar all **related dependencies get downloaded automatically** because those are configured into that jar. If you are developing a web MVC application you can use **spring starter web**. Similarly for the configuration part Spring boot use **Auto configuration**. They automatically configure the required things. So if you want to use tomcat, you **don't have to download the tomcat** and deploy the application there. Spring boot automatically embedded the tomcat into the starter and configure that (def port 8080) when you start your application. So with spring boot, you don't have to **worry anything about framework level things** and the developer can spend more time on building the business logic.
 
-So **Spring boot starter** reduces build's dependencies and **AutoConfigurator** reduces the spring configuration. Spring Boot makes it **easy to create** Spring-powered, production-grade applications and services **with absolute minimum fuss**. It takes an **opinionated view of the Spring platform** so that new and existing users can quickly get to the bits they need. You can use Spring Boot to create **stand-alone Java applications** that can be started using java -jar or more traditional WAR deployments. 
+So <u>**Spring boot starter** reduces build's dependencies and **AutoConfigurator** reduces the spring configuration</u>. Spring Boot makes it **easy to create** Spring-powered, production-grade applications and services **with absolute minimum fuss**. It takes an **opinionated view of the Spring platform** so that new and existing users can quickly get to the bits they need. You can use Spring Boot to create **stand-alone Java applications** that can be started using java -jar or more traditional WAR deployments. 
 
 Our primary goals are:
 
-- Provide a **radically faster and widely accessible** getting started experience for all Spring development
+- Provide a **radically faster and widely accessible**, getting started experience for all Spring development
 - Be opinionated out of the box, but get out of the way quickly as requirements start to diverge from the defaults.
 - Provide a **range of non-functional features** that are **common to large classes of projects** (e.g. embedded servers, security, metrics, health checks, externalized configuration)
 - Absolutely no code generation and no requirement for XML configuration

@@ -1,0 +1,32 @@
+# Lean Startup
+
+- Lean startup is a <u>methodology for developing businesses and products</u> that aims to **shorten product development cycles** and rapidly discover if a **proposed business model is viable**; this is achieved by adopting a combination of business-hypothesis-driven experimentation, iterative product releases, and **validated learning**. Using lean startup methodology, startup companies invest their time into **iteratively building products or services to meet the needs of early customers**, the company can **reduce market risks** and sidestep the need for large amounts of initial project funding and expensive product launches and failures. 
+- The lean startup method advocates **developing products that consumers have already demonstrated they desire** so that a market will already exist as soon as the product is launched. As **opposed to developing a product and then hoping that demand will emerge**. The Lean Startup provides a scientific approach to creating and managing startups and **get a desired product to customers' hands faster**. 
+- **Gaging Consumer Interest**: By employing lean startup principles, product developers can gauge consumer interest in the product and determine **how the product might need to be refined**. This process is called **validated learning** and it can be utilized to avoid the unnecessary use of resources in product creation and development. Through lean startup, if an idea is likely to fail, it will **fail quickly and cheaply** instead of slowly and expensively, hence the term “**fail-fast**.”
+- Lean startup is an example of **consumers dictating the type of products** they are offered by their respective markets, rather than those **markets dictating what products** will be offered to them.
+- The lean startup method **first identifies a problem** that needs to be solved. It then develops a minimum viable product or the smallest form of the product that allows entrepreneurs to introduce it to potential customers for feedback. This method is **faster and less expensive**.
+
+**Lean Startup vs. Traditional Businesses** 
+
+- Lean startups **hire workers who can learn**, adapt, and work quickly while traditional businesses hire workers based on experience and ability. 
+- Lean startups also use **different financial reporting metrics**; instead of focusing on income statements, balance sheets, and cash flow statements, they focus on customer acquisition cost, lifetime customer value, customer churn rate, and how viral their product could be.
+- The lean startup method considers experimentation to be more valuable than detailed planning. **Customer reaction is paramount**.
+
+Instead of business plans, lean startups **use a business model based on hypotheses that are tested rapidly.** When customers do not react as desired, the startup quickly adjusts to limit its losses and return to developing products consumers want. Failure is the rule, not the exception. Entrepreneurs following this method **test their hypotheses by engaging with potential customers**, purchasers to <u>gauge their reactions about product features, pricing, distribution, and customer acquisition</u>. With the information, entrepreneurs make **small adjustments called iterations** to products, and **large adjustments called pivots** correct any major concerns. This testing phase might result in **changing the target customer** or modifying the product to better serve the current target customer.
+
+# MVP
+
+A minimum viable product (MVP) is a development technique in which a new product or website is **developed with sufficient features** to satisfy early adopters. The final, complete set of features is only designed and developed **after considering feedback** from the product's initial users.
+
+A **minimum viable product (MVP)** is a concept from **Lean Startup** (by Eric Ries) that stresses the impact of learning in new product development. An MVP is that **version of a new product** which allows a team to <u>collect the maximum amount of validated learning about customers</u> with the least effort. This validated learning comes in the form of **whether your customers will actually purchase your product**. The idea of MVP is that you produce an actual product with minimal features(like no more than a landing page, or a simple service) that you can offer to customers and **observe their actual behavior**. <u>Seeing what people actually do with respect to a product is much more reliable than asking people what they would do</u>.
+
+**Expected Benefits**
+The primary benefit of an MVP is you can gain <u>understanding about your customers’ interest in your product</u> **without fully developing the product**. The sooner you can find out whether your product will appeal to customers, the **less effort and expense you spend** on a product that will not succeed in the market. A team may **dramatically change a product or abandon the product together based on feedback** they receive from their customers. MVP encourages teams to do the least amount of work possible to get useful feedback (Eric Ries refers as **validated learning**) which helps them **avoid working on a product that no one wants**.
+
+**Common Pitfalls**
+Teams use the term MVP, but <u>don’t fully understand its intended use or meaning</u>. Mostly due to **wrong understanding** that an MVP is the smallest amount of functionality they can deliver, without the additional criteria of <u>being sufficient to learn about the **business viability of the product**</u>.
+
+Teams may also **confuse an MVP** (**focus on learning**) for a Minimum Marketable Feature (MMF) or Minimum Marketable Product (MMP) which has a **focus on earning**. So the team becomes too focused on delivering something without considering whether it is the right something that satisfies customer’s needs. The product delivered is **not sufficient quality to provide an accurate assessment** of whether customers will use the product.
+
+**Signs of Use**
+MVP is a core piece of **strategy of experimentation**. They hypothesize that their **customers have a need** and that the **product satisfies that need**. The team then delivers something to those customers in order to find out if in fact the customers will use the product to satisfy those needs. Based on the information gained from this experiment, the team continues, changes, or cancels work on the product.
