@@ -125,7 +125,7 @@ The Concurrent Mark Sweep (CMS) Garbage Collector has been removed, and the expe
 - In this version, **JRE or Server JRE is no longer offered**. Only JDK is offered. Auto-update has been removed from JRE installations.
 - **Type Inference** for Lambda Parameters
 - **Epsilon Garbage Collector**
-  - The No-Op garbage collector is ideal for handling only memory allocation without implementing any memory reclamation apparatus. Epsilon GC is also helpful for **cost-benefit comparison of other garbage collectors and performance testing**.
+  - Epsilon is a <u>passive or "no-op" GC</u>. It handles memory allocation but **doesn't recycle it** when objects are no longer used. When your application exhausts the Java heap, the JVM shuts down. In other words, <u>Epsilon will allow your application to run **out of memory and crash**</u>. Epsilon GC is also helpful for **cost-benefit comparison** of other garbage collectors and performance testing.
 - **Z Garbage Collector**
   - It is a **scalable low-latency garbage collector**. The Z garbage collector ensures that <u>pause times do not go beyond 10ms</u>. It also ensures that pause times do not increase with the size of the heap or live-set. Finally, ZGC also manages heaps of varying sizes from 100 megabytes to multi terabytes.
 - **Dynamic Allocation of Compiler Threads**
@@ -234,23 +234,18 @@ Please see the updated release info here.
 
 Code name culture is dropped. Included features were:
 
-**Lambda expressions**,
-Method references,
-**Functional interfaces**,
-**Stream API**,
-Default methods,
-**Static methods in interface**,
-**Parallel Array Sorting**,
-Type and Repating Annotations,
-IO Enhancements,
-Concurrency Enhancements,
-JDBC Enhancements etc.
+- **Lambda expression support in APIs**,
+- Method references,
+- **Functional interfaces**,
+- **Stream API**,
+- Interface changes: **Default and static methods**,
+- **Arrays Parallel Sort**,
+- Type and Repating Annotations,
+- IO Enhancements,
+- 
 
 
 
-Lambda expression support in APIs
-Stream API
-Functional interface and default methods
 Optionals
 Nashorn – JavaScript runtime which allows developers to embed JavaScript code within applications
 Annotation on Java Types
@@ -260,6 +255,57 @@ New Date and Time API
 Statically-linked JNI libraries
 Launch JavaFX applications from jar files
 Remove the permanent generation from GC
+
+### 
+
+Java 8 was a massive release and you can find a list of all features at [the Oracle website](https://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html). There’s two main feature sets I’d like to mention here, though:
+
+#### Language Features: Lambdas etc.
+
+Before Java 8, whenever you wanted to instantiate, for example, a new Runnable, you had to write an anonymous inner class like so:
+
+```
+ Runnable runnable = new Runnable(){
+       @Override
+       public void run(){
+         System.out.println("Hello world !");
+       }
+     };
+```
+
+With lambdas, the same code looks like this:
+
+```
+Runnable runnable = () -> System.out.println("Hello world two!");
+```
+
+You also got method references, repeating annotations, default methods for interfaces and a few other language features.
+
+#### Collections & Streams
+
+In Java 8 you also got functional-style operations for collections, also known as the Stream API. A quick example:
+
+```
+List<String> list = Arrays.asList("franz", "ferdinand", "fiel", "vom", "pferd");
+```
+
+Now pre-Java 8 you basically had to write for-loops to do something with that list.
+
+With the Streams API, you can do the following:
+
+```
+list.stream()
+    .filter(name -> name.startsWith("f"))
+    .map(String::toUpperCase)
+    .sorted()
+    .forEach(System.out::println);
+```
+
+#### If you want more Java 8 practice
+
+Obviously, I can only give a quick overview of each newly added Stream, Lambda or Optional method in Java 8 in the scope of this guide.
+
+If you want a more detailed, thorough overview - including exercises - you can have a look at my [Java 8 core features](https://www.marcobehler.com/courses/32-core-java-features-version-8-12?utm_campaign=java_features_guide&utm_medium=java_features_guide&utm_source=java_features_guide) course.
 
 ## Java SE 7 Features
 
@@ -375,56 +421,7 @@ Which in turns means that all language features from Java 8 serve as very good J
 
 Here’s a quick overview of what the specific versions have to offer:
 
-### - Java 8 -
 
-Java 8 was a massive release and you can find a list of all features at [the Oracle website](https://www.oracle.com/technetwork/java/javase/8-whats-new-2157071.html). There’s two main feature sets I’d like to mention here, though:
-
-#### Language Features: Lambdas etc.
-
-Before Java 8, whenever you wanted to instantiate, for example, a new Runnable, you had to write an anonymous inner class like so:
-
-```
- Runnable runnable = new Runnable(){
-       @Override
-       public void run(){
-         System.out.println("Hello world !");
-       }
-     };
-```
-
-With lambdas, the same code looks like this:
-
-```
-Runnable runnable = () -> System.out.println("Hello world two!");
-```
-
-You also got method references, repeating annotations, default methods for interfaces and a few other language features.
-
-#### Collections & Streams
-
-In Java 8 you also got functional-style operations for collections, also known as the Stream API. A quick example:
-
-```
-List<String> list = Arrays.asList("franz", "ferdinand", "fiel", "vom", "pferd");
-```
-
-Now pre-Java 8 you basically had to write for-loops to do something with that list.
-
-With the Streams API, you can do the following:
-
-```
-list.stream()
-    .filter(name -> name.startsWith("f"))
-    .map(String::toUpperCase)
-    .sorted()
-    .forEach(System.out::println);
-```
-
-#### If you want more Java 8 practice
-
-Obviously, I can only give a quick overview of each newly added Stream, Lambda or Optional method in Java 8 in the scope of this guide.
-
-If you want a more detailed, thorough overview - including exercises - you can have a look at my [Java 8 core features](https://www.marcobehler.com/courses/32-core-java-features-version-8-12?utm_campaign=java_features_guide&utm_medium=java_features_guide&utm_source=java_features_guide) course.
 
 ### - Java 9 -
 
@@ -650,6 +647,76 @@ Deprecating the combination of the Parallel Scavenge and Serial Old garbage coll
 Porting of the ZGC (Z Garbage Collector) to Windows. This feature has once again moved to the officially targeted list, after having been reverted back to the proposed-for-targeting list.
 
 Foreign-memory access API, with the introduction of an API for Java programs to safely and efficiently access foreign memory outside of the Java heap. This API should serve as an alternative to the main avenues by which Java programs access memory, including nio.ByteBuffer and sun.misc.Unsafe. The new API should be able to operate on various kinds of memory including native, persistent memory, and managed heap. It should not be possible for the API to undermine the safety of the JVM. Memory deallocation should be explicit in the source code. The API is expected to aid in the development of the native interoperation support that is the goal of Project Panama.
+
+
+
+## Java 8 – Arrays Parallel Sort
+
+Java 8 introduced a new method **parallelSort()** in the Arrays class to support the parallel sorting of array elements. 
+
+Algorithm of parallel sorting:
+
+1. The given array is divided into the sub arrays and the sub arrays are further divided into the their sub arrays, this happens until the <u>sub array reaches a **minimum granularity**</u>.
+2. The sub arrays are <u>sorted individually by **multiple threads**</u>. The parallel sort uses **Fork/Join Framework** for sorting sub arrays parallelly.
+3. The sorted sub arrays are merged.
+
+**Advantage Over Simple Sort:** The parallelSort() method uses the concept of multithreading which makes it **much faster** compared to the normal sort when there are lot of elements.
+
+## Java 8 - Functional Interfaces
+
+Also known as **Single Abstract Method interfaces (SAM Interfaces)**.
+
+**Rules** of defining a functional interface : The functional interface should have **Only one abstract method**. Along with the one abstract method, they can have any number of default and static methods.
+
+While creating your own functional interface, mark it with <u>**@FunctionalInterface** annotation</u>, this annotation is introduced in Java 8. Although its optional, you should use it so that you <u>get a **compilation error** if the interface you marked is not following the rules</u> of functional interfaces.
+
+**To use lambda expression** in Java, you need to either create <u>your own functional interface</u> or use the <u>pre defined functional interface</u> provided by Java. 
+
+## Java 8 - Method References 
+
+Method reference is a <u>**shorthand notation** of a lambda expression to call a method</u>. The **:: operator** is used in method reference to <u>separate the class or object from the method name</u>.
+
+```java
+str -> System.out.println(str)
+//then you can replace it with a method reference like this:
+System.out::println
+```
+
+**Four types of Method references**
+
+1. Method reference to an **Instance method** of an object – object::instanceMethod
+
+2. Method reference to a **Static method** of a class – Class::staticMethod
+
+3. an instance method of an arbitrary object of a particular type – Class::instanceMethod
+
+   1. ```java
+      String[] strArray = { "Steve", "Rick", "Aditya", "Negan", "Lucy", "Sansa", "Jon"};
+      //Method reference to an instance method of an arbitrary object of a particular type (String).
+      Arrays.sort(stringArray, String::compareToIgnoreCase);
+      ```
+
+4. Method reference to a **constructor – Class::new**
+
+## Java 8 - Optional Class
+
+Java 8 introduced Optional class, to **avoid NullPointerException** that we frequently encounters if we do not perform null checks in our code. Using this class we can **easily check whether a variable has null value** or not and by doing this we can avoid the NullPointerException. **Optional.ofNullable()** method returns a **Non-empty Optional** if the given object has a value, otherwise it returns an **empty Optional**.
+We can check whether the returned Optional value is empty or non-empty using the **isPresent()** method.
+
+```java
+String[] str = new String[10];     
+Optional<String> isNull = Optional.ofNullable(str[9]);        
+if(isNull.isPresent()){     
+    //Getting the substring              
+}     
+else{      
+    System.out.println("Cannot get the substring from an empty string");     
+}
+```
+
+
+
+
 
 
 

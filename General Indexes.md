@@ -24,4 +24,4 @@ A **minimum viable product (MVP)** is a concept from **Lean Startup** (by Eric R
 
 # S-V
 
-# W-Z
+**SOAP**: SOAP is an acronym for **Simple Object Access Protocol**. It is an **XML-based** messaging protocol for <u>exchanging information among computers</u>.
