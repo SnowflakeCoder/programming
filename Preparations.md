@@ -98,7 +98,6 @@ Alien Dictionary
 Counter number of islands in a matrix of 0s and 1s.
 Do pow(x, y) where y is very large.
 
-
 given as string and and width of of a grid of alphabet as input print the corresponding direction string for given string. e.g input is YES and width 5. alphabet grid will be 5 char in each row for all letters starting from A.
 For YES you have to start from A to Y print EEEEESSSS, Y to E NNNN and E to S WSSSS and print the direction to reach each letter.  
 
@@ -1072,4 +1071,110 @@ Experience with containers (Docker preferred)
 Hands-on experience with cloud providers (like Amazon Web Services, Azure, or Google Cloud Platform)
 
 Knowledge in distributed computing and microservices
+
+
+
+
+
+Java 8, 
+micro-services (Micro-service architecture with REST APIs)
+dockerized micro-services on AWS ECS with Spring (Spring Boot, Spring Cloud)
+- OAuth2 implementation with JWT
+
+- Asynchronous processing with AWS SQS, SNS and Lambda
+
+- Transcoding Video Master to DASH/HLS compatible formats
+
+------------------------------------------------
+java
+System design
+Cloud
+Design patterns
+Docker
+
+spring security
+AD
+-------------------------------------------------------------------------
+Your new role
+Architect, develop, QA, ship, monitor and maintain throughout the whole software development life cycle in our service oriented platform with currently 300+ restful microservices
+Use your experience, hands-on and can-do attitude to solve complex problems 
+Lead by example and mentor those around you to push boundaries and excel 
+Collaborate with various engineering and product teams to ensure our high business standards, and take the chance to get involved with other technologies and other fields of software development
+
+Your skills
+6+ years of professional experience in java programming with spring-based technologies
+You have a deep understanding of JVM
+Strong experience in building restful APIs
+Hands on experience with Spring Boot, ideally, you also have experience in Spring Cloud
+
+A hypervisor (or virtual machine monitor, VMM, virtualizer) is computer software, firmware or hardware that creates and runs virtual machines. A computer on which a hypervisor runs one or more virtual machines is called a host machine, and each virtual machine is called a guest machine.
+
+https://www.geeksforgeeks.org/hypervisor/
+
+https://www.geeksforgeeks.org/microservices-architecture-on-aws/?ref=leftbar-rightbar
+
+https://www.geeksforgeeks.org/domain-name-system-dns-in-application-layer/
+
+
+
+TLS authentication
+
+https://www.geeksforgeeks.org/docker-compose-tool-to-run-multi-container-applications/?ref=rp
+
+https://www.geeksforgeeks.org/how-to-create-your-own-docker-customised-image/?ref=rp
+
+
+
+- Very healthy Work atmosphere. Good work life balance.
+- Very good example of a multidisciplinary team.
+- A core part of the success is built on its innovative use of technology.
+- Good Exposure to new technologies and very strict to design and architecture principles.
+
+I'm really driven by results. I like it when I have a concrete goal to meet and enough time to figure out a strong strategy for accomplishing it. 
+I was responsible for several projects where I directed development teams and implemented repeatable processes. The teams achieved 100% on-time delivery of software products. I was motivated both by the challenge of finishing the projects ahead of schedule and by managing the teams that achieved our goals.
+
+
+
+
+
+kubernetes pod
+
+https://www.whizlabs.com/blog/java-11-features/#:~:text=Dynamic%20Allocation%20of%20Compiler%20Threads,in%20the%20tiered%20compilation%20mode.
+
+https://www.marcobehler.com/guides/spring-boot
+
+https://www.marcobehler.com/guides
+
+https://www.marcobehler.com/guides/a-guide-to-java-versions-and-features#_java_features_8_14
+
+https://dzone.com/articles/a-guide-to-java-versions-and-features
+
+https://www.javatpoint.com/New-features-in-java#:~:text=There%20are%20many%20new%20features,functional%20interface%2C%20method%20references%20etc.
+
+https://www.infoworld.com/article/3291322/oracle-switch-now-from-nashorn-javascript-engine-to-graalvm.html
+https://www.infoworld.com/article/3534133/jdk-15-the-new-features-in-java-15.html
+https://www.journaldev.com/37273/java-14-features
+https://www.geeksforgeeks.org/java-11-features-and-comparison/
+https://advancedweb.hu/a-categorized-list-of-all-java-and-jvm-features-since-jdk-8-to-14/
+https://www.infoworld.com/article/3436795/jdk-14-the-new-features-in-java-14.html
+https://www.atlassian.com/continuous-delivery/software-testing/types-of-software-testing
+https://senlainc.com/blog/the-main-types-of-software-testing-methodologies-and-testing-based-on-business-objectives/#:~:text=The%20main%20software%20testing%20methodologies%20are%20the%20Agile%20model%2C%20the,testing%20and%20non%2Dfunctional%20testing.
+
+https://smartbear.com/learn/automated-testing/software-testing-methodologies/
+
+https://click-labs.com/6-different-types-software-testing-methodologies/
+https://www.softwaretestinghelp.com/types-of-software-testing/
+https://www.geeksforgeeks.org/software-engineering-black-box-testing/
+https://www.geeksforgeeks.org/types-software-testing/?ref=lbp
+https://www.geeksforgeeks.org/software-testing-basics/?ref=lbp
+
+https://www.tutorialspoint.com/software_testing_dictionary/api_testing.htm
+
+
+
+
+
+
+
+
 
