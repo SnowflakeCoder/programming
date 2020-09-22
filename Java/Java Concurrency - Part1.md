@@ -68,26 +68,23 @@ Multithreading means that you have **multiple threads of execution** inside the 
 #### Benefits
 
 - Better utilization of a single CPU.
+  - If one thread is waiting for the response to a request sent over the network, then another thread could use the CPU in the meantime to do something else.
 - Better utilization of multiple CPUs or CPU cores.
 - Better user experience with regards to responsiveness.
-  - For instance, if you click on a button in a GUI and this results in a request being sent over the network, if you use the same thread that is also updating the GUI, then the user might experience the GUI "hanging" while the GUI thread is waiting for the response for the request. Instead, such a request could be performed by a background thread so the GUI thread is free to respond to other user requests in the meantime.
+  - If you click on a button and this results in a request being sent over the network, if you use the same thread that is also updating the GUI, then the user might experience the GUI "hanging" while the GUI update thread is waiting for the response for the request. Instead, such a request could be <u>performed by a background thread</u> so the GUI thread is free to respond to other user requests in the meantime.
 - Better user experience with regards to fairness.
   - Imagine a server that receives requests from clients, and only has one thread to execute these requests. If a client sends a requests that takes a long time to process, then all other client's requests would have to wait until that one request has finished. 
 
 #### Multithreading vs. Multitasking
 
-- **Multitasking** - which meant that computers could **execute multiple programs** (AKA tasks or processes) at the same time. It wasn't really "at the same time" though. The single CPU was shared between the programs. The operating system would switch between the programs running, executing each of them for a little while before switching.
+- **Multitasking** - which meant that computers could execute multiple programs (AKA tasks or processes) at the same time. It **wasn't really "at the same time"** though. The <u>single CPU was shared between the programs</u>. The operating system would switch between the programs running, executing each of them for a little while before switching.
 - **Multithreading** - which mean that you could have **multiple threads of execution inside the same program**. A thread of execution can be thought of as a CPU executing the program. When you have multiple threads executing the same program, it is like having multiple CPUs execute within the same program. So multithreading can <u>increase the performance of some types of programs</u>.
 
-#### Concurrency Models
-
-The first Java concurrency model assumed that multiple threads executing within the same application would also share objects. This type of concurrency model is typically referred to as a "**shared state concurrency model**". A lot of the <u>concurrency language constructs and utilities</u> are designed to support this concurrency model. The shared state concurrency model causes a lot of concurrency problems which can be hard to solve elegantly. Therefore, an alternative concurrency model referred to as **"shared nothing" or "separate state"** has gained popularity. In the separate state concurrency model the threads do not share any objects or data. This avoids a lot of the concurrent access problems of the shared state concurrency model.
-
-#### Costs
+#### Multithreading Costs
 
 - **More complex design** - Code executed by multiple threads **accessing shared data** need special attention. Errors arising from **incorrect thread synchronization** can be very hard to detect, reproduce and fix.
-- **Context Switching Overhead** - When a CPU **switches from executing one thread to executing another**, the CPU needs to save the local data, program pointer etc. of the current thread, and load the local data, program pointer etc. of the next thread to execute. This switch is called a "context switch". The CPU switches from executing in the context of one thread to executing in the context of another. Context switching isn't cheap. You don't want to switch between threads more than necessary.
-- **Increased Resource Consumption** - A thread needs some resources from the computer in order to run. Besides CPU time a thread needs some memory to keep its local stack. It may also take up some resources inside the operating system needed to manage the thread.
+- **Context Switching Overhead** - When a CPU **switches from executing one thread to executing another**, the CPU needs to save the local data, program pointer etc. of the current thread, and load the local data, program pointer etc. of the next thread to execute. This switch is called a "context switch". The CPU switches from executing in the context of one thread to executing in the context of another. Context switching may slow your application.
+- **Increased Resource Consumption** - A thread needs some resources from the computer in order to run. Besides CPU time a thread needs some memory to keep its local stack. It may also take up some resources inside the operating system, needed to manage the thread.
 
 ### Concurrency Models
 
@@ -95,214 +92,158 @@ Concurrent systems can be <u>implemented using different concurrency models</u>.
 
 #### Concurrency Models and Distributed System Similarities
 
-**Threads and processes are quite similar** to each other in nature. In a concurrent system different threads communicate with each other. In a distributed system different processes communicate with each other (possibly on different computers). That is why the different concurrency models often look similar to different distributed system architectures.
+**Threads and processes are quite similar** to each other in nature. In a concurrent system different threads communicate with each other. In a distributed system different processes communicate with each other (possibly on different computers). That is why the <u>different concurrency models often look similar to different distributed system architectures</u>. Because of this similarity, they can often borrow ideas from each other. For instance, **models for distributing work among workers** (threads) are often similar to **models of load balancing in distributed systems**. The same is true of error handling techniques like logging, fail-over, idempotency of tasks etc.
 
 Of course distributed systems have the extra challenge that the network may fail, or a remote computer or process is down etc. But a concurrent system running on a big server may experience similar problems if a CPU fails, a network card fails, a disk fails etc. The probability of failure may be lower, but it can theoretically still happen.
 
-Because concurrency models are similar to distributed system architectures, they can often borrow ideas from each other. For instance, **models for distributing work among workers** (threads) are often similar to **models of load balancing in distributed systems**. The same is true of error handling techniques like logging, fail-over, idempotency of tasks etc.
-
 #### Shared State vs. Separate State
 
-**Shared state** means that the different threads in the system will <u>share some state among them</u>. By state is meant some data, typically one or more objects or similar. When threads share state, problems like **race conditions** and **deadlock** etc. may occur. It depends on how the threads use and access the shared objects, of course.
+The first Java concurrency model assumed that multiple threads executing within the same application would also share objects. This type of concurrency model is typically referred to as a "**shared state concurrency model**". **Shared state** means that the different threads in the system will <u>share some state(data) among them</u>. When threads share state, problems like **race conditions** and **deadlock** etc. may occur. It depends on how the threads use and access the shared objects, of course. This model causes a lot of concurrency problems which can be hard to solve elegantly. 
 
-Separate state means that the different threads in the system do not share any state among them. In case the different threads need to communicate, they do so either by **exchanging immutable objects** among them, or by **sending copies of objects** (or data) among them. Thus, when no two threads write to the same object (data / state), you can avoid most of the common concurrency problems. Using a separate state concurrency design can often make some parts of the code easier to implement and easier to reason about, since you know that only one thread will ever write to a given object. You don't have to worry about concurrent access to that object. 
+Therefore, an alternative concurrency model referred to as **"shared nothing" or "separate state"** has gained popularity. In this model the threads do not share any state (objects or data). In case the different threads need to communicate, they do so either by **exchanging immutable objects** among them, or by **sending copies of objects** (or data) among them. Thus, when <u>no two threads write to the same object</u> (data / state), you can avoid most of the common concurrency problems. Using a separate state concurrency design can often make some parts of the code **easier to implement** and easier to reason about, since you know that only one thread will ever write to a given object. You don't have to worry about concurrent access to that object. 
 
 #### Parallel Workers
 
-The <u>parallel worker model is a concurrency model</u> where a **delegator** distributes the incoming jobs to different workers. Each worker completes the full job. The workers work in parallel, running in different threads, and possibly on different CPUs. The parallel worker concurrency model is the <u>most commonly used concurrency model</u> in Java applications. Many of the concurrency utilities in the java.util.concurrent Java package are designed for use with this model.
+The <u>parallel worker model is a concurrency model</u> where a **delegator** distributes the incoming jobs to different workers. Each worker completes the full job from start to end. The workers work in parallel, running in different threads, and possibly on different CPUs. This is the <u>most commonly used concurrency model</u> in Java applications. Many of the concurrency utilities in the java.util.concurrent Java package are designed for use with this model.
 
+**Advantages**
+Parallel worker concurrency model is **easy to understand**. To increase the parallelization of the application you just add more workers. For instance, if you were implementing a web crawler and web crawling is an **IO intensive job** so you will probably end up with a **few threads per CPU / core** in your computer. One thread per CPU would be too little, since it would be idle a lot of the time while waiting for data to download (IO operation).
 
+**Disadvantages**
 
+**Shared State Can Get Complex**
 
+Sometimes the shared workers need access to some kind of shared data, either in memory(data cache) or in a shared database. The threads need to access the shared data in a way that makes sure that changes by one thread are visible to the others. Threads need to <u>avoid race conditions, deadlock</u> and many other shared state concurrency problems.
 
-Parallel Workers Advantages
-The advantage of the parallel worker concurrency model is that it is easy to understand. To increase the parallelization of the application you just add more workers.
+**Blocked concurrent data structures**
 
-Parallel Workers Disadvantages
+Additionally, <u>part of the parallelization is lost when threads are waiting for each other</u> when accessing the shared data structures. <u>Many concurrent data structures are blocking</u>, meaning one or a limited set of threads can access them at any given time. This may <u>lead to contention on these shared data structures</u>. High contention will essentially lead to a degree of serialization of execution of the part of the code that access the shared data structures. Modern **non-blocking concurrency algorithms** may decrease contention and increase performance, but <u>non-blocking algorithms are hard to implement</u>.
 
-Shared State Can Get Complex
-In reality the parallel worker concurrency model is a bit more complex than illustrated above. The shared workers often need access to some kind of shared data, either in memory or in a shared database. 
+**Persistent data structures** are another alternative. A persistent data structure always preserves the previous version of itself when modified. Thus, if multiple threads point to the same persistent data structure and one thread modifies it, the modifying thread gets a reference to the new structure. All other threads keep a reference to the old structure which is still unchanged and thus consistent. <u>The Scala programming contains several persistent data structures.</u> While persistent data structures are an elegant solution, they tend not to perform that well. For instance, a persistent list will add all new elements to the head of the list, and return a reference to the newly added element. All other threads still keep a reference to the previously first element in the list, and to these threads the list appear unchanged. They cannot see the newly added element.
 
-Some of this shared state is in communication mechanisms like job queues. But some of this shared state is business data, data caches, connection pools to the database etc.
+Such a persistent list is implemented as a linked list. Unfortunately <u>linked lists don't perform very well on modern hardware. Each element in the list is a separate object, and these objects can be spread out all over the computer's memory</u>. <u>Modern CPUs are much faster at accessing data sequentially</u>, so on modern hardware you will get a lot higher performance out of a list implemented on top of an array. The **CPU caches** can load bigger chunks of the array into the cache at a time, and have the CPU access the data directly in the CPU cache once loaded. This is <u>not really possible with a linked list where **elements are scattered all over the RAM**</u>.
 
-As soon as shared state sneaks into the parallel worker concurrency model it starts getting complicated. The threads need to access the shared data in a way that makes sure that changes by one thread are visible to the others (pushed to main memory and not just stuck in the CPU cache of the CPU executing the thread). Threads need to avoid race conditions, deadlock and many other shared state concurrency problems.
+**Stateless Workers**
+Shared state can be modified by other threads in the system. Therefore workers must re-read the state every time it needs it, to make sure it is working on the latest copy. A worker that <u>does not keep state internally (but re-reads it every time</u> it is needed) is called stateless. Re-reading data every time you need it can get slow. Especially if the state is stored in an external database.
 
-Additionally, part of the parallelization is lost when threads are waiting for each other when accessing the shared data structures. Many concurrent data structures are blocking, meaning one or a limited set of threads can access them at any given time. This may lead to contention on these shared data structures. High contention will essentially lead to a degree of serialization of execution of the part of the code that access the shared data structures.
+**Job Ordering is Nondeterministic**
+Another disadvantage is that the <u>job execution order is nondeterministic</u>. There is no way to guarantee which jobs are executed first or last. Job A may be given to a worker before job B, yet job B may be executed before job A. The nondeterministic nature of the parallel worker model makes it <u>hard to reason about the state</u> of the system at any given point in time. It also <u>makes it harder (if not impossible) to guarantee that one jobs happens before another</u>.
 
-Modern non-blocking concurrency algorithms may decrease contention and increase performance, but non-blocking algorithms are hard to implement.
+#### Assembly Line
 
-Persistent data structures are another alternative. A persistent data structure always preserves the previous version of itself when modified. Thus, if multiple threads point to the same persistent data structure and one thread modifies it, the modifying thread gets a reference to the new structure. All other threads keep a reference to the old structure which is still unchanged and thus consistent. The Scala programming contains several persistent data structures.
+Here the **workers are organized** like workers at an assembly line in a factory. Each worker **only performs a part of the full job**. When that part is finished the worker forwards the job to the next worker. Each worker is running in its own thread, and **shares no state with other workers**. This is also sometimes referred to as a shared nothing concurrency model.
 
-While persistent data structures are an elegant solution to concurrent modification of shared data structures, persistent data structures tend not to perform that well.
+Assembly line concurrency model are usually designed to **use non-blocking IO**. Non-blocking IO means that when a worker starts an IO operation (e.g. reading a file or data from a network connection) the <u>worker does not wait for the IO call to finish</u>. IO operations are slow, so waiting for IO operations to complete is a waste of CPU time. When the IO operation finishes, the result of the IO operation ( e.g. data read or status of data written) is passed on to another worker. With non-blocking IO, the <u>IO operations determine the boundary between workers</u>. A worker does as much as it can until it has to start an IO operation. Then it gives up control over the job. When the IO operation finishes, the next worker in the assembly line continues working on the job, until that too has to start an IO operation etc.
 
-For instance, a persistent list will add all new elements to the head of the list, and return a reference to the newly added element (which then point to the rest of the list). All other threads still keep a reference to the previously first element in the list, and to these threads the list appear unchanged. They cannot see the newly added element.
+![Assembly_Line-concurrency-models.png](https://github.com/SnowflakeCoder/programming/blob/master/Java/images/Assembly_Line-concurrency-models.png?raw=true)
 
-Such a persistent list is implemented as a linked list. Unfortunately linked lists don't perform very well on modern hardware. Each element in the list is a separate object, and these objects can be spread out all over the computer's memory. Modern CPUs are much faster at accessing data sequentially, so on modern hardware you will get a lot higher performance out of a list implemented on top of an array. An array stores data sequentially. The CPU caches can load bigger chunks of the array into the cache at a time, and have the CPU access the data directly in the CPU cache once loaded. This is not really possible with a linked list where elements are scattered all over the RAM.
+In reality, the <u>jobs may not flow along a single assembly line</u>. Since most systems can perform more than one job, **jobs flows from worker to worker** depending on the job that needs to be done. In reality there could be <u>multiple different virtual assembly lines going on at the same time</u>. **Jobs may even be forwarded to more than one worker** for concurrent processing. For instance, a job may be <u>forwarded to both a job executor and a job logger</u>. 
 
-Stateless Workers
-Shared state can be modified by other threads in the system. Therefore workers must re-read the state every time it needs it, to make sure it is working on the latest copy. This is true no matter whether the shared state is kept in memory or in an external database. A worker that does not keep state internally (but re-reads it every time it is needed) is called stateless .
+##### Reactive, Event Driven Systems
 
-Re-reading data every time you need it can get slow. Especially if the state is stored in an external database.
+Systems using an assembly line concurrency model are **also called reactive model, or event driven model**. The system's **workers react to events** occurring in the system, either received from the outside world or emitted by other workers. Examples of events could be an incoming HTTP request, or that a certain file finished loading into memory etc. Some of the **popular reactive / event driven platforms** are : Vert.x, Akka, Node.JS (JavaScript)
 
-Job Ordering is Nondeterministic
-Another disadvantage of the parallel worker model is that the job execution order is nondeterministic. There is no way to guarantee which jobs are executed first or last. Job A may be given to a worker before job B, yet job B may be executed before job A.
+##### Actors vs. Channels
 
-The nondeterministic nature of the parallel worker model makes it hard to reason about the state of the system at any given point in time. It also makes it harder (if not impossible) to guarantee that one jobs happens before another.
+Actors and channels are two similar **examples of assembly line models**.
 
-Assembly Line
-The second concurrency model is what I call the assembly line concurrency model. I chose that name just to fit with the "parallel worker" metaphor from earlier. Other developers use other names (e.g. reactive systems, or event driven systems) depending on the platform / community. Here is a diagram illustrating the assembly line concurrency model:
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/Java/images/actors_and_channels.png?raw=true" alt="actors_and_channels.png" style="zoom:50%;" />
 
-The assembly line concurrency model.
-The workers are organized like workers at an assembly line in a factory. Each worker only performs a part of the full job. When that part is finished the worker forwards the job to the next worker.
+In the actor model **each worker is called an actor**. Actors can send messages directly to each other. Messages are sent and processed asynchronously. Actors can be used to implement one or more job processing assembly lines.
+In the channel model, **workers do not communicate directly with each other**. Instead they <u>publish their messages (events) on different channels</u>. Other workers can then listen for messages on these channels without the sender knowing who is listening. Channel model is **more flexible**. A worker does not need to know about what workers will process the job later in the assembly line. It just **needs to know what channel** to forward the job to (or send the message to etc.). Listeners on channels can subscribe and unsubscribe without affecting the workers writing to the channels. This **allows looser coupling between workers**.
 
-Each worker is running in its own thread, and shares no state with other workers. This is also sometimes referred to as a shared nothing concurrency model.
+##### Assembly Line Advantages
 
-Systems using the assembly line concurrency model are usually designed to use non-blocking IO. Non-blocking IO means that when a worker starts an IO operation (e.g. reading a file or data from a network connection) the worker does not wait for the IO call to finish. IO operations are slow, so waiting for IO operations to complete is a waste of CPU time. The CPU could be doing something else in the meanwhile. When the IO operation finishes, the result of the IO operation ( e.g. data read or status of data written) is passed on to another worker.
+- ##### No Shared State
 
-With non-blocking IO, the IO operations determine the boundary between workers. A worker does as much as it can until it has to start an IO operation. Then it gives up control over the job. When the IO operation finishes, the next worker in the assembly line continues working on the job, until that too has to start an IO operation etc.
+  Workers share no state with other workers so they can be implemented without having to think about all the concurrency problems. This makes it much easier to implement workers.
 
-The assembly line concurrency model with non-blocking IO operations marking the boundaries between worker responsibility.
-In reality, the jobs may not flow along a single assembly line. Since most systems can perform more than one job, jobs flows from worker to worker depending on the job that needs to be done. In reality there could be multiple different virtual assembly lines going on at the same time. This is how job flow through assembly line system might look in reality:
+- ##### Stateful Workers
 
-The assembly line concurrency model with multiple assembly lines.
-Jobs may even be forwarded to more than one worker for concurrent processing. For instance, a job may be forwarded to both a job executor and a job logger. This diagram illustrates how all three assembly lines finish off by forwarding their jobs to the same worker (the last worker in the middle assembly line):
+  Since workers know that no other threads modify their data, the workers can be stateful. So that they can keep the data in memory, only writing changes back the eventual external storage systems. A <u>stateful worker can therefore often be faster than a stateless worker</u>.
 
-The assembly line concurrency model showing jobs forwarded to multiple workers.
-The assembly lines can get even more complex than this.
+- ##### Better Hardware Conformity
 
-Reactive, Event Driven Systems
-Systems using an assembly line concurrency model are also sometimes called reactive systems, or event driven systems. The system's workers react to events occurring in the system, either received from the outside world or emitted by other workers. Examples of events could be an incoming HTTP request, or that a certain file finished loading into memory etc.
+  Singlethreaded code has the advantage that it often <u>benefits from how the underlying hardware works</u>. Some developers call this **mechanical sympathy**. You can **create more optimized data structures and algorithms** when you can assume the code is executed in single threaded mode.
 
-At the time of writing, there are a number of interesting reactive / event driven platforms available, and more will come in the future. Some of the more popular ones seems to be:
+  Second, singlethreaded stateful workers can cache data in memory. When data is cached in memory there is also a higher probability that this data is also cached in the CPU cache of the CPU executing the thread. This makes accessing cached data even faster.
 
-Vert.x
-Akka
-Node.JS (JavaScript)
-Personally I find Vert.x to be quite interesting (especially for a Java / JVM dinosaur like me).
+- ##### Job Ordering is Possible
 
-Actors vs. Channels
-Actors and channels are two similar examples of assembly line (or reactive / event driven) models.
+  It is possible to implement an assembly line concurrency model in a way that **guarantees job ordering**. Job ordering makes it much easier to reason about the **state of a system** at any given point in time. You also could write **all incoming jobs to a log** and this log could then be used to **rebuild the state of the system from scratch** in case any part of the **system fails**. The jobs are written to the log in a certain order, and this order becomes the guaranteed job order. Implementing a guaranteed job order is possible by using single worker reading and writing each channel.
 
-In the actor model each worker is called an actor. Actors can send messages directly to each other. Messages are sent and processed asynchronously. Actors can be used to implement one or more job processing assembly lines, as described earlier. Here is a diagram illustrating the actor model:
+##### Assembly Line Disadvantages
 
-The assembly line concurrency model implemented using actors.
-In the channel model, workers do not communicate directly with each other. Instead they publish their messages (events) on different channels. Other workers can then listen for messages on these channels without the sender knowing who is listening. Here is a diagram illustrating the channel model:
+- The main disadvantage is that the **execution of a job is often spread out** over multiple workers, and thus over multiple classes in your project. Thus it becomes **harder to see exactly what code is being executed** for a given job.
+- It may also be **harder to write the code**. Worker code is sometimes written as callback handlers and may result in **callback hell**. Callback hell simply means that it gets hard to track <u>what the code is really doing</u> across all the callbacks, as well as making sure that each <u>callback has access to the data</u> it needs.
+- With parallel worker model this is easier, you can open the worker code and read the code executed pretty much from **start to finish**. Parallel worker code may also be spread over many different classes, but the <u>execution sequence is often easier to read from the code</u>.
 
-The assembly line concurrency model implemented using channels.
-At the time of writing, the channel model seems more flexible to me. A worker does not need to know about what workers will process the job later in the assembly line. It just needs to know what channel to forward the job to (or send the message to etc.). Listeners on channels can subscribe and unsubscribe without affecting the workers writing to the channels. This allows for a somewhat looser coupling between workers.
+#### Functional Parallelism
 
-Assembly Line Advantages
-The assembly line concurrency model has several advantages compared to the parallel worker model. I will cover the biggest advantages in the following sections.
+Functional parallelism is another concurrency model where the basic idea is that you **implement your program using function calls**. Functions can be seen as "agents" or "actors" that send messages to each other, just like in the assembly line concurrency model. When one function calls another, that is similar to sending a message. All <u>parameters passed to the function are copied</u>, so no entity outside the receiving function can manipulate the data. This **copying is essential to avoiding race conditions** on the shared data. This makes the function execution similar to an atomic operation. **Each function call can be executed independently** of any other function call, so each function call can be executed on separate CPUs. That means, that an algorithm implemented functionally can be executed in parallel, on multiple CPUs.
 
-No Shared State
-The fact that workers share no state with other workers means that they can be implemented without having to think about all the concurrency problems that may arise from concurrent access to shared state. This makes it much easier to implement workers. You implement a worker as if it was the only thread performing that work - essentially a singlethreaded implementation.
+With Java 7 we got **ForkAndJoinPool** which can help you implement something similar to functional parallelism. With Java 8 we got **parallel streams** which can help you parallelize the iteration of large collections.
 
-Stateful Workers
-Since workers know that no other threads modify their data, the workers can be stateful. By stateful I mean that they can keep the data they need to operate in memory, only writing changes back the eventual external storage systems. A stateful worker can therefore often be faster than a stateless worker.
+The **hard part** about functional parallelism is **knowing which function calls to parallelize**. Coordinating function calls across CPUs comes with an overhead. The unit of work completed by a function needs to be of a certain size to be worth this overhead. <u>If the function calls are very small, attempting to parallelize them may actually be slower than a singlethreaded</u>, single CPU execution.
 
-Better Hardware Conformity
-Singlethreaded code has the advantage that it often conforms better with how the underlying hardware works. First of all, you can usually create more optimized data structures and algorithms when you can assume the code is executed in single threaded mode.
+You can implement an algorithm using an reactive, event driven model and achieve a breakdown of the work which is similar to that achieved by functional parallelism. With an event driven model **you just get more control** of exactly what and how much to parallelize.
 
-Second, singlethreaded stateful workers can cache data in memory as mentioned above. When data is cached in memory there is also a higher probability that this data is also cached in the CPU cache of the CPU executing the thread. This makes accessing cached data even faster.
+Additionally, splitting a task over multiple CPUs with the **overhead the coordination** of that incurs, only makes sense <u>if that task is currently the only task</u> being executed by the the program. However, if the system is concurrently executing multiple other tasks (like e.g. web servers), there is no point in trying to parallelize a single task. The other CPUs in the computer are anyways going to be busy working on other tasks, so there is not reason to try to disturb them with a slower, functionally parallel task. You are most likely **better off with an assembly line** concurrency model, because it has less overhead (executes sequentially in singlethreaded mode) and conforms better with how the underlying hardware works.
 
-I refer to it as hardware conformity when code is written in a way that naturally benefits from how the underlying hardware works. Some developers call this mechanical sympathy. I prefer the term hardware conformity because computers have very few mechanical parts, and the word "sympathy" in this context is used as a metaphor for "matching better" which I believe the word "conform" conveys reasonably well. Anyways, this is nitpicking. Use whatever term you prefer.
+#### Which Concurrency Model is Best?
 
-Job Ordering is Possible
-It is possible to implement a concurrent system according to the assembly line concurrency model in a way that guarantees job ordering. Job ordering makes it much easier to reason about the state of a system at any given point in time. Furthermore, you could write all incoming jobs to a log. This log could then be used to rebuild the state of the system from scratch in case any part of the system fails. The jobs are written to the log in a certain order, and this order becomes the guaranteed job order. Here is how such a design could look:
+It **depends on what your system is supposed to do**. 
 
-The assembly line concurrency model with a job logger.
-Implementing a guaranteed job order is not necessarily easy, but it is often possible. If you can, it greatly simplifies tasks like backup, restoring data, replicating data etc. as this can all be done via the log file(s).
-
-Assembly Line Disadvantages
-The main disadvantage of the assembly line concurrency model is that the execution of a job is often spread out over multiple workers, and thus over multiple classes in your project. Thus it becomes harder to see exactly what code is being executed for a given job.
-
-It may also be harder to write the code. Worker code is sometimes written as callback handlers. Having code with many nested callback handlers may result in what some developer call callback hell. Callback hell simply means that it gets hard to track what the code is really doing across all the callbacks, as well as making sure that each callback has access to the data it needs.
-
-With the parallel worker concurrency model this tends to be easier. You can open the worker code and read the code executed pretty much from start to finish. Of course parallel worker code may also be spread over many different classes, but the execution sequence is often easier to read from the code.
-
-Functional Parallelism
-Functional parallelism is a third concurrency model which is being talked about a lot these days (2015).
-
-The basic idea of functional parallelism is that you implement your program using function calls. Functions can be seen as "agents" or "actors" that send messages to each other, just like in the assembly line concurrency model (AKA reactive or event driven systems). When one function calls another, that is similar to sending a message.
-
-All parameters passed to the function are copied, so no entity outside the receiving function can manipulate the data. This copying is essential to avoiding race conditions on the shared data. This makes the function execution similar to an atomic operation. Each function call can be executed independently of any other function call.
-
-When each function call can be executed independently, each function call can be executed on separate CPUs. That means, that an algorithm implemented functionally can be executed in parallel, on multiple CPUs.
-
-With Java 7 we got the java.util.concurrent package contains the ForkAndJoinPool which can help you implement something similar to functional parallelism. With Java 8 we got parallel streams which can help you parallelize the iteration of large collections. Keep in mind that there are developers who are critical of the ForkAndJoinPool (you can find a link to criticism in my ForkAndJoinPool tutorial).
-
-The hard part about functional parallelism is knowing which function calls to parallelize. Coordinating function calls across CPUs comes with an overhead. The unit of work completed by a function needs to be of a certain size to be worth this overhead. If the function calls are very small, attempting to parallelize them may actually be slower than a singlethreaded, single CPU execution.
-
-From my understanding (which is not perfect at all) you can implement an algorithm using an reactive, event driven model and achieve a breakdown of the work which is similar to that achieved by functional parallelism. With an even driven model you just get more control of exactly what and how much to parallelize (in my opinion).
-
-Additionally, splitting a task over multiple CPUs with the overhead the coordination of that incurs, only makes sense if that task is currently the only task being executed by the the program. However, if the system is concurrently executing multiple other tasks (like e.g. web servers, database servers and many other systems do), there is no point in trying to parallelize a single task. The other CPUs in the computer are anyways going to be busy working on other tasks, so there is not reason to try to disturb them with a slower, functionally parallel task. You are most likely better off with an assembly line (reactive) concurrency model, because it has less overhead (executes sequentially in singlethreaded mode) and conforms better with how the underlying hardware works.
-
-Which Concurrency Model is Best?
-So, which concurrency model is better?
-
-As is often the case, the answer is that it depends on what your system is supposed to do. If your jobs are naturally parallel, independent and with no shared state necessary, you might be able to implement your system using the parallel worker model.
-
-Many jobs are not naturally parallel and independent though. For these kinds of systems I believe the assembly line concurrency model has more advantages than disadvantages, and more advantages than the parallel worker model.
-
-You don't even have to code all that assembly line infrastructure yourself. Modern platforms like Vert.x has implemented a lot of that for you. Personally I will be exploring designs running on top of platforms like Vert.x for my next projects. Java EE just doesn't have the edge anymore, I feel.
-
-
-
-
+- If your **jobs are naturally parallel**, independent and with no shared state necessary, you might be able to implement your system using the parallel worker model. 
+- Many jobs are not naturally parallel and independent though. For these kinds of systems assembly line concurrency model can be used. It has more advantages than disadvantages, and more advantages than the parallel worker model. Modern platforms like Vert.x has implemented all that **assembly line infrastructure** so you don't even have to code yourself. 
 
 #### Same-threading
 
 
-Same-threading **is a concurrency model** where a single-threaded systems are scaled out to N single-threaded systems. The result is **N single-threaded systems running in parallel**. A **same-threaded system** is not a purely single-threaded system, because it contains of multiple threads. But - <u>each of the threads run like a single-threaded system</u>. Hence the term same-threaded instead of single-threaded.
+Same-threading is a concurrency model where a <u>single-threaded systems are scaled out to N single-threaded systems</u>. The result is **N single-threaded systems running in parallel**. A same-threaded system is not a purely single-threaded system, because it contains of multiple threads. Hence the term **same-threaded instead of single-threaded**.
 
 Why Single-threaded Systems?
-Single-threaded system's concurrency models are **much simpler** than multi-threaded systems. Single-threaded systems **do not share any state** (objects / data) with other threads. This enables the single thread to **use non-concurrent data structures**, and utilize the CPU and CPU caches better.
+Single-threaded system's concurrency models are **much simpler** than multi-threaded systems because it **do not share any state** (objects / data) with other threads. This enables the single thread to **use non-concurrent data structures**, and utilize the CPU and CPU caches better. Unfortunately, single-threaded systems **do not fully utilize modern CPUs**. A modern CPU often comes with 2, 4, 6, 8 more cores. Each core functions as an individual CPU. **A single-threaded system can only utilize one of the cores**.
 
-Unfortunately, single-threaded systems **do not fully utilize modern CPUs**. A modern CPU often comes with 2, 4, 6, 8 more cores. Each core functions as an individual CPU. **A single-threaded system can only utilize one of the cores**.
+- ##### Same-threading: Single-threading Scaled Out
 
-##### Same-threading: Single-threading Scaled Out
+  In order to **utilize all the cores in the CPU**, a single-threaded system can be scaled out to utilize the whole computer. Same-threaded systems usually has **1 thread running per CPU** in the computer. If a computer contains 4 CPUs, or a CPU with 4 cores, then it would be normal to **run 4 instances of the same-threaded system** (4 single-threaded systems).
 
-In order to **utilize all the cores in the CPU**, a single-threaded system can be scaled out to utilize the whole computer. Same-threaded systems usually has **1 thread running per CPU** in the computer. If a computer contains 4 CPUs, or a CPU with 4 cores, then it would be normal to run 4 instances of the same-threaded system (4 single-threaded systems).
+- ##### No Shared State
 
-##### No Shared State
-
-The difference between a same-threaded and a traditional multi-threaded system is that the threads in a same-threaded system **do not share state**. The lack of shared state is what makes each thread behave as it if was a single-threaded system. However, since a same-threaded system can contain more than a single thread. Same-threaded basically means that data processing stays within the same thread, and that no threads in a same-threaded system share data concurrently. This is also referred to as **no shared state concurrency**, or **separate state concurrency**.
+  The threads in a same-threaded system **do not share state**. The lack of shared state is what makes each thread behave as it if was a single-threaded system. However, since a same-threaded system can contain more than a single thread. Same-threaded basically means that **data processing stays within the same thread**, and that no threads in a same-threaded system share data concurrently. This is also referred to as **no shared state concurrency**, or **separate state concurrency**.
 
 ##### Load Distribution
 
-###### Single-threaded Microservices
+A same-threaded system needs to <u>share the work load between the single-threaded instances</u> running and how you distribute the load over the different threads depend on the design of your system.
 
-If your system consists of multiple microservices, each microservice can run in single-threaded mode. When you deploy multiple single-threaded microservices to the same machine, each microservice can run a single thread on a single CPU. **Microservices do not share any data** by nature, so microservices is a **good use case for a same-threaded system**.
+- ##### Single-threaded Microservices
 
-###### Services With Sharded Data
+  If your system consists of multiple microservices, <u>each microservice can run in single-threaded mode</u>. When you deploy multiple single-threaded microservices to the same machine, each microservice can run a single thread on a single CPU. **Microservices do not share any data** by nature, so **microservices is a good use case** for a same-threaded system.
 
-If your system does actually **need to share data**, or at least a database, you may be able to **shard the database**. Sharding means that the **data is divided among multiple databases**. The data is typically divided so that **all data related to each other is located together** in the same database. For instance, all data belonging to some "owner" entity will be inserted into the same database. 
+- ##### Services With Sharded Data
+
+  If your system does actually **need to share data**, or at least a database, you may be able to **shard the database**. Sharding means that the **data is divided among multiple databases**. The data is typically divided so that **all data related to each other is located together** in the same database. For instance, all data belonging to some "owner" entity will be inserted into the same database. 
 
 ##### Thread Communication
 
-If the threads in a same-threaded system need to communicate, they do so by **message passing**. If Thread A wants to send a message to Thread B, Thread A can do so by generating a message (a byte sequence). Thread B can then **copy that message** (byte sequence) and read it. By copying the message Thread B makes sure that **Thread A cannot modify the message while Thread B reads it**. Once copied, the message copy is inaccessible for Thread A. The thread communication can take place via queues, pipes, unix sockets, TCP sockets etc. Whatever fits your system.
+If the threads in a same-threaded system need to communicate, they do so by **message passing**. If Thread A wants to send a message to Thread B, Thread A can do so by generating a message (a byte sequence). Thread B can then **copy that message** (byte sequence) and read it. By copying the message Thread B makes sure that **Thread A cannot modify the message while Thread B reads it**. Once copied, the message copy is inaccessible for Thread A. The thread communication can take place via <u>queues, pipes, unix sockets, TCP sockets etc</u>. Whatever fits your system.
 
-**A multi-threaded system** where the threads share data and a same-threaded system with threads with separate data, communicating by passing messages to each other.
+**A multi-threaded system** is where the threads share data and a same-threaded system is where the threads with separate data, communicating by passing messages to each other.
 
 ##### Thread Ops for Java
 
 Thread Ops for Java is an **open source toolkit** designed to help you **implement separate state same-threaded systems** more easily. Thread Ops contains tools for starting and stopping individual threads, as well as achieving some level of concurrency within a single thread.
 
-
-
-
-
-
-
 #### Concurrency vs. Parallelism
 
-##### Concurrency
+- ##### Concurrency
 
-Concurrency means that an **application is making progress on more than one task at the same time** (concurrently). Well, if the computer only has one CPU the application may not make progress on more than one task at exactly the same time, but more than one task is being processed at a time inside the application because the CPU switches between the different tasks until the tasks are complete.
+  Concurrency means that an **application is making progress on more than one task at the same time** (concurrently). Well, if the computer only has one CPU the application may not make progress on more than one task at exactly the same time, but more than one task is being processed at a time inside the application because the CPU switches between the different tasks until the tasks are complete.
 
-##### Parallelism
+- ##### Parallelism
 
-Parallelism means that an **application splits its tasks up into smaller subtasks which can be processed in parallel**, for instance on multiple CPUs at the exact same time. To achieve true parallelism your **application must have more than one thread running**, or at least be able to schedule tasks for execution in other threads, processes, CPUs, graphics cards etc.
+  Parallelism means that an **application splits its tasks up into smaller subtasks which can be processed in parallel**, for instance on multiple CPUs at the exact same time. To achieve true parallelism your **application must have more than one thread running**, or at least be able to schedule tasks for execution in other threads, processes, CPUs, graphics cards etc.
 
 Concurrency vs. Parallelism
 
@@ -310,14 +251,16 @@ Concurrency vs. Parallelism
 - **An application can be concurrent, but not parallel**. It is <u>possible to have a concurrent application even though it only has a single thread running inside it</u>. This means that it processes more than one task at the same time, but the **thread is only executing on one task at a time**. 
 - **An application can also be parallel but not concurrent**. This means that the application only works on **one task at a time**, and this task is broken down into subtasks which can be processed in parallel. However, **each task (+ subtask) is completed before the next task is split up** and executed in parallel.
 - Additionally, an application can be neither concurrent nor parallel. This means that it works on only one task at a time, and the task is never broken down into subtasks for parallel execution.
-- Finally, an application can also be both concurrent and parallel, in that it both works on multiple tasks at the same time, and also breaks each task down into subtasks for parallel execution. However, **some of the benefits of concurrency and parallelism may be lost in this scenario**, as the CPUs in the computer are already kept reasonably busy with either concurrency or parallelism alone. Combining it may **lead to only a small performance gain** or even performance loss.
+- Finally, an application can also be both concurrent and parallel, in that it both works on multiple tasks at the same time, and also breaks each task down into subtasks for parallel execution. However, some of the **benefits of concurrency and parallelism may be lost in this scenario**, as the CPUs in the computer are already kept reasonably busy with either concurrency or parallelism alone. Combining it may **lead to only a small performance gain** or **even performance loss**.
 
 #### Threads
+
+A Java Thread is like a **virtual CPU** that can execute your Java code, inside your Java application
 
 - **Main Thread** - When a Java application is started its **main() method is executed by the main thread** - a special thread that is **created by the Java VM to run your application**. 
 - **Thread.currentThread()** method returns a reference to the Thread instance executing currentThread().
 - A thread can pause itself by calling the static method Thread.sleep() .
-- **Stop a Thread** : The Thread class contains a **stop()** method, but it is **deprecated**. This stop() method would not provide any guarantees about in what state the thread was stopped. Instead of calling the stop() method you will have to implement your thread code so it can be stopped. For example implement an extra method say **doStop()** which signals to the Thread to stop (exit run method). 
+- **Stop a Thread** : The Thread class contains a **stop()** method, but it is **deprecated**. This stop() method **would not provide any guarantees** about in what state the thread was stopped. Instead of calling the stop() method you will have to implement your thread code so it can be stopped. For example implement an extra method say **doStop()** which signals to the Thread to stop (exit run method). 
 
 #### Race Conditions and Critical Sections
 
@@ -334,7 +277,7 @@ Running more than one thread inside the same application does not by itself caus
   }
 ```
 
-The code in the **add() method contains a critical section**. **When multiple threads execute this critical section, race conditions occur**. The situation where two threads compete for the same resource, where **the sequence** in which the resource is accessed is significant, is called **race conditions**. A code section that leads to race conditions is called a critical section.
+The code in the **add() method contains a critical section**. **When multiple threads execute this critical section, race conditions occur**. The situation where two threads compete for the same resource, where **the sequence** in which the resource is accessed is significant, is called **race conditions**. <u>A code section that leads to race conditions is called a critical section</u>.
 
 ##### Preventing Race Conditions
 
@@ -344,18 +287,14 @@ To prevent race conditions from occurring you must make sure that the <u>critica
 For larger critical sections it may be beneficial to **break the critical section into smaller critical sections**, to allow multiple threads to execute each a smaller critical section. This may **decrease contention on the shared resource**, and thus increase throughput of the total critical section.
 
 ```java
+//With this implementation only a single thread can ever execute the summing at the same time.
 public void add(int val1, int val2){
     synchronized(this){
         this.sum1 += val1;   
         this.sum2 += val2;
     }
 }
-
-```
-
-The add() method adds values to two different sum member variables. With this implementation only a single thread can ever execute the summing at the same time. However, since the **two sum variables are independent of each other**, you could split their summing up into two separate synchronized blocks.
-
-```java
+//However, since the "two sum variables are independent of each other", you could split their summing up into two separate synchronized blocks.
 public void add(int val1, int val2){
     synchronized(this.lock1Obj){
         this.sum1 += val1;   
