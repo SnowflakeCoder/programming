@@ -87,4 +87,7 @@ https://mkyong.com/spring-boot/spring-rest-spring-security-example/
 
 If you want to get serious about automated tests for your software there is one key concept you should know about: the **test pyramid**. Mike Cohn came up with this concept in his book *Succeeding with Agile*. It's a great visual metaphor telling you to think about different layers of testing. It also tells you how much testing to do on each layer.
 
-![img](https://martinfowler.com/articles/practical-test-pyramid/testPyramid.png)
+
+
+<img src="https://martinfowler.com/articles/practical-test-pyramid/testPyramid.png" alt="img" style="zoom:50%;" />
+

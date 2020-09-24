@@ -98,27 +98,25 @@ In our Spotify example Facebook's authorization screen **asked you to authorize 
 
 # What is JWT?
 
-![JWT Workflow](https://www.javainuse.com/63_7-min.JPG)
 
 
-
-![Structure of JWT](https://www.javainuse.com/63_6-min.JPG)
+<img src="https://www.javainuse.com/63_6-min.JPG" alt="Structure of JWT" style="zoom:50%;" />
 
 
 
 # Spring Boot Security + JWT Hello World Example
 
-![Spring Boot JWT Workflow](https://www.javainuse.com/62-12-min.JPG)
+<img src="https://www.javainuse.com/62-12-min.JPG" alt="Spring Boot JWT Workflow" style="zoom:50%;" />
 
 
 
 ### Generating JWT
 
-![Spring Boot JWT Generate Token](https://www.javainuse.com/62-2-min.JPG)
+<img src="https://www.javainuse.com/62-2-min.JPG" alt="Spring Boot JWT Generate Token" style="zoom:50%;" />
 
 ### Validating JWT
 
-![Spring Boot JWT Validate Token](https://www.javainuse.com/62-3-min.JPG)
+<img src="https://www.javainuse.com/62-3-min.JPG" alt="Spring Boot JWT Validate Token" style="zoom:50%;" />
 
 https://www.javainuse.com/spring/boot-jwt
 

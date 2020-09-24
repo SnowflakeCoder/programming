@@ -56,11 +56,11 @@ A user can go onto somebody else's profile and add them as a friend. All of thos
 
 ## Post Flow
 
-Let's look at how does a user post content and how do they retrieve their timeline and other user posts.
+Let's look at how does a user post content and how do they retrieve their tximeline and other user posts.
 
 ### Diagram
 
-![Facebook Post Design.png](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/Facebook%20Post%20Design.png?raw=true)
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/CodeKarle/images/Facebook%20Post%20Design.png?raw=true" alt="Facebook Post Design.png" style="zoom:80%;" />
 
 ### Short URL Service
 
@@ -134,7 +134,7 @@ When they want to see **their own timeline**. Which basically contains posts of 
 
 #### Famous User Post
 
-Right now **we don't have a problem with famous user** because we just have friends, but let's say we introduce a concept of followers and famous users start having multiple millions of followers, then the problem is this Post Processor will have to update Redis for millions of users. And that is not scalable, so that's the reason we will basically give that responsibility to **Timeline Service** to merge the data for normal users and famous users. So whenever a particular user's timeline needs to be shown it queries **User and Group Service**, figures out the list of users that this person is friends with and it queries the user timeline from here, which is the post of all the regular users (normal users), and then it basically know the famous users that this person has friends with. It queries Post Service and ask the Post Service to give all the posts of the famous users. Then it aggregates the information and sent it back. Now before sending it back, it could also **persist this into Redis**, along with a **time stamp**. Now the next time when a request comes in we will basically look at this timestamp and if this time stamp is not so old we'll return the data as it is. But if its very old we again queries the Posts of famous users just in case they would have posted something.
+Right now **we don't have a problem with famous user** because we just have friends, but let's say we introduce a concept of followers and famous users start having multiple millions of followers, then the problem is this Post Processor will have to update Redis for millions of users. And that is not scalable, so that's the reason we will basically give that responsibility to **Timeline Service** to merge the data for normal users and famous users. So whenever a particular user's timeline needs to be shown it queries **User and Group Service**, figures out the list of users that this person is friends with and it queries the user timeline from here, which is the post of all the regular users (normal users), and then it basically know the famous users that this person has friends with. It queries Post Service and ask the <u>Post Service to give all the posts of the famous users</u>. Then it aggregates the information and sent it back. Now before sending it back, it could also **persist this into Redis**, along with a **time stamp**. Now the next time when a request comes in we will basically look at this timestamp and if this time stamp is not so old we'll return the data as it is. But if its very old we again queries the Posts of famous users just in case they would have posted something.
 
 #### Live User Timeline
 
