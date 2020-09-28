@@ -174,3 +174,57 @@ Implementing and running a reliable service takes a lot of effort and also costs
 https://dzone.com/articles/microservices-architecture-what-when-how
 
 https://blog.risingstack.com/designing-microservices-architecture-for-failure/#:~:text=One%20of%20the%20best%20advantages,degradation%20as%20components%20fail%20separately.&text=Services%20depend%20on%20each%20other%20and%20fail%20together%20without%20failover%20logics.
+
+
+
+
+
+
+
+
+
+# Design Patterns for Microservices
+
+Principles microservice architecture :
+
+1. Scalability
+2. Availability
+3. Resiliency
+4. Independent, autonomous
+5. Decentralized governance
+6. Failure isolation
+7. Auto-Provisioning
+8. Continuous delivery through DevOps
+
+## Decomposition Patterns
+
+### Decompose by Business Capability
+
+- **Problem**: Microservices is all about **making services loosely coupled**, applying the **single responsibility principle**. How do we decompose an application into small services?
+- **Solution**: One strategy is to <u>decompose by business capability</u>. A business capability is something that a business does in order to generate value. The set of capabilities for a given business depend on the type of business. For example, the capabilities of an insurance company typically include sales, marketing, underwriting, claims processing, billing, etc. Each business capability can be thought of as a service, except **it’s business-oriented rather than technical**.
+
+### Decompose by Subdomain
+
+- **Problem**: "God Classes", a set of classes that will be **common among multiple services** and will **not be easy to decompose**. For example, the Order class will be used in Order Management, Order Taking, Order Delivery, etc. How do we decompose them?
+- **Solution**: For the "God Classes" issue, DDD (Domain-Driven Design) comes to the rescue. DDD breaks the whole domain model created for the enterprise into subdomains. Each subdomain will have a model, and the scope of that model will be called the **bounded context**. Each microservice will be developed around the bounded context.
+- **Note**: Identifying subdomains requires an understanding of the business. Like business capabilities, subdomains are identified by analyzing the business and its organizational structure and identifying the different areas of expertise.
+
+### Strangler Pattern
+
+- **Problem**: Decomposing design patterns are mainly used for greenfield applications, but 80% of the work we do is with brownfield applications, which are big, monolithic applications. Applying all the above design patterns to them will be difficult because breaking them into smaller pieces at the same time it's being used live is a big task.
+- **Solution**: The Strangler pattern is based on an analogy to a vine that strangles a tree that it’s wrapped around. This solution **works well with web applications**, where a call goes back and forth, and for each URI call, a service can be broken into different domains and hosted as separate services. The idea is to **do it one domain at a time**. This creates two separate applications that live side by side in the same URI space. Eventually, the newly refactored application “strangles” or replaces the original application until finally you can shut off the monolithic application.
+
+## Integration Patterns
+
+### API Gateway Pattern
+
+
+
+
+
+## References
+
+https://www.rajeshbhojwani.co.in/2018/11/design-patterns-for-microservices.html
+
+https://dzone.com/articles/design-patterns-for-microservices
+
