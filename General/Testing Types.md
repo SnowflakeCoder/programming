@@ -17,13 +17,29 @@ Testers use test plans, test cases, or test scenarios to test a software to ensu
 
 Apart from regression testing, automation testing is also used to test the application from load, performance, and stress point of view. It increases the test coverage, improves accuracy, and saves time and money in comparison to manual testing.
 
-## 4 levels of software testing
+## Different Types
 
-- **Unit Testing:** A testing process where **individual units/components of a software are tested**. The purpose is to validate that each unit of the software performs as designed. Here it focuses on the **smallest unit of software design**, often done by programmer.
-- **Integration Testing:** A testing process where **individual units are combined and tested as a group**. The purpose is to **expose faults in the interaction** between integrated units. Integration testing is of **four types**: <u>(i) Top down (ii) Bottom up (iii) Sandwich (iv) Big-Bang</u>. Example are Black Box testing and White Box testing.
-- **System Testing:** A testing process where a complete, integrated system/software is tested. The purpose is to **evaluate the system’s compliance** with the specified requirements. In this software is tested such that it **works fine for different operating system**.It is covered under the **black box testing** technique. In this we just focus on required input and output without focusing on internal working. In this we have <u>security testing, recovery testing , stress testing and performance testing</u>. 
-- **Acceptance Testing:** A testing process where a system is **tested for acceptability**. The purpose of this test is to evaluate the system’s compliance with the business requirements and **assess whether it is acceptable for delivery**.
-- **Regression Testing**: Every time new module is added leads to changes in program. This type of testing make sure that **whole component works properly even after adding components** to the complete program. 
+### Functional Testing
+
+#### Unit Testing
+
+A testing process where **individual units/components of a software are tested**. The purpose is to validate that each unit of the software performs as designed. Here it focuses on the **smallest unit of software design**, often done by programmer.
+
+#### Integration Testing
+
+A testing process where **individual units are combined and tested as a group**. The purpose is to **expose faults in the interaction** between integrated units. Integration testing is of **four types**: <u>(i) Top down (ii) Bottom up (iii) Sandwich (iv) Big-Bang</u>. Example are Black Box testing and White Box testing.
+
+#### System Testing
+
+A testing process where a complete, integrated system/software is tested. The purpose is to **evaluate the system’s compliance** with the specified requirements. In this software is tested such that it **works fine for different operating system**.It is covered under the **black box testing** technique. In this we just focus on required input and output without focusing on internal working. In this we have <u>security testing, recovery testing , stress testing and performance testing</u>. 
+
+#### Acceptance Testing
+
+A testing process where a system is **tested for acceptability**. The purpose of this test is to evaluate the system’s compliance with the business requirements and **assess whether it is acceptable for delivery**.
+
+**Regression Testing**
+
+Every time new module is added leads to changes in program. This type of testing make sure that **whole component works properly even after adding components** to the complete program. 
 
 **Smoke Testing**: This test is done to make sure that software under testing is ready or stable for further testing. It is called smoke test as **testing initial pass is done** to check if it did not catch the fire or smoked in the initial switch on.
 
@@ -31,9 +47,30 @@ Apart from regression testing, automation testing is also used to test the appli
 
 **Beta Testing**: The beta test is **conducted at customer sites** by the end-user of the software. This version is **released for the limited number of users** for testing in real time environment.
 
-**Stress Testing**: In this we **gives unfavorable conditions** to the system and check how they perform in those condition. Example: Test cases that require maximum memory or other resources, may cause thrashing in a virtual OS, may cause excessive disk usage.
 
-**Performance Testing**: It is designed to test the **run-time performance of software** within the context of an integrated system.It is used to test **speed and effectiveness of program**, what is the performance of the system in the given load. It is also called **load testing**. 
+
+
+
+### Non-functional Testing
+
+- **Performance Testing**: Performance testing is concerned with <u>evaluating the overall system's performance and collecting metrics such as availability, response time, and stability</u>. It is designed to test the **run-time performance of software** within the context of an integrated system. It is used to test **speed and effectiveness of program. 
+- **Load Testing**: Load testing is a technique that verifies <u>whether the application can handle the expected load</u>.
+- **Stress Testing**: In this we **gives unfavorable conditions** to the system and check how they perform in those condition. Example: Test cases that require maximum memory or other resources, may cause thrashing in a virtual OS, may cause excessive disk usage.
+- Volume Testing
+- Security Testing
+- Compatibility Testing
+- Install Testing
+- Recovery Testing
+- Reliability Testing
+- Usability Testing
+- Compliance Testing
+- Localization Testing
+
+
+
+
+
+
 
 ## Black Box vs White Box Testing
 
@@ -43,9 +80,13 @@ Apart from regression testing, automation testing is also used to test the appli
 
 
 
+## References
 
+https://www.simform.com/functional-testing-types/
 
+https://www.softwaretestinghelp.com/types-of-software-testing/
 
+https://www.tutorialspoint.com/software_testing_dictionary/index.htm
 
 
 
