@@ -1,5 +1,3 @@
-# Data Structures
-
 ## Data Structures
 
 A data structure is a particular way of organizing data in an application so that it can be used effectively. The idea is to reduce the space and time complexities of different tasks. 
@@ -202,69 +200,33 @@ Graph classifications
 
 ### Trie
 
-Trie is an efficient data structure for searching words in dictionaries, search complexity with Trie is linear in terms of word (or key) length to be searched. If we store keys in binary search tree, a well balanced BST will need time proportional to M * log N, where M is maximum string length and N is number of keys in tree. Using trie, we can search the key in O(M) time. So it is much faster than BST.
+Tries is **a tree that stores strings**. Maximum number of children of a node is equal to size of alphabet. Trie supports search, insert and delete operations in O(L) time where L is length of key. Trie is an efficient data structure for <u>searching words in dictionaries</u>. Also, the most important thing is Prefix Search. With Trie, we can find all words beginning with a prefix (This is not possible with Hashing). The only problem with Trie is they **require a lot of extra space**. Trie are also known as **radix tree** or **prefix tree**.
 
-Hashing also provides word search in O(n) time on average. But the advantages of Trie are there are no collisions (like hashing) so worst case time complexity is O(n). Also, the most important thing is Prefix Search. With Trie, we can find all words beginning with a prefix (This is not possible with Hashing). The only problem with Tries is they require a lot of extra space. Tries are also known as **radix tree** or **prefix tree**.
+```java
+// Trie Node structure
+private static class TrieNode {
+    private Map<String, TrieNode> children = new HashMap<>();
+    private int visitCount = 0; //value or data associated for this node.
+    private String domainName; //value or data associated for this node.
+}
+```
 
-The Trie structure can be defined as follows :
+- **Insert time** : O(M) where M is the length of the string.
+- **Search time** : O(M) where M is the length of the string.
+- **Space** : O(ALPHABET_SIZE * M * N) where N is number of keys in trie, ALPHABET_SIZE is 26 if we are only considering upper case Latin characters.
+- Deletion time : O(M)
 
-struct trie_node
+Tries are well suited for implementing <u>dictionaries due to **prefix search** capability</u>, approximate matching algorithms (used in spell checking), searching Contact from Contact list OR Phone Directory.
 
-{
+#### Advantages
 
-  int value; /* Used to mark leaf nodes */
+- Trie is much faster that BST. If we store keys in binary search tree, <u>a well balanced BST will need **M * log N** time</u>, where M is maximum string length and N is number of keys in tree. <u>Using trie, we can search the key in **O(M)** time</u>.
+- This is also faster than Hashing because we <u>do not need to compute any hash function</u>. No collision handling is required (like we do in open addressing and separate chaining) Hashing also provides word search in O(n) time on average. But the <u>advantages of Trie are there are **no collisions** (like hashing)</u> so worst case time complexity is O(n). Another advantage is, we can easily print all words in alphabetical order which is not easily possible with hashing.
+- We can efficiently do prefix search (or auto-complete) with Trie.
 
-  trie_node_t *children[ALPHABET_SIZE];
+#### Disadvantages
 
-};
-
-Insert time : O(M) where M is the length of the string.
-
-Search time : O(M) where M is the length of the string.
-
-Space : O(ALPHABET_SIZE * M * N) where N is number of     keys in trie, ALPHABET_SIZE is 26 if we are     only considering upper case Latin characters.
-
-Deletion time : O(M)
-
-Example : The most common use of Tries is to implement dictionaries due to prefix search capability. Tries are also well suited for implementing approximate matching algorithms, including those used in spell checking. It is also used for searching Contact from Mobile Contact list OR Phone Directory.
-
- 
-
-Advantages of Trie Data Structure
-
- 
-
-Tries is a tree that stores strings. Maximum number of children of a node is equal to size of alphabet. Trie supports search, insert and delete operations in O(L) time where L is length of key.
-
- 
-
-Hashing:- In Hashing, we convert key to a small value and the value is used to index data. Hashing supports search, insert and delete operations in O(L) time on average.
-
- 
-
-Self Balancing BST : The time complexity of search, insert and delete operations in a self-balancing Binary Search Tree (BST) (like Red-Black Tree, AVL Tree, Splay Tree, etc) is O(L Log n) where n is total number words and L is length of word. The advantage of Self balancing BSTs is that they maintain order which makes operations like minimum, maximum, closest (floor or ceiling) and k-th largest faster. 
-
- 
-
-Why Trie? :-
-
- 
-
-With Trie, we can insert and find strings in O(L) time where L represent the length of a single word. This is obviously faster that BST. This is also faster than Hashing because of the ways it is implemented. We do not need to compute any hash function. No collision handling is required (like we do in open addressing and separate chaining)
-
-Another advantage of Trie is, we can easily print all words in alphabetical order which is not easily possible with hashing.
-
-We can efficiently do prefix search (or auto-complete) with Trie.
-
-Issues with Trie :-
-
-The main disadvantage of tries is that they need lot of memory for storing the strings. For each node we have too many node pointers(equal to number of characters of the alphabet), If space is concern, then Ternary Search Tree can be preferred for dictionary implementations. In Ternary Search Tree, time complexity of search operation is O(h) where h is height of the tree. Ternary Search Trees also supports other operations supported by Trie like prefix search, alphabetical order printing and nearest neighbor search.
-
- 
-
-The final conclusion is regarding tries data structure is that they are faster but require huge memory for storing the strings.
-
- 
+Tries need **lot of memory for storing the strings**. For each node we have too many node pointers(equal to number of characters of the alphabet), <u>If space is concern, then Ternary Search Tree can be preferred for dictionary implementations</u>. In Ternary Search Tree, time complexity of search operation is O(h) where h is height of the tree. Ternary Search Trees also supports other operations supported by Trie like prefix search, alphabetical order printing and nearest neighbor search.
 
  
 

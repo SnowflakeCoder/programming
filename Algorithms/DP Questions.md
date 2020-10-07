@@ -1,11 +1,5 @@
 # Dynamic Programming
 
-
-
-
-
-### Problems
-
 #### Fibonacci (Memoized version)
 
 ```
