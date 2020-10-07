@@ -497,7 +497,11 @@ Beginning with Java 1.7 the JDK/JRE has begun using **Timsort** for object sorts
 
 Time Complexities of all Sorting Algorithms
 
-![img](file:///C:/Users/arun0/AppData/Local/Temp/msohtmlclip1/01/clip_image004.png)
+![Time Complexities of all Sorting Algorithms.png](https://github.com/SnowflakeCoder/programming/blob/master/Algorithms/images/Time%20Complexities%20of%20all%20Sorting%20Algorithms.png?raw=true)
+
+
+
+
 
  
 

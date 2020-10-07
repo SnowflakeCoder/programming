@@ -20,33 +20,46 @@ int fib(int n)
 
 A given problems has Optimal Substructure Property if <u>optimal solution of the given problem can be obtained by using optimal solutions of its subproblems</u>. For example, the **Shortest Path problem** has optimal substructure property. If a node x lies in the shortest path from a source node u to destination node v then the shortest path from u to v is combination of shortest path from u to x and shortest path from x to v. The standard All Pair Shortest Path algorithms like **Floyd–Warshall and Bellman–Ford** are typical examples of Dynamic Programming. On the other hand, the <u>**Longest Path problem** doesn’t have the Optimal Substructure property</u>. For example, There are two longest paths from q to t: q→r→t and q→s→t, but the longest path q→r→t is not a combination of longest path from q to r and longest path from r to t, because the longest path from q to r is q→s→t→r and the longest path from r to t is r→q→s→t.
 
-![img](https://media.geeksforgeeks.org/wp-content/cdn-uploads/LongestPath.gif)
+![LongestPath.gif](https://github.com/SnowflakeCoder/programming/blob/master/Algorithms/images/LongestPath.gif?raw=true)
 
 ### Memoizatation Vs Tabulation
 
-In dynamic programming, there are **two different ways to store the values** so that these values can be reused:
+In dynamic programming, there are **two different ways to store the values** so that these values can be reused.
 
-a) **Memoization (Top Down)**: The memoized program for a problem is **similar to the recursive version** with a small modification that it looks into a <u>lookup table before computing solutions</u>. We initialize a lookup array with all initial values as NIL. Whenever we need solution to a subproblem, we first look into the lookup table. If the precomputed value is there then we return that value, otherwise we calculate the value and put the result in lookup table so that it can be reused later.
+- **Memoization (Top Down)**: The memoized program for a problem is **similar to the recursive version** with a small modification that it looks into a <u>lookup table before computing solutions</u>. We **initialize a lookup array** with all initial values as NIL. Whenever we need solution to a subproblem, we first look into the lookup table. If the precomputed value is there then we return that value, otherwise we calculate the value and put the result in lookup table so that it can be reused later.
 
-Here, we start our journey from the top most destination state and compute its answer by taking in count the values of states that can reach the destination state, till we reach the bottom most base state. So instead of starting from the base state that i.e dp[0] we ask our answer from the states that can reach the destination state dp[n] following the state transition relation, then it is the top-down fashion of DP. As we can see we are storing the most recent cache up to a limit so that if next time we got a call for the same state we simply return it from the memory. So, this is why we call it **memoization** as we are <u>storing the most recent state values</u>.
+  Here, we start our journey from the top most destination state and compute its answer by taking in count the values of states that can reach the destination state, till we reach the bottom most base state. So instead of starting from the base state that i.e dp[0] we ask our answer from the states that can reach the destination state dp[n] <u>following the state transition relation</u>, then it is the top-down fashion of DP. As we can see we are storing the most recent cache up to a limit so that if next time we got a call for the same state we simply return it from the memory. So, this is why we call it **memoization** as we are <u>storing the most recent state values</u>.
 
-b) **Tabulation (Bottom Up)**: The tabulated program for a given problem <u>builds a table in bottom up fashion</u> and returns the last entry from table. For example, for Fibonacci number, we first calculate fib(0) then fib(1) then fib(2) then fib(3) and so on. So we are building the solutions of subproblems bottom-up. This starts from the bottom and cumulating answers to the top and reached the top most desired state. It starts its transition from the bottom most base case dp[0] and reaches it destination state dp[n]. Here the dp table is being populated sequentially and we are directly accessing the calculated states from the table itself and hence, we call it **tabulation method**.
+- **Tabulation (Bottom Up)**: The tabulated program for a given problem <u>builds a table in bottom up fashion</u> and returns the last entry from table. For example, for Fibonacci number, we first calculate fib(0) then fib(1) then fib(2) then fib(3) and so on. So we are building the solutions of subproblems bottom-up. This starts from the bottom and cumulating answers to the top and reached the top most desired state. It starts its transition from the bottom most base case dp[0] and reaches it destination state dp[n]. Here the dp **table is being populated sequentially** and we are directly accessing the calculated states from the table itself and hence, we call it **tabulation method**.
 
-![img](https://media.geeksforgeeks.org/wp-content/cdn-uploads/Tabulation-vs-Memoization-1.png)
+![Tabulation-vs-Memoization.png](https://github.com/SnowflakeCoder/programming/blob/master/Algorithms/images/Tabulation-vs-Memoization.png?raw=true)
 
 Both Tabulated and Memoized store the solutions of subproblems. In Memoized version, table is filled on demand while in Tabulated version, starting from the first entry, all entries are filled one by one. Unlike the Tabulated version, all entries of the lookup table are not necessarily filled in Memoized version. For example, Memoized solution of the **LCS (Longest Common Subsequence)** problem doesn’t necessarily fill all entries.
 
+## Hashing / Hash Function
 
+A function that converts a given big input key to a small practical integer value. The mapped integer value is **used as an index in hash table**. A good hash function should have following properties
 
+1. Efficiently computable.
+2. Should **uniformly distribute the keys** (Each table position equally likely for each key)
 
+**Hash Table**: An array that stores pointers to records corresponding to a given phone number. An entry in hash table is NIL if no existing phone number has hash function value equal to the index for the entry.
 
+**Collision Handling**: In a hash function there is a possibility that <u>two keys result in same hash value</u>. The situation where a newly inserted key maps to an already occupied slot in hash table is called collision and must be handled using some **collision handling technique**. Following are the ways to handle collisions:
 
+- **Chaining**: The idea is to make each cell of hash table point to a <u>linked list of records that have same hash value</u>. Chaining is simple, but requires additional memory outside the table.
+- **Open Addressing**: In open addressing, all elements are stored in the hash table itself. Each table entry contains either a record or NIL. When searching for an element, we one by one examine table slots until the desired element is found or it is clear that the element is not in the table.
 
+**Complexity**
 
+- Space Complexity : O(n)
+- Search , Insertion, Deletion  : O(1) [Average]  O(n) [Worst case]
+
+Hashing seems better than BST for all the operations. But in hashing, **elements are unordered** and in <u>BST elements are stored in an ordered manner</u>. Also BST is easy to implement but hash functions can sometimes be very complex to generate. In BST, we can also efficiently find **floor and ceil of values**.
 
 ## Fail Fast and Fail Safe Iterators
 
-First of all, there is no term as fail-safe. Its only Fail fast and Non fail-fast iterators.
+First of all, there is no term as fail-safe. Its only **Fail fast and Non fail-fast** iterators.
 
 **Concurrent Modification**: modify an object concurrently when another task is already running over it. 
 
