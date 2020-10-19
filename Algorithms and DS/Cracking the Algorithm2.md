@@ -95,7 +95,7 @@ Queues are often used is in **breadth-first search** or in implementing a **cach
 A tree is a data structure composed of nodes. Each tree has a root node. The tree **cannot contain cycles**. A tree is a connected graph without cycles.
 
 - A **binary tree** is a tree in which each node has **up to two children**. 
-- A **binary search tree** is a binary tree in which every node fits a specific ordering property: `all left descendents <= n < all right descendents`. This must be true for each node n. So in a binary search tree, for each node, <u>its left descendents are less than or equal to the current node, which is less than the right descendents</u>. 
+- A **binary search tree** is a binary tree in which every node fits a specific ordering property: `all left descendents <= n < all right descendents`. This must be true for each node n. So in a binary search tree, for each node, <u>all of its left descendents are less than or equal to the current node, which is less than all the right descendents</u>. 
 - Balanced trees are balanced enough to <u>ensure O(log n) times for insert and find</u>. Two common types of balanced trees are **red-black trees** and **AVL trees**.
 - A complete binary tree is a binary tree in which every level of the tree is **fully filled**, **except for perhaps the last level**. To the extent that the last level is filled, it is **filled left to right**. A binary tree <u>totally filled other than the rightmost elements on the last level</u>.
 - A full binary tree is a binary tree in which every node has either zero or two children. That is, **no nodes have only one child**. <u>A full binary tree is not always a complete binary tree</u>.
