@@ -45,9 +45,9 @@ You can also mix threads and fibers, which gives rise to the problems faced by b
 
 **Thread:** A process is a part of an operating system which is responsible for executing an application. Every program that executes on your system is a process and to run the code inside the application a process uses a term known as a thread. **A thread is a lightweight process**, or in other words, a thread is a unit which executes the code under the program. So every program has logic and a thread is responsible for executing this logic.
 
-Here are some of the differences between Goroutine and Thread:
 
 
+## Goroutine and Thread:
 
 |                          GOROUTINE                           |                            THREAD                            |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
@@ -61,5 +61,5 @@ Here are some of the differences between Goroutine and Thread:
 |         They have fasted startup time than threads.          |         They have slow startup time than goroutines.         |
 |           Goroutine has growable segmented stacks.           |       Threads doesnot have growable segmented stacks.        |
 
-The cost of threads are higher than goroutine
+The cost of threads are higher than goroutine.
 

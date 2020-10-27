@@ -23,7 +23,7 @@ public class MonotonicArray {
 		for (int index = 0; index < arr.length; index++) {
 			Optional<Integer> count = Optional.ofNullable(countMap.get(arr[index]));
 
-			if (count.isEmpty()) {
+			if (count.isPresent()) {
 				countMap.put(arr[index], 1);
 			} else {
 				countMap.put(arr[index], count.get() + 1);

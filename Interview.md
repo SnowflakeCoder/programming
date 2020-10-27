@@ -52,3 +52,15 @@ Very good **public Health  and  welfare system**,  one of the **best medical car
 
 
 
+# Societe Generale
+
+code khata
+
+discussion on the code (tech round)
+
+managarial round / HR round
+
+current work
+
+
+
