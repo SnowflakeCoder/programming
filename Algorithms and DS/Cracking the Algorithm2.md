@@ -6,19 +6,19 @@ Array questions and string questions are often **interchangeable**.
 
 ### Hash Tables
 
-A hash table is a data structure that <u>maps keys to values for highly efficient lookup</u>. We use an **array of linked lists** and a hash code function to implement hashtable. To insert a key:
+A hash table is a data structure that <u>maps keys to values for highly efficient lookup</u>. We use an **array of linked lists** and a hash code function to **implement hashtable**. To insert a key:
 
 1. First, compute the key's hash code. Note that two different keys could have the same hash code, as there may be an infinite number of keys and a finite number of hash codes.
 2. Then, <u>map the hash code to an index in the array</u>, something like `hash(key) % array_len`. <u>Two different hash codes could, of course, map to the same index</u>.
 3. At this index, there is a <u>linked list of keys and values</u>. Store the key and value in this index. We must use a linked list because of collisions.
 
-To retrieve the value pair by its key, you repeat this process. Compute the hash code from the key, and then compute the index from the hash code. Then, <u>search through the linked list</u> for the value with this key. If the **number of collisions is very high**, the **worst case runtime is O(N)**, where N is the number of keys. A good implementation can <u>keeps collisions to a minimum</u>, in which case the **lookup time is O(1)**.
+To retrieve the value pair by its key, you repeat this process. Compute the hash code from the key, and then compute the index from the hash code. Then, <u>search through the linked list</u> for the value with this key. If the **number of collisions is very high**, the **worst case lookup time is O(N)**, where N is the number of keys. A good implementation can <u>keeps collisions to a minimum</u>, in which case the **lookup time is O(1)**.
 
-Alternatively, we can **implement the hash table with a balanced binary search tree**. This gives us an **O(log N) lookup time**. The advantage of this is potentially **using less space**, since we no longer allocate a large array. We can also **iterate through the keys in order**.
+Alternatively, we can **implement the hash table with a balanced binary search tree**. This gives us an **O(log N) lookup time**. The advantage of this is potentially **using less space**, since we no longer allocate a large array. We can also **iterate through the keys in order** by defining equals method.
 
 ### ArrayList
 
-In Java, arrays are fixed length. The <u>size is defined when you create the array</u>. An ArrayList is an array that resizes itself as needed while still providing **O(1) access**. When the array is full, the array doubles in size. The "resizing factor" is 2. <u>Each doubling takes 0 (n) time</u>, but happens so rarely that its amortized <u>insertion time is still 0(1)</u>.
+In Java, arrays are fixed length. The <u>size is defined when you create the array</u>. An ArrayList is an array that resizes itself as needed while still providing **O(1) access**. When the array is full, the array doubles in size. The "**resizing factor**" is 2. <u>Each doubling takes 0 (n) time</u>, but happens so rarely that its amortized <u>insertion time is still 0(1)</u>.
 
 The **total number of copies to insert N elements** is `N/2 + N/4 + N/8 .......+ 2 + 1` < N (Which is just less than N). Therefore, <u>inserting N elements takes O(N) work total</u>. Each insertion is 0(1) on average, even though <u>some insertions take 0 (N) time in the worst case</u>.
 
@@ -33,13 +33,13 @@ StringBuilder solves this problem by simply **creates a resizable array** of all
 
 A linked list is a data structure that represents a **sequence of nodes**. Unlike an array, a linked list **does not provide constant time access** to a particular "index" within the list. So if you'd like to find the Kth element in the list, you will need to iterate through K elements. The benefit of a linked list is that you can <u>add and remove items from the beginning of the list in constant time</u>.
 
-When you implement linklist **make sure none of the methods return a node**. It should always be data, returning node can create problems while delete nodes. Few linked list problems rely on **recursion**. However, recursive algorithms take at least **O(n) space**, where n is the depth of the recursive call. All recursive algorithms can be implemented iteratively, although its more complex.
+When you implement linklist **make sure none of the methods return a node**. It should always be data, otherwise returning node can create problems while delete nodes. Few linked list problems rely on **recursion**. However, recursive algorithms take at least **O(n) space**, where n is the depth of the recursive call. All recursive algorithms can be implemented iteratively, although its more complex.
 
 ### The "Runner"Technique
 
 The "runner" (or second pointer) technique means that you <u>iterate through the linked list with two pointers simultaneously</u>, with one ahead of the other. For example:
 
-`a1->a2...->an->b1->b2....->bn` you wanted to rearrange it into `a1->b1->a2->b2...->an->bn`. But <u>you do not know the length of the linked list</u> (but you do know that the length is an even number). You could have one pointer p1 (the fast pointer) move every two elements for everyone move that p2 makes. <u>When p1 hits the end of the linked list, p2 will be at the midpoint</u>. Then, move p1 back to the front and begin "weaving" the elements. On each iteration, p2 selects an element and inserts it after p1.
+`a1->a2...->an->b1->b2....->bn` you wanted to rearrange it into `a1->b1->a2->b2...->an->bn`. But <u>you do not know the length of the linked list</u> (you only know that the length is an even number). You could have one pointer p1 (the fast pointer) move every two elements for every one move that p2 makes. <u>When p1 hits the end of the linked list, p2 will be at the midpoint</u>. Then, move p1 back to the front and begin "weaving" the elements. On each iteration, p2 selects an element and inserts it after p1.
 
 ## Stack
 
@@ -87,8 +87,7 @@ public T remove(){
 }
 ```
 
-Queues are often used is in **breadth-first search** or in implementing a **cache**. In breadth-first search, we used a queue to store a <u>list of the nodes that we need to process</u>. Each time we process a node, we add its child nodes to the back of the queue. This allows us to <u>process</u>
-<u>nodes in the order in which they are viewed</u>.
+Queues are often used is in **breadth-first search** or in implementing a **cache**. In breadth-first search, we used a queue to store a <u>list of the nodes that we need to process</u>. Each time we process a node, we add its child nodes to the back of the queue. This allows us to <u>process nodes in the order in which they are viewed</u>.
 
 ## Trees
 
@@ -165,10 +164,9 @@ The Graph class is used because, <u>unlike in a tree, you can't necessarily reac
 
 - **Adjacency List** : This is the most common way to represent a graph. Every vertex (or node) stores a list of adjacent vertices. In an undirected graph, an edge like (a, b) would be stored twice: once in a's adjacent vertices and once in b's adjacent vertices. An array of lists (or a hash table) can store the adjacency list,
 
-- **Adjacency Matrices**: An adjacency matrix is an NxN boolean matrix (where N is the number of nodes), where a <u>true value at matrix [i] [j ] indicates an edge from node i to node j</u>. (You can also use an integer matrix with 0s and 1s.) In an undirected graph, an **adjacency matrix will be symmetric**. In a directed graph, it will not (necessarily) be. The same graph algorithms that are used on adjacency lists (breadth-first search, etc.) can be performed with adjacency matrices, but they may be somewhat **less efficient**. In the adjacency list representation, you
-  can <u>easily iterate through the neighbors of a node</u>. In the adjacency matrix, you will need to <u>iterate through all the nodes (both true and false)</u> to identify a node's neighbors.
-
-  <img src="https://github.com/SnowflakeCoder/programming/blob/master/Algorithms%20and%20DS/images/graph%20representation.png?raw=true" alt="graph representation.png" style="zoom:50%;" />
+- **Adjacency Matrices**: An adjacency matrix is an NxN boolean matrix (where N is the number of nodes), where a <u>true value at matrix [i] [j ] indicates an edge from node i to node j</u>. (You can also use an integer matrix with 0s and 1s.) In an undirected graph, an **adjacency matrix will be symmetric**. In a directed graph, it will not (necessarily) be. The same graph algorithms that are used on adjacency lists (breadth-first search, etc.) can be performed with adjacency matrices, but they may be somewhat **less efficient**. In the adjacency list representation, you can <u>easily iterate through the neighbors of a node</u>. In the adjacency matrix, you will need to <u>iterate through all the nodes (both true and false)</u> to identify a node's neighbors.
+  
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/Algorithms%20and%20DS/images/graph%20representation.png?raw=true" alt="graph representation.png" style="zoom:50%;" />
 
 ### Graph Search
 
@@ -507,8 +505,7 @@ A problem is recursive if it can be built off of solutions to subproblems. Recur
 
 - **Bottom-Up Approach**: We start with knowing how to solve the problem for a simple case, like a list with only one element. Then we figure out how to solve the problem for two elements, then for three elements, and so on. The key here is to think about how you can build the solution for one case off of the previous case (or multiple previous cases).
 - **Top-Down Approach**: In these problems, we think about how we can divide the problem for case N into subproblems.
-- **Half-and-Half Approach**: For example, binary search works with a "half-and-half" approach. 
-  Merge sort is also a "half-and-half" approach. 
+- **Half-and-Half Approach**: For example, binary search works with a "half-and-half" approach. Merge sort is also a "half-and-half" approach. 
 
 **Fibonacci Numbers**
 
