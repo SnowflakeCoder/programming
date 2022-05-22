@@ -1,38 +1,36 @@
 # System Design Interview
 
-System design interview questions require the interviewees to <u>design an architecture for a software system</u>, which could be a news feed, Google search, chat system, etc. The questions are usually very big scoped and vague. The processes are open-ended and unclear without a standard or correct answer. An interviewee is evaluated based on **how she analyzes a vague problem** and how she solves the problem step by step. How she <u>explains the idea, discusses with others, and evaluates and optimizes the system</u>. 
+System design interview questions require the interviewees to <u>design an architecture for a software system</u>, which could be a news feed, Google search, chat system, etc. These questions are open-ended and unclear without a standard or correct answer. Companies widely adopt system design interviews because the <u>communication and problem- solving skills are tested in these interviews</u>. An interviewee is <u>evaluated based on **how she analyzes a vague problem** and how she solves the problem step by step</u>. The abilities tested also involve <u>how she explains the idea, discusses with others, and evaluates and optimizes the system</u>. The desired outcome is to <u>come up with an architecture to achieve system design goals</u>. <u>System requirements, constraints and bottlenecks</u> should be well understood. The objective of this book is to **provide a reliable strategy to approach the system design questions**, solid knowledge in building a scalable system, provides a **step by step framework on how to tackle a system design question**.
 
-The desired outcome is to come up with an architecture to achieve system design goals. Typically, system requirements, constraints and bottlenecks should be well understood to shape the direction of both the interviewer and interviewee. The objective of this book is to **provide a reliable strategy to approach the system design questions**, solid knowledge in building a scalable system, provides a **step by step framework on how to tackle a system design question**.
+
 
 ## 1: SCALE FROM ZERO TO MILLIONS OF USERS
 
-Build a system that supports a single user and gradually scale it up to serve millions of users.
+Designing a system that supports millions of users is a journey that requires <u>continuous refinement and endless improvement</u>. Build a system that supports a single user and gradually scale it up to serve millions of users. 
+
+
 
 ### Single server setup
 
 <img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/single-server.png?raw=true" alt="single-server.png" style="zoom: 33%;" />
 
-A single server setup where everything is running on one server: web app, database, cache, etc. To understand this setup, it is helpful to investigate the request flow and traffic source. 
+A single server setup where everything is running on one server: web app, database, cache, etc. To understand this system, we should investigate the request flow and traffic source. 
 
 **Request flow**
 
-1. Users access websites through **domain names**, such as api.mysite.com. Usually, the
-Domain Name System (DNS) is a paid service provided by 3rd parties and not hosted by
-our servers.
+1. Users access websites through **domain names**, such as api.mysite.com. Usually, the Domain Name System (DNS) is a paid service provided by 3rd parties and not hosted by our servers.
 2. Internet Protocol (IP) address is returned to the browser or mobile app.
-3. Once the IP address is obtained, Hypertext Transfer Protocol (HTTP) requests are
-  sent directly to your web server.
+3. Once the IP address is obtained, HTTP requests are sent directly to your web server.
 4. The web server returns HTML pages or JSON response for rendering.
 
 **Traffic source**
 
 The traffic to your web server comes from two sources: web application and mobile application.
 
-- Web application: it uses a combination of server-side languages (Java, Python, etc.) to
-  handle business logic, storage, etc., and client-side languages (HTML and JavaScript) for
-  presentation.
-- Mobile application: HTTP protocol is the communication protocol between the mobile
-  app and the web server. JSON is commonly used API response format to transfer data due to its simplicity. 
+- Web application: it uses a combination of server-side languages (Java, Python, etc.) to handle business logic, storage, etc., and client-side languages (HTML and JavaScript) for presentation.
+- Mobile application: HTTP protocol is the communication protocol between the mobile app and the web server. JSON is commonly used **API response format** to transfer data due to its simplicity. 
+
+
 
 ### Database
 
@@ -208,38 +206,38 @@ how CDN improves load time.
 Figure 1-10 demonstrates the CDN workflow.
 
 1. User A tries to get image.png by using an image URL. The URL’s domain is provided
-  by the CDN provider. The following two image URLs are samples used to demonstrate
-  what image URLs look like on Amazon and Akamai CDNs:
-  • https://mysite.cloudfront.net/logo.jpg
-  • https://mysite.akamai.com/image-manager/img/logo.jpg
+    by the CDN provider. The following two image URLs are samples used to demonstrate
+    what image URLs look like on Amazon and Akamai CDNs:
+    • https://mysite.cloudfront.net/logo.jpg
+    • https://mysite.akamai.com/image-manager/img/logo.jpg
 2. If the CDN server does not have image.png in the cache, the CDN server requests the
-  file from the origin, which can be a web server or online storage like Amazon S3.
+    file from the origin, which can be a web server or online storage like Amazon S3.
 3. The origin returns image.png to the CDN server, which includes optional HTTP header
-  Time-to-Live (TTL) which describes how long the image is cached.
+    Time-to-Live (TTL) which describes how long the image is cached.
 4. The CDN caches the image and returns it to User A. The image remains cached in the
-  CDN until the TTL expires.
+    CDN until the TTL expires.
 5. User B sends a request to get the same image.
 6. The image is returned from the cache as long as the TTL has not expired.
-  Considerations of using a CDN
-  • Cost: CDNs are run by third-party providers, and you are charged for data transfers in
-  and out of the CDN. Caching infrequently used assets provides no significant benefits so
-  you should consider moving them out of the CDN.
-  • Setting an appropriate cache expiry: For time-sensitive content, setting a cache expiry
-  time is important. The cache expiry time should neither be too long nor too short. If it is
-  too long, the content might no longer be fresh. If it is too short, it can cause repeat
-  reloading of content from origin servers to the CDN.
-  • CDN fallback: You should consider how your website/application copes with CDN
-  failure. If there is a temporary CDN outage, clients should be able to detect the problem
-  and request resources from the origin.
-  • Invalidating files: You can remove a file from the CDN before it expires by performing
-  one of the following operations:
-  • Invalidate the CDN object using APIs provided by CDN vendors.
-  • Use object versioning to serve a different version of the object. To version an object,
-  you can add a parameter to the URL, such as a version number. For example, version
-  number 2 is added to the query string: image.png?v=2.
-  Figure 1-11 shows the design after the CDN and cache are added.
+    Considerations of using a CDN
+    • Cost: CDNs are run by third-party providers, and you are charged for data transfers in
+    and out of the CDN. Caching infrequently used assets provides no significant benefits so
+    you should consider moving them out of the CDN.
+    • Setting an appropriate cache expiry: For time-sensitive content, setting a cache expiry
+    time is important. The cache expiry time should neither be too long nor too short. If it is
+    too long, the content might no longer be fresh. If it is too short, it can cause repeat
+    reloading of content from origin servers to the CDN.
+    • CDN fallback: You should consider how your website/application copes with CDN
+    failure. If there is a temporary CDN outage, clients should be able to detect the problem
+    and request resources from the origin.
+    • Invalidating files: You can remove a file from the CDN before it expires by performing
+    one of the following operations:
+    • Invalidate the CDN object using APIs provided by CDN vendors.
+    • Use object versioning to serve a different version of the object. To version an object,
+    you can add a parameter to the URL, such as a version number. For example, version
+    number 2 is added to the query string: image.png?v=2.
+    Figure 1-11 shows the design after the CDN and cache are added.
 7. Static assets (JS, CSS, images, etc.,) are no longer served by web servers. They are
-  fetched from the CDN for better performance.
+    fetched from the CDN for better performance.
 8. The database load is lightened by caching data.
 
 ### Stateless web tier
@@ -349,10 +347,10 @@ Figure 1-19 shows the updated design. Due to the space constraint, only one data
 shown in the figure.
 
 1. The design includes a message queue, which helps to make the system more loosely
-  coupled and failure resilient.
+    coupled and failure resilient.
 2. Logging, monitoring, metrics, and automation tools are included.
-  As the data grows every day, your database gets more overloaded. It is time to scale the data
-  tier.
+    As the data grows every day, your database gets more overloaded. It is time to scale the data
+    tier.
 
 ### Database scaling
 
@@ -4227,4 +4225,16 @@ blocks.
    ## 16: THE LEARNING CONTINUES
 
 Pay attention to both the <u>shared principles and the underlying technologies</u>. Researching each technology and understanding what problems it solves is a great way to strengthen your knowledge base and refine the design process.
+
+
+
+
+
+
+
+
+
+## References
+
+- System Design Interview By Alex Xu
 
