@@ -34,46 +34,48 @@ The traffic to your web server comes from two sources: web application and mobil
 
 ### Database
 
-With the growth of the user base, we need multiple servers. Separating web/mobile traffic
-(web tier) and database (data tier) servers allows them to be **scaled independently**.
+With the growth of the user base, we need multiple servers. Separating web/mobile traffic (web tier) and database (data tier) servers allows them to be **scaled independently**.
+
 **Which databases to use?**
-**Relational databases** are also called a RDBMS or SQL database. The most popular ones are MySQL, Oracle database, PostgreSQL, etc. Relational databases represent and store data in tables and rows. You can perform join operations using SQL across different database tables.
 
-**Non-Relational databases** are also called NoSQL databases. Popular ones are CouchDB,
-Neo4j, Cassandra, HBase, Amazon DynamoDB, etc. These databases are grouped into
-four categories: key-value stores, graph stores, column stores, and document stores. <u>Join</u>
-<u>operations are generally not supported</u> in non-relational databases.
-
-Non-relational databases might be the right choice if:
-
-- Your application requires super-low latency.
-- Your data are unstructured, or you do not have any relational data.
-- You only need to serialize and deserialize data (JSON, XML, YAML, etc.).
-- You need to store a massive amount of data.
+- **Relational databases** are also called a RDBMS or SQL database. The most popular ones are MySQL, Oracle database, PostgreSQL, etc. <u>Relational databases represent and store data in tables and rows</u>. You can perform join operations using SQL across different database tables.
+- **Non-Relational databases** are also called **NoSQL databases**. Popular ones are CouchDB, Neo4j, Cassandra, HBase, Amazon DynamoDB, etc. These databases are grouped into **four categories**: key-value stores, graph stores, column stores, and document stores. <u>Join operations are generally not supported</u> in non-relational databases.
+  - Non-relational databases might be the right choice if:
+    - Your application requires **super-low latency**.
+    - Your **data are unstructured**, or you do not have any relational data.
+    - You only need to serialize and deserialize data (JSON, XML, YAML, etc.).
+    - You need to store a **massive amount of data**.
 
 ### Vertical scaling vs horizontal scaling
 
-Vertical scaling, referred to as “scale up”, means the process of adding more power (CPU,
-RAM, etc.) to your servers. Horizontal scaling, referred to as “scale-out”, allows you to scale
-by adding more servers into your pool of resources.
-When traffic is low, vertical scaling is a great option, and the simplicity of vertical scaling is
-its main advantage. Unfortunately, it comes with serious limitations.
-• Vertical scaling has a hard limit. It is impossible to add unlimited CPU and memory to a
-single server.
-• Vertical scaling does not have failover and redundancy. If one server goes down, the
-website/app goes down with it completely.
-Horizontal scaling is more desirable for large scale applications due to the limitations of
-vertical scaling.
-In the previous design, users are connected to the web server directly. Users will unable to
-access the website if the web server is offline. In another scenario, if many users access the
-web server simultaneously and it reaches the web server’s load limit, users generally
-experience slower response or fail to connect to the server. A load balancer is the best
-technique to address these problems.
+Vertical scaling, referred to as “**scale up**”, means the process of <u>adding more power</u> (CPU, RAM, etc.) to your servers. Horizontal scaling, referred to as “**scale-out**”, allows you to scale by <u>adding more servers</u> into your pool of resources. When traffic is low, vertical scaling is a great option, and the <u>simplicity of vertical scaling is its main advantage</u>. 
+
+Limitations of Vertical Scaling.
+• Vertical scaling has a **hard limit**. It is impossible to add unlimited CPU and memory to a single server.
+• Vertical scaling **does not have failover and redundancy**. If one server goes down, the website/app goes down with it completely.
+
+So <u>Horizontal scaling is more desirable for large scale applications</u>. In a Single Server system, users are connected to the web server directly. But if many users access the web server simultaneously then it reaches the web server’s load limit, hence users  <u>experience slower response or fail to connect to the server</u>. A load balancer is the best technique to address these problems.
 
 ### Load balancer
 
-A load balancer evenly distributes incoming traffic among web servers that are defined in a
-load-balanced set. Figure 1-4 shows how a load balancer works.
+A load balancer evenly distributes incoming traffic among web servers that are defined in a load-balanced set. 
+
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/load-balancer.png?raw=true" alt="load-balancer.png" style="zoom:50%;" />
+
+
+As shown in Figure 1-4, users connect to the public IP of the load balancer directly. With this setup, web servers are unreachable directly by clients anymore. For better security, private IPs are used for communication between servers. A private IP is an IP address reachable only between servers in the same network; however, it is unreachable over the internet. The load balancer communicates with web servers through private IPs.
+In Figure 1-4, after a load balancer and a second web server are added, we successfully solved no failover issue and improved the availability of the web tier. Details are explained below:
+• If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website from going offline. We will also add a new healthy web server to the server pool to balance the load.
+• If the website traffic grows rapidly, and two servers are not enough to handle the traffic, the load balancer can handle this problem gracefully. You only need to add more servers to the web server pool, and the load balancer automatically starts to send requests to them.
+Now the web tier looks good, what about the data tier? The current design has one database,
+
+so it does not support failover and redundancy. Database replication is a common technique to address those problems. Let us take a look.
+
+
+
+
+
+Figure 1-4 shows how a load balancer works.
 As shown in Figure 1-4, users connect to the public IP of the load balancer directly. With this
 setup, web servers are unreachable directly by clients anymore. For better security, private
 IPs are used for communication between servers. A private IP is an IP address reachable only
