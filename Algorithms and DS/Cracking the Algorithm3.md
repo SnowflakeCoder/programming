@@ -153,11 +153,17 @@ Hints start on page 653.
 
 ## Trees and Graphs - Questions(p121)
 
-- Route Between Nodes: Given a directed graph, design an algorithm to find out whether there is a route between two nodes.
+- **Route Between Nodes**: Given a directed graph, design an algorithm to find out whether there is a route between two nodes.
 
-  - Its a directed graph so bidirectional search is not possible. So we can use either BFS or DFS and DFS is easy to implement using recursion. BFS can be useful to **find the shortest path**, whereas DFS may traverse one adjacent node very deeply before ever going onto the immediate neighbors.
+  - **Hint:** Its a directed graph so bidirectional search is not possible. We can use either BFS or DFS. DFS is easy to implement using recursion and BFS can be useful to **find the shortest path**, whereas DFS may traverse one adjacent node very deeply before ever going onto the immediate neighbors.
 
-- Minimal Tree: Given a sorted (increasing order) array with unique integer elements, write an algorithm to create a <u>binary search tree with minimal height</u>.
+  - ```markdown
+    1) Start with one of the two nodes and check {childNode = searchNode}.
+    2) Mark any node found as "visited" to avoid cycles and repetition of the nodes.
+    3)check {childNode = searchNode && !node.visited} before adding it in Queue(BFS) or make recursive call(DFS).
+    ```
+
+- **Minimal Tree**: Given a sorted (increasing order) array with unique integer elements, write an algorithm to create a <u>binary search tree with minimal height</u>.
 
   - A **minimal binary tree (minimal height)** has about the **same number of nodes** on the left of each node as on the right. This means that we want the <u>root to be the middle of the array</u>. Can you divide this problem into **subproblems**? The algorithm is as follows: The middle element of the array becomes the root node. The left half of the array will become left subtree, and right half of the array will become the right subtree. Continue recursion on these nodes.
 
@@ -172,13 +178,13 @@ Hints start on page 653.
     }
     ```
 
-- List of Depths: Given a binary tree, design an algorithm which creates a linked list of all the nodes at each depth (e.g., if you have a tree with depth 0, you'll have 0 linked lists).
+- **List of Depths**: Given a binary tree, design an algorithm which creates a linked list of all the nodes at each depth (e.g., if you have a tree with depth 0, you'll have 0 linked lists).
 
   - This problem doesn't requires a **level-by-Ievel traversal**, we can **traverse the graph any way** (BFS/DFS), provided <u>we know which level (depth from the root) we're on</u> as we do so. So we can solve this using DFS by **passing level to the next recursive call**.
 
   - A hashmap / array / arraylist that **maps from level number to nodes** can be useful.
 
-  - Both (BFS/DFS) run in **0(N) time**. We might think the second solution is more space efficient. The first solution uses 0(log N) recursive calls (in a balanced tree), each of which adds a new level to the stack. The second solution, which is iterative, does not require this extra space. However, both solutions require returning 0 (N) data. The extra 0 (log N) space usage from the recursive implementation is dwarfed by the O( N) data that must be returned. So while the first solution may actually use more data, they are <u>equally efficient when it comes to **"big 0:"**</u>
+  - Both (BFS/DFS) run in **0(N) time**. BFS solution is more space efficient. DFS uses 0(log N) recursive calls (in a balanced tree), each of which adds a new level to the stack. BFS is iterative, does not require this extra space. However, both solutions require returning 0 (N) data. The extra 0 (log N) space usage from the recursive implementation is dwarfed by the O( N) data that must be returned. So while the first solution may actually use more data, they are <u>equally efficient when it comes to **"big 0:"**</u>
 
   - ```java
     //DFS
@@ -187,7 +193,7 @@ Hints start on page 653.
         LinkedList<TreeNode> list = null;
         if (lists.size() == level) { // Level not contained in list
             list = new LinkedList<TreeNode>();
-            /*Levels are always traversed in order. So, if this is the first 		time we've visited level i, we must have seen levels 0 through i 		- 1. We can therefore safely add the level at the end.*/
+            /*Levels are always traversed in order. So, if this is the first time we've visited level i, we must have seen levels 0 through i- 1. We can therefore safely add the level at the end.*/
             lists.add(list);
         } else {
             list = lists.get(level);
@@ -199,7 +205,7 @@ Hints start on page 653.
     ```
 
     ```java
-    /*BFS. With each level i , we will have already fully visited all nodes on level i - 1. This means that to get which nodes are on level i, we can simply look at all children of the nodes of level i - l.*/
+    /*BFS. With each level i , we will have already fully visited all nodes on level i - 1. So to get which nodes are on level i, we can simply look at all children of the nodes of level i - l.*/
     void levelList(TreeNode root) {
         if (root == nUll) return;
         List<List<TreeNode» result = new ArrayList<LinkedList<TreeNode»();
@@ -218,19 +224,19 @@ Hints start on page 653.
     }
     ```
 
-- Check Balanced: Implement a function to check if a binary tree is balanced. 
+- **Check Balanced**: Implement a function to check if a binary tree is balanced. 
 
   - A **balanced tree** is a tree such that the heights of the two subtrees of any node never differ by more than one.
 
-  - **Brute force** - Simply recurse through the entire tree, and for each node, compute the heights of each subtree, check the difference > 1. But it's not very efficient. getHeight() is called repeatedly on the same nodes since each node is "touched" once per node above it. The algorithm is O(N log N) time.
+  - **Brute force** - Write a method **getHeight()** which recurse through the entire tree, and for each node, compute the heights of each subtree, check the difference > 1. But it's <u>not very efficient</u>. getHeight() is called repeatedly on the same nodes since each node is "touched" once per node above it. The algorithm is O(N log N) time.
 
-  - Best : getHeight() could actually check if the tree is balanced at the same time as it's checking heights. if discover that the subtree isn't balanced Just return an error code, else return the actual height of the subtree. The height of a null tree is generally defined to be -1, so instead, we'll use Integer. MIN_VALUE as an error code. This code runs in **0(N) time** and **0(H) space**, where H is the height of the tree.
+  - **Best** : getHeight() could actually check if the tree is balanced at the same time as it's checking heights. if discover that the subtree isn't balanced Just return an error code, else return the actual height of the subtree. The height of a null tree is generally defined to be -1, so instead, we'll use Integer. MIN_VALUE as an error code. This code runs in **0(N) time** and **0(H) space**, where H is the height of the tree.
 
     ```java
     int checkHeight(TreeNode root) {
     	if (root == nUll) return -l;
     	int leftHeight = checkHeight(root.left);
-        //if get an error code, immediately return from the current call.
+    	//if get an error code, immediately return from the current call.
     	if (leftHeight == Integer.MIN_VALUE) return Integer.MIN_VALUE;
     	int right Height checkHeight(root.right)j
     	if (rightHeight == Integer.MIN_VALUE) return Integer.MIN_VALUE;
@@ -259,7 +265,7 @@ Hints start on page 653.
     }
     ```
 
-  - The only **problem** is that In Order Traversal **can't handle duplicate values in the tree** properly. For example, the algorithm cannot distinguish between the two trees below (one of which is invalid) since they have the **same in-order traversal**.
+  - The only **problem** is that In-Order Traversal **can't handle duplicate values in the tree** properly. For example, the algorithm cannot distinguish between the two trees below (one of which is invalid) since they have the **same in-order traversal**.
 
     <img src="https://github.com/SnowflakeCoder/programming/blob/master/Algorithms%20and%20DS/images/tree%20In-order%20traversal%20issue.png?raw=true" alt="tree In-order traversal issue.png" style="zoom:67%;" />
 
@@ -271,10 +277,10 @@ Hints start on page 653.
     **Solution 2**: Validate the left tree's nodes to ensure that they are smaller than current value. i.e. a recursive function that ensures each node is within an allowable (min, max) range. At first, this range is infinite. When we traverse to the left, the min is negative infinity and the max is root. 
 
     ```java
-    //Start root with (min=NULL) (max=NULL), NULL indicates no min or max.
-    boolean checkBST(TreeNode n) { return checkBST(n) null) null); }
+    //Start root with (min=NULL) (max=NULL), NULL indicates no limit.
+    boolean checkBST(TreeNode n) { return checkBST(n, null, null); }
     /*When we branch left, max gets updated. When we branch right, min gets updated. If anything fails these checks, we stop and return false.*/
-    boolean checkBST(TreeNode n) Integer min) Integer max) {
+    boolean checkBST(TreeNode n, Integer min, Integer max) {
         if(n == nUll) { return true; }
         if((min != null && n.data <= min)||(max != null && n.data>max)){
             return false;
@@ -286,26 +292,56 @@ Hints start on page 653.
     }
     ```
 
-    The time complexity for this solution is **0(N)**, this is the best we can do, since any algorithm **must touch all N nodes**. Due to the use of recursion, the space complexity is 0 (log N) on a balanced tree, since we may recurse up to the depth of the tree.
+    The time complexity for this solution is **0(N)**, this is the best we can do, since any algorithm **must touch all N nodes**. Due to the use of recursion, the <u>space complexity is **0(log N)** on a balanced tree</u>, since we may recurse up to the depth of the tree.
 
-- Successor: Write an algorithm to find the "next" node (i .e., in-order successor) of a given node in a binary search tree. You may assume that each node has a link to its parent.
-  Hints: #79, #91
+- **In-order successor** : Write an algorithm to find the "next" node (in-order successor) of a given node in a binary search tree. You may assume that each node has a link to its parent.
 
-- Build Order: You are given a list of projects and a list of dependencies (which is a list of pairs of
-  projects, where the second project is dependent on the first project). All of a project's dependencies
-  must be built before the project is. Find a build order that will allow the projects to be built. If there
-  is no valid build order, return an error.
-  EXAMPLE
-  Input:
-  projects: a, b, c, d, e, f
-  dependencies: (a, d), (f, b), (b, d), (f, a), (d, c)
-  Output: f, e, a, b, d, c
-  Hints: #26, #47, #60, #85, # 125, # 733
-  4.8 First Common Ancestor: Design an algorithm and write code to find the first common ancestor
+  ```java
+  if (n has a right subtree) { return leftmost child of right subtree }
+  /*traverse upwards till we find a node that is left of parent.*/
+  while (n is right child of n.parent or n.parent is null) { n = n.parent; } 
+  //if n is the left node then next node we should traverse should be parent.
+  return n.parent; 
+  /*if we traverse all the way up the tree before finding a left child, This means we hit the very end of the in-order traversal, then there is no in-order successor. We should return null.*/
+  /*-----------------------------------------------------------*/
+  public TreeNode inorderSuccessor(TreeNode n) {
+      if (n == null) return null;
+      if (n.right != nUll) {
+  		return leftMostChild(n.right);
+      }
+      TreeNode right = n;
+      TreeNode parent = right.parent;
+      while (parent != null && parent.left != right) {
+          right = parent;
+          parent = parent.right;
+      }
+      return parent;
+  }
+  public TreeNode leftMostChild(TreeNode n) {
+      while(n.left != null)	{ n = n.left; }
+      return n;
+  }
+  ```
+
+- **Projects Build Order**: Given a list of projects and a list of dependencies (which is a list of pairs of projects, where the second project is dependent on the first project). All of a project's dependencies must be built before the project is. Find a build order that will allow the projects to be built. If there is no valid build order, return an error.
+  
+  - EXAMPLE Input:
+    projects: a, b, c, d, e, f
+    dependencies: (a, d), (f, b), (b, d), (f, a), (d, c)
+    Output: f, e, a, b, d, c
+    
+  - **Hints 1:** Build a directed graph representing the dependencies. Each node is a project and an edge exists from A to B if B depends on A (A must be built before B). If you identify a <u>node without any incoming edges</u>, then it doesn't have dependency. So add all such nodes to the build order. After this <u>its outgoing edge can be deleted</u> and find other nodes that are free and clear to build. If there are nodes still remaining, but all have dependencies (incoming edges) then that means there's no way to build the system. We should return an error.
+    
+  - **Hints 2**: Start a DFS from an arbitrary node. Once we get to the end of a path, we know that this node can be the last one built, since no nodes depend on it. What does this mean about the nodes right before it?
+  
+    
+  
+- 4.8 First Common Ancestor: Design an algorithm and write code to find the first common ancestor
   of two nodes in a binary tree. Avoid storing additional nodes in a data structure. NOTE: This is not
   necessarily a binary search tree.
   Hints: # 10, #16, #28, #36, #46, #70, #80, #96
-  4.9 BST Sequences: A binary search tree was created by traversing through an array from left to right
+  
+- 4.9 BST Sequences: A binary search tree was created by traversing through an array from left to right
   and inserting each element. Given a binary search tree with distinct elements, print all possible
   arrays that could have led to this tree.
   EXAMPLE
@@ -314,17 +350,20 @@ Hints start on page 653.
   Hints: #39, #48, #66, #82
   110 Cracking the Coding Interview, 6th Edition
   Chapter 4 I Trees and Graphs
-  4.10 Check Subtree: Tl and T2 are two very large binary trees, with Tl much bigger than T2. Create an
+  
+- 4.10 Check Subtree: Tl and T2 are two very large binary trees, with Tl much bigger than T2. Create an
   algorithm to determine if T2 is a subtree of Tl.
   A tree T2 is a subtree ofTi if there exists a node n in Ti such that the subtree of n is identical to T2.
   That is, if you cut off the tree at node n, the two trees would be identical.
   Hints: #4, #7 7, #78, #37, #37
-  4.11 Random Node: You are implementing a binary tree class from scratch which, in addition to
+  
+- 4.11 Random Node: You are implementing a binary tree class from scratch which, in addition to
   insert, find, and delete, has a method getRandomNode() which returns a random node
   from the tree. All nodes should be equally likely to be chosen. Design and implement an algorithm
   for getRandomNode, and explain how you would implement the rest of the methods.
   Hints: #42, #54, #62, #75, #89, #99, #7 72, #7 79
-  4.12 Paths with Sum: You are given a binary tree in which each node contains an integer value (which
+  
+- 4.12 Paths with Sum: You are given a binary tree in which each node contains an integer value (which
   might be positive or negative). Design an algorithm to count the number of paths that sum to a
   given value. The path does not need to start or end at the root or a leaf, but it must go downwards
   (traveling only from parent nodes to child nodes).

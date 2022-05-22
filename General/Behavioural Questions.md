@@ -1,5 +1,13 @@
 # Behavioural Questions
 
+
+
+
+
+
+
+
+
 ## Common Ideas
 
 - Take a **data driven approach to engineering** where all initiatives have **metrics to help drive progress** and **determine success**.
@@ -131,47 +139,61 @@
 
 
 
-# Zalando
-
-- Zalando is Europe’s **leading online platform** for fashion and lifestyle.
-
-- Zalando brings **head-to-toe fashion** to **32M** customers and attract more than **430M visits per month** via website and app.
-
-- Zalando follows a **platform approach**, that offers more than **300K products** from more than **2,500** top fashion and lifestyle brands  in **17 European markets**.
-
-- Zalando's goal is to become "**the starting point for Fashion**" in Europe.
-
-- Empower Decisions with **Data-driven Insights**
-
-- Zalando recently deployed the **GoodData analytics platform** provide end-to-end analytics solutions.
-
-  - to launch “**ZMS Insights** (Zalando Marketing Services)” 
-
-  - Zalando is using GoodData technology to provide brands with detailed access to data to help them better target their customers and grow their businesses.
-
-  - To help its brand partners gain an **understanding of their consumers**, what products they want and when they want them. 
-
-  - ZMS Insights provides partners with access to **purchase, onsite, and customer survey data** of ~**32M** active customers and across over **1B quarterly shop visits**.
-
-  - This enables brands to optimize strategy, product, market and merchandising decision-making, and **enables Zalando to be more collaborative with brands** via data sharing.
-
-    
 
 
+## Behavioural Questions
+
+ - Tell me a time when you had a conflict in the team.
+ - Tell me a time when you did something that had a big impact.
+ - Tell me a time when you had to take responsability of someone else mistake  
+ - What sources do you read? Tell me two books you recently read?  
+ - Tell me about most challenging project worked on?
+ - Tell me what was the biggest bug you shipped and what it meant for the user and the company. What were the learning you took away from the situation?  
+ - Tell about a time you had to deal with a conflict in your team  
+ - Describe an interesting/difficult problem you worked on  
+
+## SAR (Situation-Action-Result) technique examples
+
+### Example 1: Tuning performance
+
+**Situation**: Performance problem where the application server had to be restarted every second day.
+
+**Action**:
+
+- Used JMeter to simulate the load conditions.
+- Identified the cause of the problem to be leaking database connections due to not properly closing the connections under an exceptional scenario.
+- Used the profiling tool “VisualVM” & identified a memory leak where long living objects were holding on to short lived objects. jvisualvm to detect memory leak.
+- Fixed the database connection leaks by closing the connections in a finally block.
+- Fixed the code to release memory consumed by the short lived objects.
+- Tuned the JVM & GC settings. 
+- Load and endurance tested the fixed code with the load testing tool JMeter to confirm that the issue has been fixed.
 
 
+### Example 2: Code quality
 
+**Situation**: Java code that is hard to maintain and reuse. Changes to one module may break another module.
 
+**Action**:
 
-# Tesco
+- Wrote unit tests with proper Mockito mock objects for the existing un-maintainable code.
+- Introduced SonarQube to ascertain code coverage & code quality metrics. Fixed the blocker, critical, and major severity items.
+- Re-factored the code with OO concepts and design patterns in a test driven manner to improve maintainability.
+- Large procedural style if/else statements were replaced with objects adhering to the Open-Closed design principle.
+- Code duplication was eliminated with the help of SonarQube tool & refactoring.
+- Reran the unit tests to ensure that the functionality is not broken due to refactoring.
 
-- A **British** multinational groceries and general merchandise **retailer**.
-  - Market leader of groceries in the UK (market share of around 28.4%)
-- 3rd - **largest retailer** in the world measured by gross revenues.
-- A core part of the **Tesco expansion strategy** has been its **innovative use of technology**.
-- Tesco began marketing itself using the phrase "**The Tesco Way**" to describe the company's core purposes, values, principles, and goals.
-- One of the **Top Marketing strategies** in the world that appeal to **all segments of the market**.
-- Diversity - Tesco has diversified into areas such as the **retailing of books**, **clothing**, electronics, furniture, toys, petrol, software, financial services, telecoms and internet services.
-- Tesco **Covid Response** - Supporting colleagues and communities
-  - retail partner for **SalutetheNHS.org**, a charity that’s giving **1 million meals** to NHS workers.
-  - monthly donation of **£3m of meals** and total food donations to **£52m**.
+**Result**: The application became much easier to maintain, extend, and reuse. The test coverage was increased from 27% to 76%.
+
+### Example 3: Concurrency Management
+
+**Situation**: The production ready application consumed very less CPU and response times were very poor due to heavy I/O operations like database read/write operations.
+
+**Action**:
+
+- Monitored the CPU usage with Visual VM tool.
+- Got a series of thread dumps, say 7 to 10 at a particular interval, say 5 to 8 seconds and analysed those thread dumps by importing the thread dumps into “Samurai”, which is a visual tool.
+- Paid attention to the blocked threads in red. Alternatively, VisualVM is handy for debugging deadlocks & analyzing thread dumps.
+- Fixed the concurrency issue by reducing the synchronization granularity in the code.
+- The offending SQL statement was identified with a SQL query planner and tuned.
+
+**Result**: The response times were halved and the average CPU usage increased from 45% to 98%.

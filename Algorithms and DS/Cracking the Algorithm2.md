@@ -166,6 +166,7 @@ The Graph class is used because, <u>unlike in a tree, you can't necessarily reac
 
 - **Adjacency Matrices**: An adjacency matrix is an NxN boolean matrix (where N is the number of nodes), where a <u>true value at matrix [i] [j ] indicates an edge from node i to node j</u>. (You can also use an integer matrix with 0s and 1s.) In an undirected graph, an **adjacency matrix will be symmetric**. In a directed graph, it will not (necessarily) be. The same graph algorithms that are used on adjacency lists (breadth-first search, etc.) can be performed with adjacency matrices, but they may be somewhat **less efficient**. In the adjacency list representation, you can <u>easily iterate through the neighbors of a node</u>. In the adjacency matrix, you will need to <u>iterate through all the nodes (both true and false)</u> to identify a node's neighbors.
   
+
 <img src="https://github.com/SnowflakeCoder/programming/blob/master/Algorithms%20and%20DS/images/graph%20representation.png?raw=true" alt="graph representation.png" style="zoom:50%;" />
 
 ### Graph Search
@@ -503,7 +504,8 @@ These problems give an interviewer <u>insight into your coding style</u>. These 
 
 A problem is recursive if it can be built off of solutions to subproblems. Recursive algorithms can be very **space inefficient**. Each recursive call adds a new layer to the stack, which means that if your algorithm recurses to a depth of n, it uses at least 0 (n) memory. So it's better to implement a recursive algorithm iteratively. All recursive algorithms can be implemented iteratively. Dynamic programming is just a matter of **taking a recursive algorithm** and finding the overlapping subproblems. You then cache those results for future recursive calls. Three of the most common approaches to divide a problem into subproblems:
 
-- **Bottom-Up Approach**: We start with knowing how to solve the problem for a simple case, like a list with only one element. Then we figure out how to solve the problem for two elements, then for three elements, and so on. The key here is to think about how you can build the solution for one case off of the previous case (or multiple previous cases).
+**Bottom-Up Approach**: We start with knowing how to solve the problem for a simple case, 	like a list with only one element. Then we figure out how to solve the problem for two elements, then for three elements, and so on. The key here is to think about how you can build the solution for one case off of the previous case (or multiple previous cases).
+
 - **Top-Down Approach**: In these problems, we think about how we can divide the problem for case N into subproblems.
 - **Half-and-Half Approach**: For example, binary search works with a "half-and-half" approach. Merge sort is also a "half-and-half" approach. 
 
