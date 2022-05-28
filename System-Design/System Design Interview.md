@@ -8,11 +8,7 @@ System design interview questions require the interviewees to <u>design an archi
 
 Designing a system that supports millions of users is a journey that requires <u>continuous refinement and endless improvement</u>. Build a system that supports a single user and gradually scale it up to serve millions of users. 
 
-
-
 ### Single server setup
-
-<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/single-server.png?raw=true" alt="single-server.png" style="zoom: 33%;" />
 
 A single server setup where everything is running on one server: web app, database, cache, etc. To understand this system, we should investigate the request flow and traffic source. 
 
@@ -56,256 +52,111 @@ Limitations of Vertical Scaling.
 
 So <u>Horizontal scaling is more desirable for large scale applications</u>. In a Single Server system, users are connected to the web server directly. But if many users access the web server simultaneously then it reaches the web server’s load limit, hence users  <u>experience slower response or fail to connect to the server</u>. A load balancer is the best technique to address these problems.
 
+![Server-Design-Levels.png](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/Server-Design-Levels.png?raw=true)
+
 ### Load balancer
 
-A load balancer evenly distributes incoming traffic among web servers that are defined in a load-balanced set. 
+A load balancer evenly <u>distributes incoming traffic among web servers</u> that are defined in a load-balanced set. As shown above **users connect to the public IP of the load balancer directly**. With this setup, **web servers are unreachable directly by clients** anymore. <u>For better security, private IPs are used for communication between servers</u>. A private IP is an IP address reachable only between servers in the same network; however, it is unreachable over the internet. The load balancer communicates with web servers through private IPs.
 
-<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/load-balancer.png?raw=true" alt="load-balancer.png" style="zoom:50%;" />
+Here Load balancer solved **no failover issue** and improved the availability of the web tier. 
 
-
-As shown in Figure 1-4, users connect to the public IP of the load balancer directly. With this setup, web servers are unreachable directly by clients anymore. For better security, private IPs are used for communication between servers. A private IP is an IP address reachable only between servers in the same network; however, it is unreachable over the internet. The load balancer communicates with web servers through private IPs.
-In Figure 1-4, after a load balancer and a second web server are added, we successfully solved no failover issue and improved the availability of the web tier. Details are explained below:
-• If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website from going offline. We will also add a new healthy web server to the server pool to balance the load.
-• If the website traffic grows rapidly, and two servers are not enough to handle the traffic, the load balancer can handle this problem gracefully. You only need to add more servers to the web server pool, and the load balancer automatically starts to send requests to them.
-Now the web tier looks good, what about the data tier? The current design has one database,
-
-so it does not support failover and redundancy. Database replication is a common technique to address those problems. Let us take a look.
-
-
-
-
-
-Figure 1-4 shows how a load balancer works.
-As shown in Figure 1-4, users connect to the public IP of the load balancer directly. With this
-setup, web servers are unreachable directly by clients anymore. For better security, private
-IPs are used for communication between servers. A private IP is an IP address reachable only
-between servers in the same network; however, it is unreachable over the internet. The load
-balancer communicates with web servers through private IPs.
-In Figure 1-4, after a load balancer and a second web server are added, we successfully
-solved no failover issue and improved the availability of the web tier. Details are explained
-below:
-• If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website
-from going offline. We will also add a new healthy web server to the server pool to
-balance the load.
-• If the website traffic grows rapidly, and two servers are not enough to handle the traffic,
-the load balancer can handle this problem gracefully. You only need to add more servers
-to the web server pool, and the load balancer automatically starts to send requests to them.
-Now the web tier looks good, what about the data tier? The current design has one database,
-so it does not support failover and redundancy. Database replication is a common technique
-to address those problems. Let us take a look.
+- If server 1 goes offline, all the traffic will be routed to server 2. This prevents the website from going offline. We will also add a new healthy web server to the server pool to balance the load.
+- If the website traffic grows rapidly, the load balancer can handle this problem gracefully. You only need to add more servers to the web server pool, and the load balancer automatically starts to send requests to them.
 
 ### Database replication
 
-Quoted from Wikipedia: “Database replication can be used in many database management
-systems, usually with a master/slave relationship between the original (master) and the copies
-(slaves)” [3].
-A master database generally only supports write operations. A slave database gets copies of
-the data from the master database and only supports read operations. All the data-modifying
-commands like insert, delete, or update must be sent to the master database. Most
-applications require a much higher ratio of reads to writes; thus, the number of slave
-databases in a system is usually larger than the number of master databases. Figure 1-5 shows
-a master database with multiple slave databases.
+**Master/Slave Model**
+A master database generally only supports write operations. A slave database gets copies of the data from the master database and only supports read operations. All the data-modifying commands like insert, delete, or update must be sent to the master database. Most applications require a much **higher ratio of reads to writes**; thus, the number of slave databases in a system is usually larger than the number of master databases. 
+
 Advantages of database replication:
-• Better performance: In the master-slave model, all writes and updates happen in master
-nodes; whereas, read operations are distributed across slave nodes. This model improves
-performance because it allows more queries to be processed in parallel.
-• Reliability: If one of your database servers is destroyed by a natural disaster, such as a
-typhoon or an earthquake, data is still preserved. You do not need to worry about data loss
-because data is replicated across multiple locations.
-• High availability: By replicating data across different locations, your website remains in
-operation even if a database is offline as you can access data stored in another database
-server.
-In the previous section, we discussed how a load balancer helped to improve system
-availability. We ask the same question here: what if one of the databases goes offline? The
-architectural design discussed in Figure 1-5 can handle this case:
-• If only one slave database is available and it goes offline, read operations will be directed
-to the master database temporarily. As soon as the issue is found, a new slave database
-will replace the old one. In case multiple slave databases are available, read operations are
-redirected to other healthy slave databases. A new database server will replace the old one.
-• If the master database goes offline, a slave database will be promoted to be the new
-master. All the database operations will be temporarily executed on the new master
-database. A new slave database will replace the old one for data replication immediately.
-In production systems, promoting a new master is more complicated as the data in a slave
-database might not be up to date. The missing data needs to be updated by running data
-recovery scripts. Although some other replication methods like multi-masters and circular
-replication could help, those setups are more complicated; and their discussions are
-beyond the scope of this book. Interested readers should refer to the listed reference
-materials [4] [5].
-Figure 1-6 shows the system design after adding the load balancer and database replication.
-Let us take a look at the design:
-• A user gets the IP address of the load balancer from DNS.
-• A user connects the load balancer with this IP address.
-• The HTTP request is routed to either Server 1 or Server 2.
-• A web server reads user data from a slave database.
-• A web server routes any data-modifying operations to the master database. This includes
-write, update, and delete operations.
-Now, you have a solid understanding of the web and data tiers, it is time to improve the
-load/response time. This can be done by adding a cache layer and shifting static content
-(JavaScript/CSS/image/video files) to the content delivery network (CDN).
+
+- **Better performance**: In the master-slave model, all writes and updates happen in master nodes; whereas, <u>read operations are distributed across slave nodes</u>. This model improves performance because it allows more queries to be processed in parallel.
+- **Reliability**: If one of your database servers is destroyed by a natural disaster, such as a typhoon or an earthquake, data is still preserved. You do not need to worry about data loss because data is replicated across multiple locations.
+- **High availability**: By <u>replicating data across different locations</u>, your website remains inoperation even if a database is offline as you can access data stored in another database server.
+
+
+
+what if one of the databases goes offline?
+
+- If only one slave database is available and it goes offline, read operations will be directed to the master database temporarily. In case multiple slave databases are available, read operations are redirected to other healthy slave databases. As soon as the issue is found, a new slave database will replace the old one.
+- If the master database goes offline, a slave database will be promoted to be the new master. All the database operations will be temporarily executed on the new master database. A new slave database will replace the old one for data replication immediately. In production systems, promoting a new master is more complicated as the data in a slave database might not be up to date. The <u>missing data needs to be updated by running data recovery scripts</u>. Although some other replication methods like **multi-masters** and **circular replication** could help.
+
+**Data Flow**
+
+1. A user gets the <u>IP address of the load balancer from DNS</u> and connects the load balancer with this IP address.
+2. The load balancer routes HTTP request to either Server 1 or Server 2.
+3. A web server reads user data from a slave database and routes any data-modifying operations to the master database. This includes write, update, and delete operations.
+
+To improve the load/response time we can add a **cache layer** and shifting static content (JavaScript/CSS/image/video files) to the **content delivery network** (CDN).
 
 ### Cache
 
-A cache is a temporary storage area that stores the result of expensive responses or frequently
-accessed data in memory so that subsequent requests are served more quickly. As illustrated
-in Figure 1-6, every time a new web page loads, one or more database calls are executed to
-fetch data. The application performance is greatly affected by calling the database repeatedly.
-The cache can mitigate this problem.
-Cache tier
-The cache tier is a temporary data store layer, much faster than the database. The benefits of
-having a separate cache tier include better system performance, ability to reduce database
-workloads, and the ability to scale the cache tier independently. Figure 1-7 shows a possible
-setup of a cache server:
-After receiving a request, a web server first checks if the cache has the available response. If
-it has, it sends data back to the client. If not, it queries the database, stores the response in
-cache, and sends it back to the client. This caching strategy is called a read-through cache.
-Other caching strategies are available depending on the data type, size, and access patterns. A
-previous study explains how different caching strategies work [6].
-Interacting with cache servers is simple because most cache servers provide APIs for
-common programming languages. The following code snippet shows typical Memcached
-APIs:
-Considerations for using cache
-Here are a few considerations for using a cache system:
-• Decide when to use cache. Consider using cache when data is read frequently but
-modified infrequently. Since cached data is stored in volatile memory, a cache server is
-not ideal for persisting data. For instance, if a cache server restarts, all the data in memory
-is lost. Thus, important data should be saved in persistent data stores.
-• Expiration policy. It is a good practice to implement an expiration policy. Once cached
-data is expired, it is removed from the cache. When there is no expiration policy, cached
-data will be stored in the memory permanently. It is advisable not to make the expiration
-date too short as this will cause the system to reload data from the database too frequently.
-Meanwhile, it is advisable not to make the expiration date too long as the data can become
-stale.
-• Consistency: This involves keeping the data store and the cache in sync. Inconsistency
-can happen because data-modifying operations on the data store and cache are not in a
-single transaction. When scaling across multiple regions, maintaining consistency between
-the data store and cache is challenging. For further details, refer to the paper titled
-“Scaling Memcache at Facebook” published by Facebook [7].
-• Mitigating failures: A single cache server represents a potential single point of failure
-(SPOF), defined in Wikipedia as follows: “A single point of failure (SPOF) is a part of a
-system that, if it fails, will stop the entire system from working” [8]. As a result, multiple
-cache servers across different data centers are recommended to avoid SPOF. Another
-recommended approach is to overprovision the required memory by certain percentages.
-This provides a buffer as the memory usage increases.
-• Eviction Policy: Once the cache is full, any requests to add items to the cache might
-cause existing items to be removed. This is called cache eviction. Least-recently-used
-(LRU) is the most popular cache eviction policy. Other eviction policies, such as the Least
-Frequently Used (LFU) or First in First Out (FIFO), can be adopted to satisfy different use
-cases.
+A cache is a temporary storage area that stores the <u>result of expensive responses or frequently accessed data</u> in memory so that subsequent requests are served more quickly. Every time a new web page loads, one or more database calls are executed to
+fetch data. The application performance is greatly affected by calling the database repeatedly. The cache can solve this problem.
+
+**Cache tier**
+The cache tier is a temporary data store layer, much faster than the database. The **benefits of having a separate cache tier** include <u>better system performance, ability to reduce database workloads, and the ability to scale the cache tier independently</u>. 
+
+After receiving a request, a web server first checks if the cache has the available response. If it has, it sends data back to the client. If not, it queries the database, stores the response in cache, and sends it back to the client. This caching strategy is called a **read-through cache**. 
+
+Considerations for using cache system:
+
+- **Decide when to use cache** :- Consider using cache when <u>data is read frequently but modified infrequently</u>. Since cached data is stored in volatile memory, a <u>cache server is not ideal for persisting data</u>. For instance, if a cache server restarts, all the data in memory is lost. Thus, important data should be saved in persistent data stores.
+- **Expiration policy** :- Once cached data is expired, it is removed from the cache. When there is no expiration policy, cached data will be stored in the memory permanently. If the expiration date is too short then this will cause the system to reload data from the database too frequently. But if the expiration date too long then the data can become stale.
+- **Consistency**: This involves <u>keeping the data store and the cache in sync</u>. Inconsistency can happen because data-modifying operations on the data store and cache are not in a single transaction. When scaling across multiple regions, maintaining consistency between the data store and cache is challenging. 
+- **Mitigating failures**: A single cache server represents a potential single point of failure (SPOF). <u>A single point of failure (SPOF) is a part of a system that, if it fails, will stop the entire system from working</u>. As a result, multiple cache servers across different data centers are recommended to avoid SPOF. Another recommended approach is to <u>overprovision the required memory by certain percentages</u>. This provides a buffer as the memory usage increases.
+- **Eviction Policy**: Once the cache is full, any requests to add items to the cache might cause **existing items to be removed**. This is called cache eviction. Least-recently-used (LRU) is the most popular cache eviction policy. Other eviction policies are Least Frequently Used (LFU) or First in First Out (FIFO).
 
 ### Content delivery network (CDN)
 
-A CDN is a network of geographically dispersed servers used to deliver static content. CDN
-servers cache static content like images, videos, CSS, JavaScript files, etc.
-Dynamic content caching is a relatively new concept and beyond the scope of this book. It
-enables the caching of HTML pages that are based on request path, query strings, cookies,
-and request headers. Refer to the article mentioned in reference material [9] for more about
-this. This book focuses on how to use CDN to cache static content.
-Here is how CDN works at the high-level: when a user visits a website, a CDN server closest
-to the user will deliver static content. Intuitively, the further users are from CDN servers, the
-slower the website loads. For example, if CDN servers are in San Francisco, users in Los
-Angeles will get content faster than users in Europe. Figure 1-9 is a great example that shows
-how CDN improves load time.
-Figure 1-10 demonstrates the CDN workflow.
+A CDN is a **network of geographically dispersed servers** used to deliver static content. CDN servers cache <u>static content like images, videos, CSS, JavaScript files, etc</u>. when a user visits a website, a CDN server closest to the user will deliver static content. Intuitively, the further users are from CDN servers, the slower the website loads. For example, if CDN servers are in San Francisco, users in Los Angeles will get content faster than users in Europe. 
 
-1. User A tries to get image.png by using an image URL. The URL’s domain is provided
-    by the CDN provider. The following two image URLs are samples used to demonstrate
-    what image URLs look like on Amazon and Akamai CDNs:
-    • https://mysite.cloudfront.net/logo.jpg
-    • https://mysite.akamai.com/image-manager/img/logo.jpg
-2. If the CDN server does not have image.png in the cache, the CDN server requests the
-    file from the origin, which can be a web server or online storage like Amazon S3.
-3. The origin returns image.png to the CDN server, which includes optional HTTP header
-    Time-to-Live (TTL) which describes how long the image is cached.
-4. The CDN caches the image and returns it to User A. The image remains cached in the
-    CDN until the TTL expires.
-5. User B sends a request to get the same image.
-6. The image is returned from the cache as long as the TTL has not expired.
-    Considerations of using a CDN
-    • Cost: CDNs are run by third-party providers, and you are charged for data transfers in
-    and out of the CDN. Caching infrequently used assets provides no significant benefits so
-    you should consider moving them out of the CDN.
-    • Setting an appropriate cache expiry: For time-sensitive content, setting a cache expiry
-    time is important. The cache expiry time should neither be too long nor too short. If it is
-    too long, the content might no longer be fresh. If it is too short, it can cause repeat
-    reloading of content from origin servers to the CDN.
-    • CDN fallback: You should consider how your website/application copes with CDN
-    failure. If there is a temporary CDN outage, clients should be able to detect the problem
-    and request resources from the origin.
-    • Invalidating files: You can remove a file from the CDN before it expires by performing
-    one of the following operations:
-    • Invalidate the CDN object using APIs provided by CDN vendors.
-    • Use object versioning to serve a different version of the object. To version an object,
-    you can add a parameter to the URL, such as a version number. For example, version
-    number 2 is added to the query string: image.png?v=2.
-    Figure 1-11 shows the design after the CDN and cache are added.
-7. Static assets (JS, CSS, images, etc.,) are no longer served by web servers. They are
-    fetched from the CDN for better performance.
-8. The database load is lightened by caching data.
+1. User A tries to get image.png by using an image URL. The URL’s domain is provided by the CDN provider. Sample image URLS used by Amazon and Akamai CDNs:
+    	https://mysite.cloudfront.net/logo.jpg
+    	https://mysite.akamai.com/image-manager/img/logo.jpg
+2. If the CDN server does not have image.png in the cache, the CDN server requests the file from the origin, which can be a web server or online storage like Amazon S3. The origin returns image.png to the CDN server, which includes optional HTTP header **Time-to-Live (TTL)** which describes how long the image is cached. The CDN caches the image and returns it to User A. The image remains cached in the CDN until the TTL expires.
+5. User B sends a request to get the same image. The image is returned from the cache as long as the TTL has not expired.
+
+Considerations of using a CDN:
+
+- **Cost**: CDNs are <u>run by third-party providers</u>, and you are charged for data transfers in and out of the CDN. Caching infrequently used assets provides no significant benefits so you should consider moving them out of the CDN.
+- Setting an appropriate **cache expiry**: For **time-sensitive content**, setting a cache expiry time is important. if cache expiry time is too long then the content might no longer be fresh. If it is too short, it can cause repeat reloading of content from origin servers to the CDN.
+- **CDN fallback**: You should consider how your website/application copes with CDN failure. If there is a temporary CDN outage, clients should be able to detect the problem and request resources from the origin.
+- Invalidating files: You can remove a file from the CDN before it expires by performing one of the following operations:
+  - Invalidate the CDN object using APIs provided by CDN vendors.
+  - Use **object versioning** to serve a different version of the object. To version an object, you can add a parameter to the URL, such as a version number.
+
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/Design_CDN_Cache.png?raw=true" alt="Design_CDN_Cache.png" style="zoom: 50%;" />
+
+**Dynamic content caching** is a new concept that enables the **caching of HTML pages** based on request path, query strings, cookies, and request headers.
 
 ### Stateless web tier
 
-Now it is time to consider scaling the web tier horizontally. For this, we need to move state
-(for instance user session data) out of the web tier. A good practice is to store session data in
-the persistent storage such as relational database or NoSQL. Each web server in the cluster
-can access state data from databases. This is called stateless web tier.
+To scale the web tier horizontally, we need to <u>move state (for instance user session data) out of the web tier</u>. A good practice is to store session data in the persistent storage such as relational database or NoSQL. Each web server in the cluster can access state data from databases. This is called stateless web tier.
 
-### Stateful architecture
+**Stateful architecture**
 
-A stateful server and stateless server has some key differences. A stateful server remembers
-client data (state) from one request to the next. A stateless server keeps no state information.
-Figure 1-12 shows an example of a stateful architecture.
-In Figure 1-12, user A’s session data and profile image are stored in Server 1. To authenticate
-User A, HTTP requests must be routed to Server 1. If a request is sent to other servers like
-Server 2, authentication would fail because Server 2 does not contain User A’s session data.
-Similarly, all HTTP requests from User B must be routed to Server 2; all requests from User
-C must be sent to Server 3.
-The issue is that every request from the same client must be routed to the same server. This
-can be done with sticky sessions in most load balancers [10]; however, this adds the
-overhead. Adding or removing servers is much more difficult with this approach. It is also
-challenging to handle server failures.
+A stateful server <u>remembers client data (state) from one request to the next</u>. A stateless server keeps no state information. Suppose user A’s session data and profile image are stored in Server 1. To authenticate User A, HTTP requests must be routed to Server 1. If a request is sent to other servers like Server 2, authentication would fail because Server 2 does not contain User A’s session data. This means, <u>every request from the same client must be routed to the same server</u>. This can be done with **sticky sessions** in most load balancers; however, this adds the overhead. <u>Adding or removing servers is much more difficult</u> with this approach. It is also challenging to handle server failures.
 
-### Stateless architecture
+**Stateless architecture**
 
-Figure 1-13 shows the stateless architecture.
-In this stateless architecture, HTTP requests from users can be sent to any web servers, which
-fetch state data from a shared data store. State data is stored in a shared data store and kept
-out of web servers. A stateless system is simpler, more robust, and scalable.
-Figure 1-14 shows the updated design with a stateless web tier.
-In Figure 1-14, we move the session data out of the web tier and store them in the persistent
-data store. The shared data store could be a relational database, Memcached/Redis, NoSQL,
-etc. The NoSQL data store is chosen as it is easy to scale. Autoscaling means adding or
-removing web servers automatically based on the traffic load. After the state data is removed
-out of web servers, auto-scaling of the web tier is easily achieved by adding or removing
-servers based on traffic load.
-Your website grows rapidly and attracts a significant number of users internationally. To
-improve availability and provide a better user experience across wider geographical areas,
-supporting multiple data centers is crucial.
+In stateless architecture, HTTP requests from users can be sent to any web servers, which <u>fetch state data from a shared data store</u>. State data is stored in a shared data store and kept out of web servers. The shared data store could be a relational database, Memcached/Redis, NoSQL, etc. The NoSQL data store is chosen as it is easy to scale.  A stateless system is simpler, more robust, and scalable. After the state data is removed out of web servers, auto-scaling of the web tier is easily achieved. **Autoscaling** means adding or removing web servers automatically based on the traffic load.
 
 ### Data centers
 
-Figure 1-15 shows an example setup with two data centers. In normal operation, users are
-geoDNS-routed, also known as geo-routed, to the closest data center, with a split traffic of
-x% in US-East and (100 – x)% in US-West. geoDNS is a DNS service that allows domain
-names to be resolved to IP addresses based on the location of a user.
-In the event of any significant data center outage, we direct all traffic to a healthy data center.
-In Figure 1-16, data center 2 (US-West) is offline, and 100% of the traffic is routed to data
-center 1 (US-East).
-Several technical challenges must be resolved to achieve multi-data center setup:
-• Traffic redirection: Effective tools are needed to direct traffic to the correct data center.
-GeoDNS can be used to direct traffic to the nearest data center depending on where a user
-is located.
-• Data synchronization: Users from different regions could use different local databases or
-caches. In failover cases, traffic might be routed to a data center where data is unavailable.
-A common strategy is to replicate data across multiple data centers. A previous study
-shows how Netflix implements asynchronous multi-data center replication [11].
-• Test and deployment: With multi-data center setup, it is important to test your
-website/application at different locations. Automated deployment tools are vital to keep
-services consistent through all the data centers [11].
-To further scale our system, we need to decouple different components of the system so they
-can be scaled independently. Messaging queue is a key strategy employed by many realworld
-distributed systems to solve this problem.
+To improve availability and provide a better user experience **across wider geographical areas**, supporting multiple data centers is crucial. In normal operation, users are **geoDNS-routed**, also known as **geo-routed**, to the closest data center. <u>geoDNS is a DNS service that allows domain names to be resolved to IP addresses based on the location of a user</u>. In the event of any significant data center outage, direct all traffic to a healthy data center.
+
+To achieve multi-data center setup:
+
+- **Traffic redirection**: Effective tools are needed to direct traffic to the correct data center. GeoDNS can be used to direct traffic to the nearest data center depending on where a user is located.
+- **Data synchronization**: Users from different regions could use different local databases or caches. In failover cases, traffic might be routed to a data center where data is unavailable. A common strategy is to <u>replicate data across multiple data centers</u>.
+- **Test and deployment**: With multi-data center setup, it is important to test your website/application at different locations. **Automated deployment tools** are vital to <u>keep services consistent through all the data centers</u>.
 
 ### Message queue
+
+To further scale our system, we need to **decouple different components of the system** so they can be scaled independently. Messaging queue is a key strategy employed by many realworld distributed systems to solve this problem.
+
+
 
 A message queue is a durable component, stored in memory, that supports asynchronous
 communication. It serves as a buffer and distributes asynchronous requests. The basic
@@ -354,1624 +205,1095 @@ shown in the figure.
     As the data grows every day, your database gets more overloaded. It is time to scale the data
     tier.
 
+
+
 ### Database scaling
 
 There are two broad approaches for database scaling: vertical scaling and horizontal scaling.
-Vertical scaling
-Vertical scaling, also known as scaling up, is the scaling by adding more power (CPU, RAM,
-DISK, etc.) to an existing machine. There are some powerful database servers. According to
-Amazon Relational Database Service (RDS) [12], you can get a database server with 24 TB
-of RAM. This kind of powerful database server could store and handle lots of data. For
-example, stackoverflow.com in 2013 had over 10 million monthly unique visitors, but it only
-had 1 master database [13]. However, vertical scaling comes with some serious drawbacks:
-• You can add more CPU, RAM, etc. to your database server, but there are hardware
-limits. If you have a large user base, a single server is not enough.
-• Greater risk of single point of failures.
-• The overall cost of vertical scaling is high. Powerful servers are much more expensive.
-Horizontal scaling
-Horizontal scaling, also known as sharding, is the practice of adding more servers. Figure 1-
-20 compares vertical scaling with horizontal scaling.
-Sharding separates large databases into smaller, more easily managed parts called shards.
-Each shard shares the same schema, though the actual data on each shard is unique to the
-shard.
-Figure 1-21 shows an example of sharded databases. User data is allocated to a database
-server based on user IDs. Anytime you access data, a hash function is used to find the
-corresponding shard. In our example, user_id % 4 is used as the hash function. If the result
-equals to 0, shard 0 is used to store and fetch data. If the result equals to 1, shard 1 is used.
-The same logic applies to other shards.
-Figure 1-22 shows the user table in sharded databases.
-The most important factor to consider when implementing a sharding strategy is the choice of
-the sharding key. Sharding key (known as a partition key) consists of one or more columns
-that determine how data is distributed. As shown in Figure 1-22, “user_id” is the sharding
-key. A sharding key allows you to retrieve and modify data efficiently by routing database
-queries to the correct database. When choosing a sharding key, one of the most important
-criteria is to choose a key that can evenly distributed data.
-Sharding is a great technique to scale the database but it is far from a perfect solution. It
-introduces complexities and new challenges to the system:
-Resharding data: Resharding data is needed when 1) a single shard could no longer hold
-more data due to rapid growth. 2) Certain shards might experience shard exhaustion faster
-than others due to uneven data distribution. When shard exhaustion happens, it requires
-updating the sharding function and moving data around. Consistent hashing, which will be
-discussed in Chapter 5, is a commonly used technique to solve this problem.
-Celebrity problem: This is also called a hotspot key problem. Excessive access to a specific
-shard could cause server overload. Imagine data for Katy Perry, Justin Bieber, and Lady
-Gaga all end up on the same shard. For social applications, that shard will be overwhelmed
-with read operations. To solve this problem, we may need to allocate a shard for each
-celebrity. Each shard might even require further partition.
-Join and de-normalization: Once a database has been sharded across multiple servers, it is
-hard to perform join operations across database shards. A common workaround is to denormalize
-the database so that queries can be performed in a single table.
-In Figure 1-23, we shard databases to support rapidly increasing data traffic. At the same
-time, some of the non-relational functionalities are moved to a NoSQL data store to reduce
-the database load. Here is an article that covers many use cases of NoSQL [14].
 
-**Millions of users and beyond**
-Scaling a system is an iterative process. Iterating on what we have learned in this chapter
-could get us far. More fine-tuning and new strategies are needed to scale beyond millions of
-users. For example, you might need to optimize your system and decouple the system to even
-smaller services. All the techniques learned in this chapter should provide a good foundation
-to tackle new challenges. To conclude this chapter, we provide a summary of how we scale
-our system to support millions of users:
-• Keep web tier stateless
-• Build redundancy at every tier
-• Cache data as much as you can
-• Support multiple data centers
-• Host static assets in CDN
-• Scale your data tier by sharding
-• Split tiers into individual services
-• Monitor your system and use automation tools
-Congratulations on getting this far! Now give yourself a pat on the back. Good job!
+**Vertical scaling**
+Vertical scaling, also known as **scaling up**, is the scaling by adding more power (CPU, RAM, DISK, etc.) to an existing machine. According to **Amazon Relational Database Service (RDS)**, you can get a database server with 24 TB of RAM. This kind of powerful database server could store and handle lots of data. For example, stackoverflow.com in 2013 had over 10 million monthly unique visitors, but it only had 1 master database. However, <u>vertical scaling comes with some serious drawbacks</u>:
+
+- You can add more CPU, RAM, etc. to your database server, but there are hardware limits. If you have a large user base, a single server is not enough.
+- Greater risk of **single point of failures**.
+- The overall cost of vertical scaling is high. Powerful servers are much more expensive.
+
+**Horizontal scaling**
+Horizontal scaling, also known as **sharding**, is the practice of adding more servers. Sharding separates large databases into smaller, more easily managed parts called **shards**. Each shard shares the same schema, though the actual data on each shard is unique to the shard. The most important factor to consider when implementing a sharding strategy is the choice of the **sharding key**. Sharding key (known as a partition key) consists of one or more columns that <u>determine how data is distributed</u>. 
+
+If “user_id” is the sharding key then <u>User data is allocated to a database server based on user IDs</u>. Anytime you access data, a **hash function** is used to find the corresponding shard. A sharding key allows you to retrieve and modify data efficiently by routing database queries to the correct database. When choosing a sharding key, one of the most important criteria is to **choose a key that can evenly distributed data**.
+
+Sharding is a great technique to scale the database but it also introduces complexities and new challenges to the system:
+
+- **Resharding data**: Resharding data is needed when
+
+  - a single shard could no longer hold more data due to rapid growth.
+  - Certain shards might experience **shard exhaustion** faster than others due to uneven data distribution.
+
+  When shard exhaustion happens, it requires updating the sharding function and moving data around. **Consistent hashing** is a commonly used technique to solve this problem.
+
+- **Celebrity problem**: This is also called a **hotspot key problem**. Excessive access to a specific shard could cause server overload. This shard will be <u>overwhelmed with read operations</u>. To solve this problem, we may need to allocate a shard for each celebrity. Each shard might even require further partition.
+
+- **Join and de-normalization**: Once a database has been sharded across multiple servers, it is hard to perform join operations across database shards. A common workaround is to **denormalize the database** so that queries can be performed in a single table.
+
+Below Figure, we shard databases to support rapidly increasing data traffic. At the same time, some of the non-relational functionalities are moved to a NoSQL data store to reduce the database load.
+
+<img src="https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/Database_shards.png?raw=true" alt="Database_shards.png" style="zoom:50%;" />
+
+### Summary
+
+Summary of how we scale our system to support millions of users:
+
+- Keep web tier stateless
+- Build redundancy at every tier
+- Cache data as much as you can
+- Support multiple data centers
+- Host static assets in CDN
+- Scale your data tier by sharding
+- Split tiers into individual services
+- Monitor your system and use automation tools.
+
+
+
+------
+
+
 
 ## 2: BACK-OF-THE-ENVELOPE ESTIMATION
 
-In a system design interview, sometimes you are asked to estimate system capacity or
-performance requirements using a back-of-the-envelope estimation. According to Jeff Dean,
-Google Senior Fellow, “back-of-the-envelope calculations are estimates you create using a
-combination of thought experiments and common performance numbers to get a good feel for
-which designs will meet your requirements” [1].
-You need to have a good sense of scalability basics to effectively carry out back-of-theenvelope
-estimation. The following concepts should be well understood: power of two [2],
-latency numbers every programmer should know, and availability numbers.
-Power of two
-Although data volume can become enormous when dealing with distributed systems,
-calculation all boils down to the basics. To obtain correct calculations, it is critical to know
-the data volume unit using the power of 2. A byte is a sequence of 8 bits. An ASCII character
-uses one byte of memory (8 bits). Below is a table explaining the data volume unit (Table 2-
-1).
-Latency numbers every programmer should know
-Dr. Dean from Google reveals the length of typical computer operations in 2010 [1]. Some
-numbers are outdated as computers become faster and more powerful. However, those
-numbers should still be able to give us an idea of the fastness and slowness of different
-computer operations.
+In a system design interview, sometimes you are asked to estimate system capacity or performance requirements using a back-of-the-envelope estimation. Back-of-the-envelope calculations are estimates you create using a **combination of thought experiments** and **common performance numbers** to get a good feel for which designs will meet your requirements.
 
-#### Notes
-ns = nanosecond, μs = microsecond, ms = millisecond
-1 ns = 10^-9 seconds
-1 μs= 10^-6 seconds = 1,000 ns
-1 ms = 10^-3 seconds = 1,000 μs = 1,000,000 ns
-A Google software engineer built a tool to visualize Dr. Dean’s numbers. The tool also takes
-the time factor into consideration. Figures 2-1 shows the visualized latency numbers as of
-2020 (source of figures: reference material [3]).
-By analyzing the numbers in Figure 2-1, we get the following conclusions:
-• Memory is fast but the disk is slow.
-• Avoid disk seeks if possible.
-• Simple compression algorithms are fast.
-• Compress data before sending it over the internet if possible.
-• Data centers are usually in different regions, and it takes time to send data between them.
-Availability numbers
-High availability is the ability of a system to be continuously operational for a desirably long
-period of time. High availability is measured as a percentage, with 100% means a service that
-has 0 downtime. Most services fall between 99% and 100%.
-A service level agreement (SLA) is a commonly used term for service providers. This is an
-agreement between you (the service provider) and your customer, and this agreement
-formally defines the level of uptime your service will deliver. Cloud providers Amazon [4],
-Google [5] and Microsoft [6] set their SLAs at 99.9% or above. Uptime is traditionally
-measured in nines. The more the nines, the better. As shown in Table 2-3, the number of
-nines correlate to the expected system downtime.
-Example: Estimate Twitter QPS and storage requirements
-Please note the following numbers are for this exercise only as they are not real numbers
-from Twitter.
-Assumptions:
-• 300 million monthly active users.
-• 50% of users use Twitter daily.
-• Users post 2 tweets per day on average.
-• 10% of tweets contain media.
-• Data is stored for 5 years.
-Estimations:
-Query per second (QPS) estimate:
-• Daily active users (DAU) = 300 million * 50% = 150 million
-• Tweets QPS = 150 million * 2 tweets / 24 hour / 3600 seconds = ~3500
-• Peek QPS = 2 * QPS = ~7000
-We will only estimate media storage here.
-• Average tweet size:
-• tweet_id 64 bytes
-• text 140 bytes
-• media 1 MB
-• Media storage: 150 million * 2 * 10% * 1 MB = 30 TB per day
-• 5-year media storage: 30 TB * 365 * 5 = ~55 PB
-Tips
-Back-of-the-envelope estimation is all about the process. Solving the problem is more
-important than obtaining results. Interviewers may test your problem-solving skills. Here are
-a few tips to follow:
-• Rounding and Approximation. It is difficult to perform complicated math operations
-during the interview. For example, what is the result of “99987 / 9.1”? There is no need to
-spend valuable time to solve complicated math problems. Precision is not expected. Use
-round numbers and approximation to your advantage. The division question can be
-simplified as follows: “100,000 / 10”.
-• Write down your assumptions. It is a good idea to write down your assumptions to be
-referenced later.
-• Label your units. When you write down “5”, does it mean 5 KB or 5 MB? You might
-confuse yourself with this. Write down the units because “5 MB” helps to remove
-ambiguity.
-• Commonly asked back-of-the-envelope estimations: QPS, peak QPS, storage, cache,
-number of servers, etc. You can practice these calculations when preparing for an
-interview. Practice makes perfect.
-Congratulations on getting this far! Now give yourself a pat on the back. Good job!
-Reference materials
-[1] J. Dean.Google Pro Tip: Use Back-Of-The-Envelope-Calculations To Choose The Best
-Design:
-http://highscalability.com/blog/2011/1/26/google-pro-tip-use-back-of-the-envelopecalculations-
-to-choo.html
-[2] System design primer: https://github.com/donnemartin/system-design-primer
-[3] Latency Numbers Every Programmer Should Know:
-https://colin-scott.github.io/personal_website/research/interactive_latency.html
-[4] Amazon Compute Service Level Agreement:
-https://aws.amazon.com/compute/sla/
-[5] Compute Engine Service Level Agreement (SLA):
-https://cloud.google.com/compute/sla
-[6] SLA summary for Azure services: https://azure.microsoft.com/enus/
-support/legal/sla/summary/
+**Power of two**:- Data Volume
+A byte is a sequence of 8 bits. An ASCII character uses one byte of memory (8 bits). 
 
-## CHAPTER 3: A FRAMEWORK FOR SYSTEM DESIGN INTERVIEWS
+| Unit            | Value            | Power of 2 |
+| --------------- | ---------------- | ---------- |
+| Kilobytes (KB)  | 1,000 bytes      | 10         |
+| Megabytes (MB)  | 1,000 Kilobytes  | 20         |
+| Gigabytes (GB)  | 1,000 Megabytes  | 30         |
+| Terabytes (TB)  | 1,000 Gigabytes  | 40         |
+| Petabytes (PB)  | 1,000 Terabytes  | 50         |
+| Exabytes (EB)   | 1,000 Petabytes  | 60         |
+| Zettabytes (ZB) | 1,000 Exabytes   | 70         |
+| Yottabytes (YB) | 1,000 Zettabytes | 80         |
 
-You have just landed a coveted on-site interview at your dream company. The hiring
-coordinator sends you a schedule for that day. Scanning down the list, you feel pretty good
-about it until your eyes land on this interview session - System Design Interview.
-System design interviews are often intimidating. It could be as vague as “designing a wellknown
-product X?”. The questions are ambiguous and seem unreasonably broad. Your
-weariness is understandable. After all, how could anyone design a popular product in an hour
-that has taken hundreds if not thousands of engineers to build?
-The good news is that no one expects you to. Real-world system design is extremely
-complicated. For example, Google search is deceptively simple; however, the amount of
-technology that underpins that simplicity is truly astonishing. If no one expects you to design
-a real-world system in an hour, what is the benefit of a system design interview?
-The system design interview simulates real-life problem solving where two co-workers
-collaborate on an ambiguous problem and come up with a solution that meets their goals. The
-problem is open-ended, and there is no perfect answer. The final design is less important
-compared to the work you put in the design process. This allows you to demonstrate your
-design skill, defend your design choices, and respond to feedback in a constructive manner.
-Let us flip the table and consider what goes through the interviewer’s head as she walks into
-the conference room to meet you. The primary goal of the interviewer is to accurately assess
-your abilities. The last thing she wants is to give an inconclusive evaluation because the
-session has gone poorly and there are not enough signals. What is an interviewer looking for
-in a system design interview?
-Many think that system design interview is all about a person's technical design skills. It is
-much more than that. An effective system design interview gives strong signals about a
-person's ability to collaborate, to work under pressure, and to resolve ambiguity
-constructively. The ability to ask good questions is also an essential skill, and many
-interviewers specifically look for this skill.
-A good interviewer also looks for red flags. Over-engineering is a real disease of many
-engineers as they delight in design purity and ignore tradeoffs. They are often unaware of the
-compounding costs of over-engineered systems, and many companies pay a high price for
-that ignorance. You certainly do not want to demonstrate this tendency in a system design
-interview. Other red flags include narrow mindedness, stubbornness, etc.
-In this chapter, we will go over some useful tips and introduce a simple and effective
-framework to solve system design interview problems.
-A 4-step process for effective system design interview
-Every system design interview is different. A great system design interview is open-ended
-and there is no one-size-fits-all solution. However, there are steps and common ground to
-cover in every system design interview.
-Step 1 - Understand the problem and establish design scope
-"Why did the tiger roar?"
-A hand shot up in the back of the class.
-"Yes, Jimmy?", the teacher responded.
-"Because he was HUNGRY".
-"Very good Jimmy."
-Throughout his childhood, Jimmy has always been the first to answer questions in the class.
-Whenever the teacher asks a question, there is always a kid in the classroom who loves to
-take a crack at the question, no matter if he knows the answer or not. That is Jimmy.
-Jimmy is an ace student. He takes pride in knowing all the answers fast. In exams, he is
-usually the first person to finish the questions. He is a teacher's top choice for any academic
-competition.
-DON'T be like Jimmy.
-In a system design interview, giving out an answer quickly without thinking gives you no
-bonus points. Answering without a thorough understanding of the requirements is a huge red
-flag as the interview is not a trivia contest. There is no right answer.
-So, do not jump right in to give a solution. Slow down. Think deeply and ask questions to
-clarify requirements and assumptions. This is extremely important.
-As an engineer, we like to solve hard problems and jump into the final design; however, this
-approach is likely to lead you to design the wrong system. One of the most important skills as
-an engineer is to ask the right questions, make the proper assumptions, and gather all the
-information needed to build a system. So, do not be afraid to ask questions.
-When you ask a question, the interviewer either answers your question directly or asks you to
-make your assumptions. If the latter happens, write down your assumptions on the
-whiteboard or paper. You might need them later.
-What kind of questions to ask? Ask questions to understand the exact requirements. Here is a
-list of questions to help you get started:
-• What specific features are we going to build?
-• How many users does the product have?
-• How fast does the company anticipate to scale up? What are the anticipated scales in 3
-months, 6 months, and a year?
-• What is the company’s technology stack? What existing services you might leverage to
-simplify the design?
-Example
-If you are asked to design a news feed system, you want to ask questions that help you clarify
-the requirements. The conversation between you and the interviewer might look like this:
-Candidate: Is this a mobile app? Or a web app? Or both?
-Interviewer: Both.
-Candidate: What are the most important features for the product?
-Interviewer: Ability to make a post and see friends’ news feed.
-Candidate: Is the news feed sorted in reverse chronological order or a particular order? The
-particular order means each post is given a different weight. For instance, posts from your
-close friends are more important than posts from a group.
-Interviewer: To keep things simple, let us assume the feed is sorted by reverse chronological
-order.
-Candidate: How many friends can a user have?
-Interviewer: 5000
-Candidate: What is the traffic volume?
-Interviewer: 10 million daily active users (DAU)
-Candidate: Can feed contain images, videos, or just text?
-Interviewer: It can contain media files, including both images and videos.
-Above are some sample questions that you can ask your interviewer. It is important to
-understand the requirements and clarify ambiguities
-Step 2 - Propose high-level design and get buy-in
-In this step, we aim to develop a high-level design and reach an agreement with the
-interviewer on the design. It is a great idea to collaborate with the interviewer during the
-process.
-• Come up with an initial blueprint for the design. Ask for feedback. Treat your
-interviewer as a teammate and work together. Many good interviewers love to talk and get
-involved.
-• Draw box diagrams with key components on the whiteboard or paper. This might include
-clients (mobile/web), APIs, web servers, data stores, cache, CDN, message queue, etc.
-• Do back-of-the-envelope calculations to evaluate if your blueprint fits the scale
-constraints. Think out loud. Communicate with your interviewer if back-of-the-envelope is
-necessary before diving into it.
-If possible, go through a few concrete use cases. This will help you frame the high-level
-design. It is also likely that the use cases would help you discover edge cases you have not
-yet considered.
-Should we include API endpoints and database schema here? This depends on the problem.
-For large design problems like “Design Google search engine”, this is a bit of too low level.
-For a problem like designing the backend for a multi-player poker game, this is a fair game.
-Communicate with your interviewer.
-Example
-Let us use “Design a news feed system” to demonstrate how to approach the high-level
-design. Here you are not required to understand how the system actually works. All the
-details will be explained in Chapter 11.
-At the high level, the design is divided into two flows: feed publishing and news feed
-building.
-• Feed publishing: when a user publishes a post, corresponding data is written into
-cache/database, and the post will be populated into friends’ news feed.
-• Newsfeed building: the news feed is built by aggregating friends’ posts in a reverse
-chronological order.
-Figure 3-1 and Figure 3-2 present high-level designs for feed publishing and news feed
-building flows, respectively.
-Step 3 - Design deep dive
+**Latency numbers**
+
+- Memory is fast but the disk is slow.
+- Avoid disk seeks if possible.
+- Simple compression algorithms are fast.
+- Compress data before sending it over the internet if possible.
+- Data centers are usually in different regions, and it takes time to send data between them.
+
+**Availability numbers**
+High availability is the <u>ability of a system to be continuously operational for a desirably long period of time</u>. High availability is **measured as a percentage**, with 100% means a service that has 0 downtime. Most services fall between 99% and 100%. A **service level agreement (SLA)**  is an agreement between you (the service provider) and your customer, and this agreement
+formally defines the level of uptime your service will deliver. Cloud providers Amazon, Google and Microsoft set their SLAs at 99.9% or above. 
+
+**Example: Estimate Twitter QPS and storage requirements**
+
+- Assumptions:
+
+  - 300 million monthly active users.
+  - 50% of users use Twitter daily.
+
+  - Users post 2 tweets per day on average
+  - 10% of tweets contain media.
+  - Data is stored for 5 years.
+
+- Estimations:
+
+  - **Query per second (QPS)** estimate:
+    - Daily active users (DAU) = 300 million * 50% = 150 million
+    - Tweets QPS = 150 million * 2 tweets / 24 hour / 3600 seconds = ~3500
+    - Peek QPS = 2 * QPS = ~7000
+  - Average tweet size:
+    - tweet_id 64 bytes
+    - text 140 bytes
+    - media 1 MB
+  - Media storage: 150 million * 2 * 10% * 1 MB = 30 TB per day
+  - 5-year media storage: 30 TB * 365 * 5 = ~55 PB
+
+**Tips**
+Back-of-the-envelope estimation is all about the process. Solving the problem is more important than obtaining results. 
+
+- <u>Write down your assumptions</u>. It is a good idea to write down your assumptions to be referenced later.
+- <u>Label your units</u>. When you write down “5”, does it mean 5 KB or 5 MB? Write down the units because “5 MB” helps to remove ambiguity.
+- Commonly asked back-of-the-envelope estimations: QPS, peak QPS, storage, cache, number of servers, etc.
+
+
+
+------
+
+## 3: A FRAMEWORK FOR SYSTEM DESIGN INTERVIEWS
+
+The system design interview <u>simulates real-life problem solving</u> where two co-workers collaborate on an ambiguous problem and come up with a solution that meets their goals. The problem is open-ended, and **there is no perfect answer**. The <u>final design is less important compared to the work you put</u> in the design process. This <u>allows you to demonstrate your design skill, defend your design choices, and respond to feedback in a constructive manner</u>.
+
+A system design interview is not only about a person's technical design skills. It also gives strong signals about a person's <u>ability to collaborate</u>, to work under pressure, and to resolve ambiguity constructively. The <u>ability to ask good questions</u> is also an important skill. A good interviewer also looks for **red flags**. <u>Over-engineering is a real disease</u> of many engineers as they delight in design purity and ignore tradeoffs. They are often unaware of the compounding costs of over-engineered systems, and many companies pay a high price for that ignorance. Other red flags include narrow mindedness, stubbornness, etc.
+
+**A 4-step process for effective system design interview**
+
+**Step 1 - Understand the problem and establish design scope**
+
+In a system design interview, <u>answering without a thorough understanding of the requirements is a huge red flag</u>. There is no right answer. So, do not jump right in to give a solution. Think deeply and <u>ask questions to clarify requirements and assumptions</u>. One of the most important skills as an engineer is to <u>ask the right questions.</u> <u>Make the proper assumptions,  clarify ambiguities</u>, and gather all the information needed to build a system. When you ask a question, the interviewer either answers your question directly or asks you to make your assumptions. If the latter happens, <u>write down your assumptions</u>. You might need them later.
+
+<u>Asking questions to understand the exact requirements</u> is very important. Example are
+
+- What specific features are we going to build?
+- How many users does the product have?
+- How fast does the company anticipate to scale up? What are the anticipated scales in 3 months, 6 months, and a year?
+- What is the company’s technology stack? What existing services you might leverage to simplify the design?
+
+Example : Design a news feed system
+
+| Candidate                                                    | Interviewer                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| Is this a mobile app? Or a web app? Or both?                 | Both.                                                        |
+| What are the most important features for the product?        | Ability to make a post and see friends’ news feed.           |
+| Is the news feed sorted in reverse chronological order or a <br />particular order? Particular order means each post is given <br />a different weight. For instance, posts from your close friends are more important than posts from a group. | To keep things simple, let us assume the feed is sorted by reverse chronological order. |
+| How many friends can a user have?                            | 5000                                                         |
+| What is the traffic volume?                                  | 10 million daily active users (DAU)                          |
+| Can feed contain images, videos, or just text?               | It can contain media files, including both images and videos. |
+
+**Step 2 - Propose high-level design and get buy-in**
+
+In this step, we aim to develop a high-level design and <u>reach an agreement with the interviewer on the design</u>. 
+
+- Come up with an **initial blueprint for the design**. Ask for feedback. Treat your interviewer as a teammate and work together. It is a great idea to collaborate with the interviewer during the process.
+- Draw **box diagrams with key components**. This might include clients (mobile/web), APIs, web servers, data stores, cache, CDN, message queue, etc.
+- Do back-of-the-envelope calculations to evaluate if your **blueprint fits the scale constraints**. Communicate with your interviewer if back-of-the-envelope is necessary before diving into it.
+- If possible, go through a **few concrete use cases**. This will help you frame the **high-level design**. It is also likely that the use cases would help you discover edge cases you have not yet considered.
+
+<u>Discussing API endpoints and database schema</u> depends on the problem. For design problems like “Design Google search engine”, this is a bit low level. But for a problem like designing the backend for a multi-player poker game, this may required.
+
+**Example** : Design a news feed system - high-level design
+
+- At the high level, the design is divided into two flows: feed publishing and news feed building.
+  - **Feed publishing**: when a user publishes a post, corresponding data is written into cache/database, and the post will be populated into friends’ news feed.
+  - **Newsfeed building**: the news feed is built by aggregating friends’ posts in a reversechronological order.
+
+High-level designs for feed publishing and news feed building are shown below.
+
+![News-Feed-Design.png](https://github.com/SnowflakeCoder/programming/blob/master/System-Design/images/News-Feed-Design.png?raw=true)
+
+**Step 3 - Design deep dive**
+
 At this step, you and your interviewer should have already achieved the following objectives:
-• Agreed on the overall goals and feature scope
-• Sketched out a high-level blueprint for the overall design
-• Obtained feedback from your interviewer on the high-level design
-• Had some initial ideas about areas to focus on in deep dive based on her feedback
-You shall work with the interviewer to identify and prioritize components in the architecture.
-It is worth stressing that every interview is different. Sometimes, the interviewer may give off
-hints that she likes focusing on high-level design. Sometimes, for a senior candidate
-interview, the discussion could be on the system performance characteristics, likely focusing
-on the bottlenecks and resource estimations. In most cases, the interviewer may want you to
-dig into details of some system components. For URL shortener, it is interesting to dive into
-the hash function design that converts a long URL to a short one. For a chat system, how to
-reduce latency and how to support online/offline status are two interesting topics.
-Time management is essential as it is easy to get carried away with minute details that do not
-demonstrate your abilities. You must be armed with signals to show your interviewer. Try not
-to get into unnecessary details. For example, talking about the EdgeRank algorithm of
-Facebook feed ranking in detail is not ideal during a system design interview as this takes
-much precious time and does not prove your ability in designing a scalable system.
-Example
-At this point, we have discussed the high-level design for a news feed system, and the
-interviewer is happy with your proposal. Next, we will investigate two of the most important
-use cases:
+
+- Agreed on the overall goals and feature scope
+- Sketched out a high-level blueprint for the overall design
+- Obtained feedback from your interviewer on the high-level design
+- Had some initial ideas about areas to focus on in deep dive based on her feedback
+
+You shall work with the interviewer to **identify and prioritize components in the architecture**. Sometimes, the interviewer may give off hints that she likes focusing on high-level design. Sometimes, for a senior candidate interview, the discussion could be on the **system performance characteristics**, likely focusing on the bottlenecks and resource estimations. In most cases, the interviewer may want you to dig into details of some system components.
+
+- For **URL shortener**, it is interesting to dive into the hash function design that converts a long URL to a short one. 
+- For a **chat system**, how to reduce latency and how to support online/offline status are two interesting topics.
+
+<u>Time management is essential</u>. Try not to get into unnecessary details that do not demonstrate your abilities. For example, talking about the EdgeRank algorithm of Facebook feed ranking in detail is not ideal during a system design interview as this takes much precious time and does not prove your ability in designing a scalable system.
+
+**Example:  Investigate the detailed design for two of the most important use cases.**
 
 1. Feed publishing
+
 2. News feed retrieval
-Figure 3-3 and Figure 3-4 show the detailed design for the two use cases, which will be
-explained in detail in Chapter 11.
 
-Step 4 - Wrap up
-In this final step, the interviewer might ask you a few follow-up questions or give you the
-freedom to discuss other additional points. Here are a few directions to follow:
-• The interviewer might want you to identify the system bottlenecks and discuss potential
-improvements. Never say your design is perfect and nothing can be improved. There is
-always something to improve upon. This is a great opportunity to show your critical
-thinking and leave a good final impression.
-• It could be useful to give the interviewer a recap of your design. This is particularly
-important if you suggested a few solutions. Refreshing your interviewer’s memory can be
-helpful after a long session.
-• Error cases (server failure, network loss, etc.) are interesting to talk about.
-• Operation issues are worth mentioning. How do you monitor metrics and error logs?
-How to roll out the system?
-• How to handle the next scale curve is also an interesting topic. For example, if your
-current design supports 1 million users, what changes do you need to make to support 10
-million users?
-• Propose other refinements you need if you had more time.
+
+
+
+
+
+
+**Step 4 - Wrap up**
+
+In this final step, the interviewer might ask you a few **follow-up questions** or give you the freedom to discuss other additional points. Here are a few directions to follow:
+
+- The interviewer might want you to <u>identify the system bottlenecks and discuss potential improvements</u>. There is always something to improve upon. This is a great opportunity to **show your critical thinking** and leave a good final impression.
+- It could be useful to give the interviewer a **recap of your design**. This is particularly important if you suggested a few solutions. Refreshing your interviewer’s memory can be helpful after a long session.
+- **Error cases** (server failure, network loss, etc.) and **Operation issues** are worth mentioning. How do you monitor metrics and error logs? How to roll out the system?
+- How to handle the **next scale** curve is also an interesting topic. For example, if your current design supports 1 million users, what changes do you need to make to support 10 million users? Propose other refinements if you had more time.
+
 To wrap up, we summarize a list of the Dos and Don’ts.
-Dos
-• Always ask for clarification. Do not assume your assumption is correct.
-• Understand the requirements of the problem.
-• There is neither the right answer nor the best answer. A solution designed to solve the
-problems of a young startup is different from that of an established company with millions
-of users. Make sure you understand the requirements.
-• Let the interviewer know what you are thinking. Communicate with your interview.
-• Suggest multiple approaches if possible.
-• Once you agree with your interviewer on the blueprint, go into details on each
-component. Design the most critical components first.
-• Bounce ideas off the interviewer. A good interviewer works with you as a teammate.
-• Never give up.
-Don’ts
-• Don't be unprepared for typical interview questions.
-• Don’t jump into a solution without clarifying the requirements and assumptions.
-• Don’t go into too much detail on a single component in the beginning. Give the highlevel
-design first then drills down.
-• If you get stuck, don't hesitate to ask for hints.
-• Again, communicate. Don't think in silence.
-• Don’t think your interview is done once you give the design. You are not done until your
-interviewer says you are done. Ask for feedback early and often.
-Time allocation on each step
-System design interview questions are usually very broad, and 45 minutes or an hour is not
-enough to cover the entire design. Time management is essential. How much time should you
-spend on each step? The following is a very rough guide on distributing your time in a 45-
-minute interview session. Please remember this is a rough estimate, and the actual time
-distribution depends on the scope of the problem and the requirements from the interviewer.
-Step 1 Understand the problem and establish design scope: 3 - 10 minutes
-Step 2 Propose high-level design and get buy-in: 10 - 15 minutes
-Step 3 Design deep dive: 10 - 25 minutes
-Step 4 Wrap: 3 - 5 minutes
 
-## CHAPTER 4: DESIGN A RATE LIMITER
+**Dos**
 
-In a network system, a rate limiter is used to control the rate of traffic sent by a client or a
-service. In the HTTP world, a rate limiter limits the number of client requests allowed to be
-sent over a specified period. If the API request count exceeds the threshold defined by the
-rate limiter, all the excess calls are blocked. Here are a few examples:
-• A user can write no more than 2 posts per second.
-• You can create a maximum of 10 accounts per day from the same IP address.
-• You can claim rewards no more than 5 times per week from the same device.
-In this chapter, you are asked to design a rate limiter. Before starting the design, we first look
-at the benefits of using an API rate limiter:
-• Prevent resource starvation caused by Denial of Service (DoS) attack [1]. Almost all
-APIs published by large tech companies enforce some form of rate limiting. For example,
-Twitter limits the number of tweets to 300 per 3 hours [2]. Google docs APIs have the
-following default limit: 300 per user per 60 seconds for read requests [3]. A rate limiter
-prevents DoS attacks, either intentional or unintentional, by blocking the excess calls.
-• Reduce cost. Limiting excess requests means fewer servers and allocating more
-resources to high priority APIs. Rate limiting is extremely important for companies that
-use paid third party APIs. For example, you are charged on a per-call basis for the
-following external APIs: check credit, make a payment, retrieve health records, etc.
-Limiting the number of calls is essential to reduce costs.
-• Prevent servers from being overloaded. To reduce server load, a rate limiter is used to
-filter out excess requests caused by bots or users’ misbehavior.
-Step 1 - Understand the problem and establish design scope
-Rate limiting can be implemented using different algorithms, each with its pros and cons. The
-interactions between an interviewer and a candidate help to clarify the type of rate limiters we
-are trying to build.
-Candidate: What kind of rate limiter are we going to design? Is it a client-side rate limiter or
-server-side API rate limiter?
-Interviewer: Great question. We focus on the server-side API rate limiter.
-Candidate: Does the rate limiter throttle API requests based on IP, the user ID, or other
-properties?
-Interviewer: The rate limiter should be flexible enough to support different sets of throttle
-rules.
-Candidate: What is the scale of the system? Is it built for a startup or a big company with a
-large user base?
-Interviewer: The system must be able to handle a large number of requests.
-Candidate: Will the system work in a distributed environment?
-Interviewer: Yes.
-Candidate: Is the rate limiter a separate service or should it be implemented in application
-code?
-Interviewer: It is a design decision up to you.
-Candidate: Do we need to inform users who are throttled?
-Interviewer: Yes.
-Requirements
-Here is a summary of the requirements for the system:
-• Accurately limit excessive requests.
-• Low latency. The rate limiter should not slow down HTTP response time.
-• Use as little memory as possible.
-• Distributed rate limiting. The rate limiter can be shared across multiple servers or
-processes.
-• Exception handling. Show clear exceptions to users when their requests are throttled.
-• High fault tolerance. If there are any problems with the rate limiter (for example, a cache
-server goes offline), it does not affect the entire system.
-Step 2 - Propose high-level design and get buy-in
-Let us keep things simple and use a basic client and server model for communication.
-Where to put the rate limiter?
-Intuitively, you can implement a rate limiter at either the client or server-side.
-• Client-side implementation. Generally speaking, client is an unreliable place to enforce
-rate limiting because client requests can easily be forged by malicious actors. Moreover,
-we might not have control over the client implementation.
-• Server-side implementation. Figure 4-1 shows a rate limiter that is placed on the serverside.
-Besides the client and server-side implementations, there is an alternative way. Instead of
-putting a rate limiter at the API servers, we create a rate limiter middleware, which throttles
-requests to your APIs as shown in Figure 4-2.
-Let us use an example in Figure 4-3 to illustrate how rate limiting works in this design.
-Assume our API allows 2 requests per second, and a client sends 3 requests to the server
-within a second. The first two requests are routed to API servers. However, the rate limiter
-middleware throttles the third request and returns a HTTP status code 429. The HTTP 429
-response status code indicates a user has sent too many requests.
-Cloud microservices [4] have become widely popular and rate limiting is usually
-implemented within a component called API gateway. API gateway is a fully managed
-service that supports rate limiting, SSL termination, authentication, IP whitelisting, servicing
-static content, etc. For now, we only need to know that the API gateway is a middleware that
-supports rate limiting.
-While designing a rate limiter, an important question to ask ourselves is: where should the
-rater limiter be implemented, on the server-side or in a gateway? There is no absolute answer.
-It depends on your company’s current technology stack, engineering resources, priorities,
-goals, etc. Here are a few general guidelines:
-• Evaluate your current technology stack, such as programming language, cache service,
-etc. Make sure your current programming language is efficient to implement rate limiting
-on the server-side.
-• Identify the rate limiting algorithm that fits your business needs. When you implement
-everything on the server-side, you have full control of the algorithm. However, your
-choice might be limited if you use a third-party gateway.
-• If you have already used microservice architecture and included an API gateway in the
-design to perform authentication, IP whitelisting, etc., you may add a rate limiter to the
-API gateway.
-• Building your own rate limiting service takes time. If you do not have enough
-engineering resources to implement a rate limiter, a commercial API gateway is a better
-option.
-Algorithms for rate limiting
-Rate limiting can be implemented using different algorithms, and each of them has distinct
-pros and cons. Even though this chapter does not focus on algorithms, understanding them at
-high-level helps to choose the right algorithm or combination of algorithms to fit our use
-cases. Here is a list of popular algorithms:
+- Always ask for clarification. Do not assume your assumption is correct.
+- Understand the requirements of the problem. There is no perfect answer. A solution designed to solve the problems of a young startup is different from that of an established company with millions of users. Make sure you understand the requirements.
+- Let the interviewer know what you are thinking. Communicate with your interview. Suggest multiple approaches if possible.
+- Once you agree with your interviewer on the blueprint, go into details on each component. Design the most critical components first.
+- Bounce ideas off the interviewer. A good interviewer works with you as a teammate.
+
+**Don’ts**
+
+- Don’t jump into a solution without clarifying the requirements and assumptions.
+- Don’t go into too much detail on a single component in the beginning. Give the highlevel design first then drills down.
+- Always communicate. Don't think in silence. If you get stuck, don't hesitate to ask for hints.
+- Don’t think your interview is done once you give the design. Ask for feedback early and often.
+
+
+
+**Time allocation on each step**
+
+Time management is essential. How much time should you spend on each step in a 45-
+minute interview session?
+
+- Step 1 Understand the problem and establish design scope: 3 - 10 minutes
+- Step 2 Propose high-level design and get buy-in: 10 - 15 minutes
+- Step 3 Design deep dive: 10 - 25 minutes
+- Step 4 Wrap: 3 - 5 minutes
+
+
+
+------
+
+## 4: DESIGN A RATE LIMITER
+
+In a network system, a rate limiter is used to **control the rate of traffic** sent by a client or a service. In the HTTP world, a rate limiter limits the number of client requests allowed to be sent over a specified period. If the API request count exceeds the threshold defined by the rate limiter, all the <u>excess calls are blocked</u>. 
+
+Before starting the design, we first look at the <u>benefits of using an API rate limiter</u>:
+
+- Prevent **resource starvation** caused by **Denial of Service (DoS) attack**. A rate limiter prevents DoS attacks, either intentional or unintentional (caused by bots or users’ misbehavior), by blocking the excess calls.
+
+  Almost all APIs published by big companies enforce some form of rate limiting. For example, Twitter limits the number of tweets to 300 per 3 hours. Google docs APIs limit read requests to 300 per user per 60 seconds.
+
+- **Reduce cost**. Limiting excess requests means fewer servers and <u>allocating more resources to high priority APIs</u>. Rate limiting is extremely important for companies that use **paid third party APIs**. Limiting the number of calls is essential to reduce costs.
+
+- Prevent servers from being **overloaded**. To reduce server load, a rate limiter is used to filter out excess requests.
+
+
+
+**Step 1 - Understand the problem and establish design scope**
+Rate limiting can be implemented using different algorithms. Communicate well to clarify the type of rate limiters we are trying to build.
+
+- What **kind of rate limiter** are we going to design? client-side or server-side API rate limiter? =>  Server-side API rate limiter.
+- Does the rate limiter throttle API requests based on IP, the user ID, or other properties? => The rate limiter should be flexible enough to support different sets of throttle rules.
+- What is the scale of the system? => The system must be able to handle a large number of requests.
+- Will the system work in a distributed environment? =>  Yes.
+- Is the rate limiter a separate service or should it be implemented in application code? => It is a design decision up to you.
+- Candidate: Do we need to inform users who are throttled? => Yes.
+
+<u>Summary of the requirements for the system:</u>
+
+- Accurately limit excessive requests.
+- **Low latency**: The rate limiter should not slow down HTTP response time.
+- Use as little memory as possible.
+- **Distributed rate limiting**: The rate limiter can be shared across multiple servers or processes.
+- **Exception handling**: Show clear exceptions to users when their requests are throttled.
+- High **fault tolerance**. If there are any problems with the rate limiter (for example, a cache server goes offline), it does not affect the entire system.
+
+
+
+**Step 2 - Propose high-level design and get buy-in**
+
+You can implement a rate limiter at either the client or server-side.
+
+- Client-side implementation: Client is an unreliable place to enforce rate limiting because client requests can easily be forged by malicious actors. Moreover, we might not have control over the client implementation.
+- Server-side implementation: Rate limiter can be placed on the serverside.
+- Rate limiter middleware: Instead of putting a rate limiter at the API servers, we create a rate limiter middleware, which throttles requests to your APIs.
+
+Where should the rater limiter be implemented, on the server-side or in a gateway?  Here are a few general guidelines:
+
+- Evaluate your current technology stack, such as programming language, cache service, etc. Make sure your current programming language is efficient to implement rate limiting on the server-side.
+- Identify the rate limiting algorithm that fits your business needs. When you implement everything on the server-side, you have full control of the algorithm. However, <u>your choice might be limited if you use a third-party gateway</u>.
+- If you have already used microservice architecture and included an API gateway in the design to perform authentication, IP whitelisting, etc., you may add a rate limiter to the API gateway.
+- Building your own rate limiting service takes time. If you do not have enough engineering resources to implement a rate limiter, a commercial API gateway is a better option.
+
+In **Cloud microservices** rate limiting is usually implemented within a component called **API gateway**. API gateway is a <u>fully managed middleware service</u> that supports rate limiting, SSL termination, authentication, IP whitelisting, servicing static content, etc. 
+
+**How rate limiting works:**
+Assume our API allows 2 requests per second, and a client sends 3 requests to the server within a second. The first two requests are routed to API servers. However, the rate limiter middleware throttles the third request and returns a HTTP status code 429. The **HTTP 429** response status code indicates a <u>user has sent too many requests</u>.
+
+
+
+**Algorithms for rate limiting**
+
+- **Token bucket algorithm**
+
+  The token bucket algorithm is commonly used by internet companies. Both Amazon and Stripe use this algorithm to
+  throttle their API requests. The token bucket algorithm work as follows:
+
+  - **Refill rate**: A token bucket is a container that has **pre-defined capacity**. Tokens are put in the bucket at preset rates periodically. Once the bucket is full, no more tokens are added, extra tokens will overflow.
+  - **Token consumption**: Each request consumes one token. When a request arrives, we check if there are enough tokens in the bucket. If there are enough tokens, we take one token out for each request, and the request goes through. If there are not enough tokens, the request is dropped.
+  - The token bucket algorithm takes two parameters:
+    - Bucket size: the maximum number of tokens allowed in the bucket
+    - Refill rate: number of tokens put into the bucket every second
+
+  **How many buckets do we need**? This depends on the rate-limiting rules.
+
+  - It is usually necessary to have different buckets for different API endpoints. For instance, if a user is allowed to make 1 post per second, add 150 friends per day, and like 5 posts per second, 3 buckets are required for each user.
+
+  - If we need to throttle requests based on IP addresses, each IP address requires a bucket.
+  - If the system allows a maximum of 10,000 requests per second, it makes sense to have a global bucket shared by all requests.
+
+  **Pros**:
+
+  - The algorithm is easy to implement and Memory efficient.
+  - Token bucket allows a burst of traffic for short periods. A request can go through as long as there are tokens left.
+
+  **Cons:**
+
+  - Two parameters in the algorithm are bucket size and token refill rate. However, it might be challenging to tune them properly.
+
+  
+
+- **Leaking bucket algorithm**
+
+  The leaking bucket algorithm is similar to the token bucket except that <u>requests are processed at a fixed rate</u>. It is usually implemented with a **first-in-first-out (FIFO) queue**. Shopify, an ecommerce company, uses leaky buckets for rate-limiting. 
+
+  The algorithm works as follows:
+
+  - When a request arrives, the system checks if the queue is full. If it is not full, the request is added to the queue.
+  - Otherwise, the request is dropped.
+  - Requests are pulled from the queue and processed at regular intervals.
+
+  Leaking bucket algorithm takes the following two parameters:
+
+  - **Bucket size**: it is equal to the queue size. The queue holds the requests to be processed at a fixed rate.
+  - **Outflow rate**: it defines how many requests can be processed at a fixed rate, usually in seconds.
+
+  **Pros:**
+
+  - Memory efficient, given the limited queue size.
+  - <u>Requests are processed at a fixed rate</u> therefore it is suitable for use cases that a stable outflow rate is needed.
+
+  **Cons:**
+
+  - A burst of traffic fills up the queue with old requests, and if they are not processed in time, recent requests will be rate limited.
+  - There are two parameters in the algorithm. It might not be easy to tune them properly.
+
+  
+
+- **Fixed window counter algorithm**
+
+  The algorithm works as follows:
+
+  - The algorithm divides the timeline into fix-sized time windows and assign a counter for each window.
+  - Each request increments the counter by one.
+  - Once the counter reaches the pre-defined threshold, new requests are dropped until a new time window starts.
+
+  **How it works:** Suppose the system allows a maximum of 3 requests per second. In each second window, if more than 3 requests are received, extra requests are dropped. A major problem with this algorithm is that a burst of traffic at the edges of time windows could cause more requests than allowed quota to go through.
+
+  Consider the case: The system allows a maximum of 5 requests per minute, and there are 5 requests between 2:00:00
+  and 2:01:00 and 5 more requests between 2:01:00 and 2:02:00. But it is possible that for the one-minute window between 2:00:30 and 2:01:30, 10 requests go through. That is twice as many as allowed requests.
+
+  **Pros:**
+  • Memory efficient and Easy to understand.
+  • Resetting available quota at the end of a unit time window fits certain use cases.
+
+  **Cons:**
+  • Spike in traffic at the edges of a window could cause more requests than the allowed quota to go through.
+
+  
+
+- **Sliding window log algorithm**
+
+  The fixed window counter algorithm has a major issue: it allows more requests to go through at the edges of a window. The sliding window log algorithm fixes the issue. 
+
+  It works as follows:
+
+  - The algorithm <u>keeps track of request timestamps</u>. Timestamp data is usually kept in cache, such as sorted sets of Redis.
+  - When a new request comes in, remove all the outdated timestamps. Outdated timestamps are defined as those older than the start of the current time window.
+  - Add timestamp of the new request to the log.
+  - If the log size is the same or lower than the allowed count, a request is accepted. Otherwise, it is rejected.
+
+  **Example:** The rate limiter allows 2 requests per minute. 
+
+  - The log is empty when a new request arrives at 1:00:01. Thus, the request is allowed. 
+  - A new request arrives at 1:00:30, the timestamp 1:00:30 is inserted into the log. After the insertion, the log size is 2, not larger than the allowed count. Thus, the request is allowed. 
+  - A new request arrives at 1:00:50, and the timestamp is inserted into the log. After the insertion, the log size is 3, larger than the allowed size 2. Therefore, this request is rejected even though the timestamp remains in the log.
+  - A new request arrives at 1:01:40. Now the requests sent before 1:00:40 are outdated. Two outdated timestamps, 1:00:01 and 1:00:30, are removed from the log. After the remove operation, the log size becomes 2; therefore, the request is accepted.
+
+  **Pros:**
+
+  - Rate limiting implemented by this algorithm is very accurate. In any rolling window, requests will not exceed the rate limit.
+
+  **Cons:**
+
+  - The algorithm consumes a lot of memory because even if a request is rejected, its timestamp might still be stored in memory.
+
+  
+
+- **Sliding window counter algorithm**
+
+  The sliding window counter algorithm is a hybrid approach that <u>combines the fixed window counter and sliding window log</u>. The algorithm can be implemented by two different approaches. 
+
+  How the algorithm works: Assume the rate limiter allows a maximum of 7 requests per minute, and there are 5 requests in the previous minute and 3 in the current minute. For a new request that <u>arrives at a 30% position in the current minute</u>, the number of requests in the rolling window is calculated using the following formula:
+
+  ```
+  Requests in current window + requests in the previous window * overlap percentage of the rolling window and previous window. Using this formula, we get (5 * 70%) + 3  = 6.5 request. 
+  ```
+
+  Since the rate limiter allows a maximum of 7 requests per minute, the current request can go through. However, the limit will be reached after receiving one more request.
+
+  **Pros:**
+
+  - It <u>smooths out spikes in traffic</u> because the rate is based on the average rate of the previous window.
+  - Memory efficient.
+
+  **Cons:**
+
+  - It only works for not-so-strict look back window. It is an approximation of the actual rate because it assumes requests in the previous window are evenly distributed. 
+
+
+**High-level architecture**
+
+- At the high-level, we need a counter to keep track of how many requests are sent from the same user, IP address, etc. If the counter is larger than the limit, the request is disallowed.
+- **Where shall we store counters?** Using the database is not a good idea due to slowness of disk access. **In-memory cache** is chosen because it is <u>fast and supports time-based expiration strategy</u>. For instance, Redis is a popular option to implement rate limiting. It is an inmemory store that offers two commands: INCR and EXPIRE.
+  - INCR: It increases the stored counter by 1.
+  - EXPIRE: It sets a timeout for the counter. If the timeout expires, the counter is automatically deleted.
+
+The high-level architecture for rate limiting works as follows:
+
+- The client sends a request to rate limiting middleware.
+- Rate limiting middleware fetches the counter from the corresponding bucket in Redis and checks the limit.
+- If the limit is reached, the request is rejected else the request is sent to API servers.
+- Meanwhile, the system increments the counter and saves it back to Redis.
+
+
+
+**Step 3 - Design deep dive**
+
+The high-level design does not answer the following questions:
+
+- How are rate limiting rules created? Where are the rules stored?
+
+  Rate limiting rules are generally written in configuration files and saved on disk.
+
+  ```json
+  //Here the system is configured to allow a maximum of 5 marketing messagescper day.
+  "key": "message_type"
+  "Value": "marketing"
+  "rate_limit":
+  	"unit": "day"
+  	"requests_per_unit": 5
+  
+  //This rule shows that clients are not allowed to login more than 5 times in 1 minute.
+  "key": "auth_type"
+  "Value": "login"
+  "rate_limit":
+  	"unit": "minute"
+  	"requests_per_unit": 5
+  ```
+
+- How to handle requests that are rate limited?
+
+  In case a request is rate limited, APIs return a HTTP response code 429 (too many requests) to the client. Depending on the use cases, we may enqueue the rate-limited requests to be processed later. For example, if some orders are rate limited due to system overload, we may keep those orders to be processed later.
+
+**Rate limiter headers**
+
+<u>How does a client know whether it is being throttled</u>? The answer lies in **HTTP response headers**. The rate limiter returns the following HTTP headers to clients:
+
+- X-Ratelimit-Remaining: The remaining number of allowed requests within the window.
+- X-Ratelimit-Limit: It indicates how many calls the client can make per time window.
+- X-Ratelimit-Retry-After: The number of seconds to wait until you can make a request again without being throttled.
+
+When a user has sent too many requests, a 429 (too many requests) error code and X-Ratelimit-Retry-After header are returned to the client.
+
+**Detailed design**
+
+- Rules are stored on the disk. Workers frequently pull rules from the disk and store them in the cache.
+- When a client sends a request to the server, the request is sent to the rate limiter middleware first.
+- Rate limiter middleware loads rules from the cache. It fetches counters and last request timestamp from Redis cache. Based on the response, the rate limiter decides:
+  - if the request is not rate limited, it is forwarded to API servers.
+  - if the request is rate limited, the rate limiter returns 429 too many requests error to the client. In the meantime, the request is either dropped or forwarded to the queue.
+
+**Rate limiter in a distributed environment**
+
+Building a rate limiter that support multiple servers and concurrent threads is very difficult. There are two challenges:
+
+- **Race condition**
+
+  Race conditions can happen in a highly concurrent environment. Assume the counter value in Redis is 3. If two requests concurrently read the counter value before either of them writes the value back, each will increment the counter by one and write it back without checking the other thread. Both requests (threads) believe they have the correct counter value 4. However, the correct counter value should be 5.
+
+  Locks are the most obvious solution for solving race condition. However, locks will significantly slow down the system. Two strategies are commonly used to solve the problem: **Lua script** and **sorted sets data structure in Redis**.
+
+- **Synchronization issue**
+
+  To support millions of users, one rate limiter server might not be enough to handle the traffic. When multiple rate limiter servers are used, synchronization is required. For example, client 1 sends requests to rate limiter 1, and client 2 sends requests to rate limiter 2. As the web tier is stateless, clients can send requests to a different rate limiter. If no synchronization happens, rate limiter 1 does not contain any data about client 2. Thus, the rate limiter cannot work properly. One possible solution is to use **sticky sessions** that allow a client to send traffic to the same rate limiter. This solution is <u>not advisable because it is neither scalable nor flexible</u>. A better approach is to <u>use centralized data stores like Redis</u>.
+
+**Performance optimization**
+
+There are two areas to improve. First, **multi-data center setup** is crucial for a rate limiter because <u>latency is high for users located far away from the data center</u>. Traffic is automatically routed to the closest edge server to reduce latency. Second, <u>synchronize data with an eventual consistency model</u>.
+
+**Monitoring**
+After the rate limiter is put in place, it is important to <u>gather analytics data to check whether the rate limiter is effective</u>. Primarily, we want to make sure:
+
+- The rate limiting algorithm is effective.
+- The rate limiting rules are effective.
+
+For example, if rate limiting rules are too strict, many valid requests are dropped. In this case, we want to relax the rules a little bit. In another example, we notice our rate limiter becomes ineffective when there is a sudden increase in traffic like flash sales. In this scenario, we may replace the algorithm to support burst traffic. Token bucket is a good fit here.
+
+
+
+**Step 4 - Wrap up**
+Here, we discussed different algorithms of rate limiting and their pros/cons. Algorithms discussed include:
 • Token bucket
 • Leaking bucket
-• Fixed window counter
+• Fixed window
 • Sliding window log
 • Sliding window counter
-Token bucket algorithm
-The token bucket algorithm is widely used for rate limiting. It is simple, well understood and
-commonly used by internet companies. Both Amazon [5] and Stripe [6] use this algorithm to
-throttle their API requests.
-The token bucket algorithm work as follows:
-• A token bucket is a container that has pre-defined capacity. Tokens are put in the bucket
-at preset rates periodically. Once the bucket is full, no more tokens are added. As shown in
-Figure 4-4, the token bucket capacity is 4. The refiller puts 2 tokens into the bucket every
-second. Once the bucket is full, extra tokens will overflow.
-• Each request consumes one token. When a request arrives, we check if there are enough
-tokens in the bucket. Figure 4-5 explains how it works.
-• If there are enough tokens, we take one token out for each request, and the request
-goes through.
-• If there are not enough tokens, the request is dropped.
-Figure 4-6 illustrates how token consumption, refill, and rate limiting logic work. In this
-example, the token bucket size is 4, and the refill rate is 4 per 1 minute.
-The token bucket algorithm takes two parameters:
-• Bucket size: the maximum number of tokens allowed in the bucket
-• Refill rate: number of tokens put into the bucket every second
-How many buckets do we need? This varies, and it depends on the rate-limiting rules. Here
-are a few examples.
-• It is usually necessary to have different buckets for different API endpoints. For instance,
-if a user is allowed to make 1 post per second, add 150 friends per day, and like 5 posts per
-second, 3 buckets are required for each user.
-• If we need to throttle requests based on IP addresses, each IP address requires a bucket.
-• If the system allows a maximum of 10,000 requests per second, it makes sense to have a
-global bucket shared by all requests.
-Pros:
-• The algorithm is easy to implement.
-• Memory efficient.
-• Token bucket allows a burst of traffic for short periods. A request can go through as long
-as there are tokens left.
-Cons:
-• Two parameters in the algorithm are bucket size and token refill rate. However, it might
-be challenging to tune them properly.
-Leaking bucket algorithm
-The leaking bucket algorithm is similar to the token bucket except that requests are processed
-at a fixed rate. It is usually implemented with a first-in-first-out (FIFO) queue. The algorithm
-works as follows:
-• When a request arrives, the system checks if the queue is full. If it is not full, the request
-is added to the queue.
-• Otherwise, the request is dropped.
-• Requests are pulled from the queue and processed at regular intervals.
-Figure 4-7 explains how the algorithm works.
-Leaking bucket algorithm takes the following two parameters:
-• Bucket size: it is equal to the queue size. The queue holds the requests to be processed at
-a fixed rate.
-• Outflow rate: it defines how many requests can be processed at a fixed rate, usually in
-seconds.
-Shopify, an ecommerce company, uses leaky buckets for rate-limiting [7].
-Pros:
-• Memory efficient given the limited queue size.
-• Requests are processed at a fixed rate therefore it is suitable for use cases that a stable
-outflow rate is needed.
-Cons:
-• A burst of traffic fills up the queue with old requests, and if they are not processed in
-time, recent requests will be rate limited.
-• There are two parameters in the algorithm. It might not be easy to tune them properly.
-Fixed window counter algorithm
-Fixed window counter algorithm works as follows:
-• The algorithm divides the timeline into fix-sized time windows and assign a counter for
-each window.
-• Each request increments the counter by one.
-• Once the counter reaches the pre-defined threshold, new requests are dropped until a new
-time window starts.
-Let us use a concrete example to see how it works. In Figure 4-8, the time unit is 1 second
-and the system allows a maximum of 3 requests per second. In each second window, if more
-than 3 requests are received, extra requests are dropped as shown in Figure 4-8.
-A major problem with this algorithm is that a burst of traffic at the edges of time windows
-could cause more requests than allowed quota to go through. Consider the following case:
-In Figure 4-9, the system allows a maximum of 5 requests per minute, and the available quota
-resets at the human-friendly round minute. As seen, there are five requests between 2:00:00
-and 2:01:00 and five more requests between 2:01:00 and 2:02:00. For the one-minute window
-between 2:00:30 and 2:01:30, 10 requests go through. That is twice as many as allowed
-requests.
-Pros:
-• Memory efficient.
-• Easy to understand.
-• Resetting available quota at the end of a unit time window fits certain use cases.
-Cons:
-• Spike in traffic at the edges of a window could cause more requests than the allowed
-quota to go through.
-Sliding window log algorithm
-As discussed previously, the fixed window counter algorithm has a major issue: it allows
-more requests to go through at the edges of a window. The sliding window log algorithm
-fixes the issue. It works as follows:
-• The algorithm keeps track of request timestamps. Timestamp data is usually kept in
-cache, such as sorted sets of Redis [8].
-• When a new request comes in, remove all the outdated timestamps. Outdated timestamps
-are defined as those older than the start of the current time window.
-• Add timestamp of the new request to the log.
-• If the log size is the same or lower than the allowed count, a request is accepted.
-Otherwise, it is rejected.
-We explain the algorithm with an example as revealed in Figure 4-10.
-In this example, the rate limiter allows 2 requests per minute. Usually, Linux timestamps are
-stored in the log. However, human-readable representation of time is used in our example for
-better readability.
-• The log is empty when a new request arrives at 1:00:01. Thus, the request is allowed.
-• A new request arrives at 1:00:30, the timestamp 1:00:30 is inserted into the log. After the
-insertion, the log size is 2, not larger than the allowed count. Thus, the request is allowed.
-• A new request arrives at 1:00:50, and the timestamp is inserted into the log. After the
-insertion, the log size is 3, larger than the allowed size 2. Therefore, this request is rejected
-even though the timestamp remains in the log.
-• A new request arrives at 1:01:40. Requests in the range [1:00:40,1:01:40) are within the
-latest time frame, but requests sent before 1:00:40 are outdated. Two outdated timestamps,
-1:00:01 and 1:00:30, are removed from the log. After the remove operation, the log size
-becomes 2; therefore, the request is accepted.
-Pros:
-• Rate limiting implemented by this algorithm is very accurate. In any rolling window,
-requests will not exceed the rate limit.
-Cons:
-• The algorithm consumes a lot of memory because even if a request is rejected, its
-timestamp might still be stored in memory.
-Sliding window counter algorithm
-The sliding window counter algorithm is a hybrid approach that combines the fixed window
-counter and sliding window log. The algorithm can be implemented by two different
-approaches. We will explain one implementation in this section and provide reference for the
-other implementation at the end of the section. Figure 4-11 illustrates how this algorithm
-works.
-Assume the rate limiter allows a maximum of 7 requests per minute, and there are 5 requests
-in the previous minute and 3 in the current minute. For a new request that arrives at a 30%
-position in the current minute, the number of requests in the rolling window is calculated
-using the following formula:
-• Requests in current window + requests in the previous window * overlap percentage of
-the rolling window and previous window
-• Using this formula, we get 3 + 5 * 0.7% = 6.5 request. Depending on the use case, the
-number can either be rounded up or down. In our example, it is rounded down to 6.
-Since the rate limiter allows a maximum of 7 requests per minute, the current request can go
-through. However, the limit will be reached after receiving one more request.
-Due to the space limitation, we will not discuss the other implementation here. Interested
-readers should refer to the reference material [9]. This algorithm is not perfect. It has pros and
-cons.
-Pros
-• It smooths out spikes in traffic because the rate is based on the average rate of the
-previous window.
-• Memory efficient.
-Cons
-• It only works for not-so-strict look back window. It is an approximation of the actual rate
-because it assumes requests in the previous window are evenly distributed. However, this
-problem may not be as bad as it seems. According to experiments done by Cloudflare [10],
-only 0.003% of requests are wrongly allowed or rate limited among 400 million requests.
-High-level architecture
-The basic idea of rate limiting algorithms is simple. At the high-level, we need a counter to
-keep track of how many requests are sent from the same user, IP address, etc. If the counter is
-larger than the limit, the request is disallowed.
-Where shall we store counters? Using the database is not a good idea due to slowness of disk
-access. In-memory cache is chosen because it is fast and supports time-based expiration
-strategy. For instance, Redis [11] is a popular option to implement rate limiting. It is an inmemory
-store that offers two commands: INCR and EXPIRE.
-• INCR: It increases the stored counter by 1.
-• EXPIRE: It sets a timeout for the counter. If the timeout expires, the counter is
-automatically deleted.
-Figure 4-12 shows the high-level architecture for rate limiting, and this works as follows:
-• The client sends a request to rate limiting middleware.
-• Rate limiting middleware fetches the counter from the corresponding bucket in Redis and
-checks if the limit is reached or not.
-• If the limit is reached, the request is rejected.
-• If the limit is not reached, the request is sent to API servers. Meanwhile, the system
-increments the counter and saves it back to Redis.
-Step 3 - Design deep dive
-The high-level design in Figure 4-12 does not answer the following questions:
-• How are rate limiting rules created? Where are the rules stored?
-• How to handle requests that are rate limited?
-In this section, we will first answer the questions regarding rate limiting rules and then go
-over the strategies to handle rate-limited requests. Finally, we will discuss rate limiting in
-distributed environment, a detailed design, performance optimization and monitoring.
-Rate limiting rules
-Lyft open-sourced their rate-limiting component [12]. We will peek inside of the component
-and look at some examples of rate limiting rules:
-domain: messaging
-descriptors:
 
-- key: message_type
-  Value: marketing
-  rate_limit:
-  unit: day
-  requests_per_unit: 5
-  In the above example, the system is configured to allow a maximum of 5 marketing messages
-  per day. Here is another example:
-  domain: auth
-  descriptors:
+Then, we discussed the system architecture, rate limiter in a distributed environment, performance optimization and monitoring. 
 
-- key: auth_type
-  Value: login
-  rate_limit:
-  unit: minute
-  requests_per_unit: 5
-  This rule shows that clients are not allowed to login more than 5 times in 1 minute. Rules are
-  generally written in configuration files and saved on disk.
-  Exceeding the rate limit
-  In case a request is rate limited, APIs return a HTTP response code 429 (too many requests)
-  to the client. Depending on the use cases, we may enqueue the rate-limited requests to be
-  processed later. For example, if some orders are rate limited due to system overload, we may
-  keep those orders to be processed later.
-  Rate limiter headers
-  How does a client know whether it is being throttled? And how does a client know the
-  number of allowed remaining requests before being throttled? The answer lies in HTTP
-  response headers. The rate limiter returns the following HTTP headers to clients:
-  X-Ratelimit-Remaining: The remaining number of allowed requests within the window.
-  X-Ratelimit-Limit: It indicates how many calls the client can make per time window.
-  X-Ratelimit-Retry-After: The number of seconds to wait until you can make a request again
-  without being throttled.
-  When a user has sent too many requests, a 429 too many requests error and X-RatelimitRetry-
-  After header are returned to the client.
-  Detailed design
-  Figure 4-13 presents a detailed design of the system.
-  • Rules are stored on the disk. Workers frequently pull rules from the disk and store them
-  in the cache.
-  • When a client sends a request to the server, the request is sent to the rate limiter
-  middleware first.
-  • Rate limiter middleware loads rules from the cache. It fetches counters and last request
-  timestamp from Redis cache. Based on the response, the rate limiter decides:
-  • if the request is not rate limited, it is forwarded to API servers.
-  • if the request is rate limited, the rate limiter returns 429 too many requests error to
-  the client. In the meantime, the request is either dropped or forwarded to the queue.
-  Rate limiter in a distributed environment
-  Building a rate limiter that works in a single server environment is not difficult. However,
-  scaling the system to support multiple servers and concurrent threads is a different story.
-  There are two challenges:
-  • Race condition
-  • Synchronization issue
-  Race condition
-  As discussed earlier, rate limiter works as follows at the high-level:
-  • Read the counter value from Redis.
-  • Check if ( counter + 1 ) exceeds the threshold.
-  • If not, increment the counter value by 1 in Redis.
-  Race conditions can happen in a highly concurrent environment as shown in Figure 4-14.
-  Assume the counter value in Redis is 3. If two requests concurrently read the counter value
-  before either of them writes the value back, each will increment the counter by one and write
-  it back without checking the other thread. Both requests (threads) believe they have the
-  correct counter value 4. However, the correct counter value should be 5.
-  Locks are the most obvious solution for solving race condition. However, locks will
-  significantly slow down the system. Two strategies are commonly used to solve the problem:
-  Lua script [13] and sorted sets data structure in Redis [8]. For readers interested in these
-  strategies, refer to the corresponding reference materials [8] [13].
-  Synchronization issue
-  Synchronization is another important factor to consider in a distributed environment. To
-  support millions of users, one rate limiter server might not be enough to handle the traffic.
-  When multiple rate limiter servers are used, synchronization is required. For example, on the
-  left side of Figure 4-15, client 1 sends requests to rate limiter 1, and client 2 sends requests to
-  rate limiter 2. As the web tier is stateless, clients can send requests to a different rate limiter
-  as shown on the right side of Figure 4-15. If no synchronization happens, rate limiter 1 does
-  not contain any data about client 2. Thus, the rate limiter cannot work properly.
-  One possible solution is to use sticky sessions that allow a client to send traffic to the same
-  rate limiter. This solution is not advisable because it is neither scalable nor flexible. A better
-  approach is to use centralized data stores like Redis. The design is shown in Figure 4-16.
-  Performance optimization
-  Performance optimization is a common topic in system design interviews. We will cover two
-  areas to improve.
-  First, multi-data center setup is crucial for a rate limiter because latency is high for users
-  located far away from the data center. Most cloud service providers build many edge server
-  locations around the world. For example, as of 5/20 2020, Cloudflare has 194 geographically
-  distributed edge servers [14]. Traffic is automatically routed to the closest edge server to
-  reduce latency.
-  Second, synchronize data with an eventual consistency model. If you are unclear about the
-  eventual consistency model, refer to the “Consistency” section in “Chapter 6: Design a Keyvalue
-  Store.”
-  Monitoring
-  After the rate limiter is put in place, it is important to gather analytics data to check whether
-  the rate limiter is effective. Primarily, we want to make sure:
-  • The rate limiting algorithm is effective.
-  • The rate limiting rules are effective.
-  For example, if rate limiting rules are too strict, many valid requests are dropped. In this case,
-  we want to relax the rules a little bit. In another example, we notice our rate limiter becomes
-  ineffective when there is a sudden increase in traffic like flash sales. In this scenario, we may
-  replace the algorithm to support burst traffic. Token bucket is a good fit here.
-  Step 4 - Wrap up
-  In this chapter, we discussed different algorithms of rate limiting and their pros/cons.
-  Algorithms discussed include:
-  • Token bucket
-  • Leaking bucket
-  • Fixed window
-  • Sliding window log
-  • Sliding window counter
-  Then, we discussed the system architecture, rate limiter in a distributed environment,
-  performance optimization and monitoring. Similar to any system design interview questions,
-  there are additional talking points you can mention if time allows:
-  • Hard vs soft rate limiting.
-  • Hard: The number of requests cannot exceed the threshold.
-  • Soft: Requests can exceed the threshold for a short period.
-  • Rate limiting at different levels. In this chapter, we only talked about rate limiting at the
-  application level (HTTP: layer 7). It is possible to apply rate limiting at other layers. For
-  example, you can apply rate limiting by IP addresses using Iptables [15] (IP: layer 3).
-  Note: The Open Systems Interconnection model (OSI model) has 7 layers [16]: Layer 1:
-  Physical layer, Layer 2: Data link layer, Layer 3: Network layer, Layer 4: Transport layer,
-  Layer 5: Session layer, Layer 6: Presentation layer, Layer 7: Application layer.
-  • Avoid being rate limited. Design your client with best practices:
-  • Use client cache to avoid making frequent API calls.
-  • Understand the limit and do not send too many requests in a short time frame.
-  • Include code to catch exceptions or errors so your client can gracefully recover from
-  exceptions.
-  • Add sufficient back off time to retry logic.
-  Congratulations on getting this far! Now give yourself a pat on the back. Good job!
-  Reference materials
-  [1] Rate-limiting strategies and techniques: https://cloud.google.com/solutions/rate-limitingstrategies-
-  techniques
-  [2] Twitter rate limits: https://developer.twitter.com/en/docs/basics/rate-limits
-  [3] Google docs usage limits: https://developers.google.com/docs/api/limits
-  [4] IBM microservices: https://www.ibm.com/cloud/learn/microservices
-  [5] Throttle API requests for better throughput:
-  https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-requestthrottling.
-  html
-  [6] Stripe rate limiters: https://stripe.com/blog/rate-limiters
-  [7] Shopify REST Admin API rate limits: https://help.shopify.com/en/api/reference/restadmin-
-  api-rate-limits
-  [8] Better Rate Limiting With Redis Sorted Sets:
-  https://engineering.classdojo.com/blog/2015/02/06/rolling-rate-limiter/
-  [9] System Design — Rate limiter and Data modelling:
-  https://medium.com/@saisandeepmopuri/system-design-rate-limiter-and-data-modelling-
-  9304b0d18250
-  [10] How we built rate limiting capable of scaling to millions of domains:
-  https://blog.cloudflare.com/counting-things-a-lot-of-different-things/
-  [11] Redis website: https://redis.io/
-  [12] Lyft rate limiting: https://github.com/lyft/ratelimit
-  [13] Scaling your API with rate limiters:
-  https://gist.github.com/ptarjan/e38f45f2dfe601419ca3af937fff574d#request-rate-limiter
-  [14] What is edge computing: https://www.cloudflare.com/learning/serverless/glossary/whatis-
-  edge-computing/
-  [15] Rate Limit Requests with Iptables: https://blog.programster.org/rate-limit-requests-withiptables
-  [16] OSI model: https://en.wikipedia.org/wiki/OSI_model#Layer_architecture
+There are additional talking points you can mention if time allows:
 
-  ## CHAPTER 5: DESIGN CONSISTENT HASHING
+- <u>Hard vs soft rate limiting</u>.
 
-  To achieve horizontal scaling, it is important to distribute requests/data efficiently and evenly
-  across servers. Consistent hashing is a commonly used technique to achieve this goal. But
-  first, let us take an in-depth look at the problem.
-  The rehashing problem
-  If you have n cache servers, a common way to balance the load is to use the following hash
-  method:
-  serverIndex = hash(key) % N, where N is the size of the server pool.
-  Let us use an example to illustrate how it works. As shown in Table 5-1, we have 4 servers
-  and 8 string keys with their hashes.
-  To fetch the server where a key is stored, we perform the modular operation f(key) % 4. For
-  instance, hash(key0) % 4 = 1 means a client must contact server 1 to fetch the cached data.
-  Figure 5-1 shows the distribution of keys based on Table 5-1.
-  This approach works well when the size of the server pool is fixed, and the data distribution
-  is even. However, problems arise when new servers are added, or existing servers are
-  removed. For example, if server 1 goes offline, the size of the server pool becomes 3. Using
-  the same hash function, we get the same hash value for a key. But applying modular
-  operation gives us different server indexes because the number of servers is reduced by 1. We
-  get the results as shown in Table 5-2 by applying hash % 3:
-  Figure 5-2 shows the new distribution of keys based on Table 5-2.
-  As shown in Figure 5-2, most keys are redistributed, not just the ones originally stored in the
-  offline server (server 1). This means that when server 1 goes offline, most cache clients will
-  connect to the wrong servers to fetch data. This causes a storm of cache misses. Consistent
-  hashing is an effective technique to mitigate this problem.
-  Consistent hashing
-  Quoted from Wikipedia: "Consistent hashing is a special kind of hashing such that when a
-  hash table is re-sized and consistent hashing is used, only k/n keys need to be remapped on
-  average, where k is the number of keys, and n is the number of slots. In contrast, in most
-  traditional hash tables, a change in the number of array slots causes nearly all keys to be
-  remapped [1]”.
-  Hash space and hash ring
-  Now we understand the definition of consistent hashing, let us find out how it works. Assume
-  SHA-1 is used as the hash function f, and the output range of the hash function is: x0, x1, x2,
-  x3, …, xn. In cryptography, SHA-1’s hash space goes from 0 to 2^160 - 1. That means x0
-  corresponds to 0, xn corresponds to 2^160 – 1, and all the other hash values in the middle fall
-  between 0 and 2^160 - 1. Figure 5-3 shows the hash space.
-  By collecting both ends, we get a hash ring as shown in Figure 5-4:
-  Hash servers
-  Using the same hash function f, we map servers based on server IP or name onto the ring.
-  Figure 5-5 shows that 4 servers are mapped on the hash ring.
-  Hash keys
-  One thing worth mentioning is that hash function used here is different from the one in “the
-  rehashing problem,” and there is no modular operation. As shown in Figure 5-6, 4 cache keys
-  (key0, key1, key2, and key3) are hashed onto the hash ring
-  Server lookup
-  To determine which server a key is stored on, we go clockwise from the key position on the
-  ring until a server is found. Figure 5-7 explains this process. Going clockwise, key0 is stored
-  on server 0; key1 is stored on server 1; key2 is stored on server 2 and key3 is stored on server
-  3.
-  Add a server
-  Using the logic described above, adding a new server will only require redistribution of a
-  fraction of keys.
-  In Figure 5-8, after a new server 4 is added, only key0 needs to be redistributed. k1, k2, and
-  k3 remain on the same servers. Let us take a close look at the logic. Before server 4 is added,
-  key0 is stored on server 0. Now, key0 will be stored on server 4 because server 4 is the first
-  server it encounters by going clockwise from key0’s position on the ring. The other keys are
-  not redistributed based on consistent hashing algorithm.
-  Remove a server
-  When a server is removed, only a small fraction of keys require redistribution with consistent
-  hashing. In Figure 5-9, when server 1 is removed, only key1 must be remapped to server 2.
-  The rest of the keys are unaffected.
-  Two issues in the basic approach
-  The consistent hashing algorithm was introduced by Karger et al. at MIT [1]. The basic steps
-  are:
-  • Map servers and keys on to the ring using a uniformly distributed hash function.
-  • To find out which server a key is mapped to, go clockwise from the key position until the
-  first server on the ring is found.
-  Two problems are identified with this approach. First, it is impossible to keep the same size
-  of partitions on the ring for all servers considering a server can be added or removed. A
-  partition is the hash space between adjacent servers. It is possible that the size of the
-  partitions on the ring assigned to each server is very small or fairly large. In Figure 5-10, if s1
-  is removed, s2’s partition (highlighted with the bidirectional arrows) is twice as large as s0
-  and s3’s partition.
-  Second, it is possible to have a non-uniform key distribution on the ring. For instance, if
-  servers are mapped to positions listed in Figure 5-11, most of the keys are stored on server 2.
-  However, server 1 and server 3 have no data.
-  A technique called virtual nodes or replicas is used to solve these problems.
-  Virtual nodes
-  A virtual node refers to the real node, and each server is represented by multiple virtual nodes
-  on the ring. In Figure 5-12, both server 0 and server 1 have 3 virtual nodes. The 3 is
-  arbitrarily chosen; and in real-world systems, the number of virtual nodes is much larger.
-  Instead of using s0, we have s0_0, s0_1, and s0_2 to represent server 0 on the ring. Similarly,
-  s1_0, s1_1, and s1_2 represent server 1 on the ring. With virtual nodes, each server is
-  responsible for multiple partitions. Partitions (edges) with label s0 are managed by server 0.
-  On the other hand, partitions with label s1 are managed by server 1.
-  To find which server a key is stored on, we go clockwise from the key’s location and find the
-  first virtual node encountered on the ring. In Figure 5-13, to find out which server k0 is stored
-  on, we go clockwise from k0’s location and find virtual node s1_1, which refers to server 1.
-  As the number of virtual nodes increases, the distribution of keys becomes more balanced.
-  This is because the standard deviation gets smaller with more virtual nodes, leading to
-  balanced data distribution. Standard deviation measures how data are spread out. The
-  outcome of an experiment carried out by online research [2] shows that with one or two
-  hundred virtual nodes, the standard deviation is between 5% (200 virtual nodes) and 10%
-  (100 virtual nodes) of the mean. The standard deviation will be smaller when we increase the
-  number of virtual nodes. However, more spaces are needed to store data about virtual nodes.
-  This is a tradeoff, and we can tune the number of virtual nodes to fit our system requirements.
-  Find affected keys
-  When a server is added or removed, a fraction of data needs to be redistributed. How can we
-  find the affected range to redistribute the keys?
-  In Figure 5-14, server 4 is added onto the ring. The affected range starts from s4 (newly
-  added node) and moves anticlockwise around the ring until a server is found (s3). Thus, keys
-  located between s3 and s4 need to be redistributed to s4.
-  When a server (s1) is removed as shown in Figure 5-15, the affected range starts from s1
-  (removed node) and moves anticlockwise around the ring until a server is found (s0). Thus,
-  keys located between s0 and s1 must be redistributed to s2.
+  - Hard: The number of requests cannot exceed the threshold.
+  - Soft: Requests can exceed the threshold for a short period.
 
-Wrap up
-In this chapter, we had an in-depth discussion about consistent hashing, including why it is
-needed and how it works. The benefits of consistent hashing include:
-• Minimized keys are redistributed when servers are added or removed.
-• It is easy to scale horizontally because data are more evenly distributed.
-• Mitigate hotspot key problem. Excessive access to a specific shard could cause server
-overload. Imagine data for Katy Perry, Justin Bieber, and Lady Gaga all end up on the
-same shard. Consistent hashing helps to mitigate the problem by distributing the data more
-evenly.
-Consistent hashing is widely used in real-world systems, including some notable ones:
-• Partitioning component of Amazon’s Dynamo database [3]
-• Data partitioning across the cluster in Apache Cassandra [4]
-• Discord chat application [5]
-• Akamai content delivery network [6]
-• Maglev network load balancer [7]
-Congratulations on getting this far! Now give yourself a pat on the back. Good job!
-Reference materials
-[1] Consistent hashing: https://en.wikipedia.org/wiki/Consistent_hashing
-[2] Consistent Hashing:
-https://tom-e-white.com/2007/11/consistent-hashing.html
-[3] Dynamo: Amazon’s Highly Available Key-value Store:
-https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf
-[4] Cassandra - A Decentralized Structured Storage System:
-http://www.cs.cornell.edu/Projects/ladis2009/papers/Lakshman-ladis2009.PDF
-[5] How Discord Scaled Elixir to 5,000,000 Concurrent Users:
-https://blog.discord.com/scaling-elixir-f9b8e1e7c29b
-[6] CS168: The Modern Algorithmic Toolbox Lecture #1: Introduction and Consistent
-Hashing: http://theory.stanford.edu/~tim/s16/l/l1.pdf
-[7] Maglev: A Fast and Reliable Software Network Load Balancer:
-https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/44824.pdf
+- Rate limiting at different levels. Here we only talked about rate limiting at the application level (HTTP: layer 7). It is possible to apply rate limiting at other layers. For example, you can apply rate limiting by IP addresses using Iptables (IP: layer 3).
 
-## CHAPTER 6: DESIGN A KEY-VALUE STORE
+  Note: The <u>Open Systems Interconnection model (OSI model) has 7 layers</u> : Layer 1: Physical layer, Layer 2: Data link layer, Layer 3: Network layer, Layer 4: Transport layer, Layer 5: Session layer, Layer 6: Presentation layer, Layer 7: Application layer.
 
-A key-value store, also referred to as a key-value database, is a non-relational database. Each
-unique identifier is stored as a key with its associated value. This data pairing is known as a
-“key-value” pair.
-In a key-value pair, the key must be unique, and the value associated with the key can be
-accessed through the key. Keys can be plain text or hashed values. For performance reasons,
-a short key works better. What do keys look like? Here are a few examples:
-• Plain text key: “last_logged_in_at”
-• Hashed key: 253DDEC4
-The value in a key-value pair can be strings, lists, objects, etc. The value is usually treated as
-an opaque object in key-value stores, such as Amazon dynamo [1], Memcached [2], Redis
-[3], etc.
-Here is a data snippet in a key-value store:
-In this chapter, you are asked to design a key-value store that supports the following
-operations:
+- Avoid being rate limited. Design your client with best practices:
+
+  - Use client cache to avoid making frequent API calls.
+  - Understand the limit and do not send too many requests in a short time frame.
+  - Include code to catch exceptions or errors so your client can gracefully recover from exceptions.
+  - Add sufficient back off time to retry logic.
+
+
+
+------
+
+## 5: DESIGN CONSISTENT HASHING
+
+To achieve **horizontal scaling**, it is important to distribute requests/data efficiently and evenly across servers. Consistent hashing is a commonly used technique to achieve this goal.
+
+**The rehashing problem**
+
+If you have n cache servers, a common way to balance the load is to use the hash method:
+
+```java
+//To fetch the server where a key is stored, we perform below modular operation
+serverIndex = hash(key) % N //where N is the size of the server pool.
+```
+
+This approach works well when the <u>size of the server pool is fixed, and the data distribution is even</u>. However, problems arise when new servers are added, or existing servers are removed. For example, if server 1 goes offline, the size of the server pool becomes 3. Using the same hash function, we get the same hash value for a key. But <u>applying modular operation gives us different server indexes</u> because the number of servers is reduced by 1. 
+
+But applying new modular operation <u>most keys are redistributed</u>, not just the ones originally stored in the offline server (server 1). This means that when server 1 goes offline, most cache clients will connect to the wrong servers to fetch data. This causes a storm of **cache misses**. Consistent hashing is an effective technique to mitigate this problem.
+
+**Consistent hashing**
+Consistent hashing is a special kind of hashing such that when a hash table is re-sized and consistent hashing is used, <u>only k/n keys need to be remapped on average</u>, where k is the number of keys, and n is the number of slots. In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped.
+
+**Hash space and hash ring**
+
+How it works: Assume SHA-1 is used as the **hash function f**, and the output range of the hash function is: x0, x1, x2,x3, …, xn. In cryptography, SHA-1’s hash space goes from 0 to 2^160 - 1. That means x0 corresponds to 0, xn corresponds to 2^160 – 1, and all the other hash values in the middle fall between 0 and 2^160 - 1.  By collecting both ends, we get a **hash ring**.
+
+**Hash servers**: Using the same hash function f, we map servers based on server IP or name onto the ring.
+
+**Hash keys**: Cache keys are also hashed onto the hash ring.
+
+**Server lookup**: To determine which server a key is stored on, we go clockwise from the key position on the ring until a server is found.
+
+**Add a server**: Using the logic described above, adding a new server will only require redistribution of a fraction of keys. Before server 4 is added,
+key0 is stored on server 0. Now, key0 will be stored on server 4 because server 4 is the first
+server it encounters by going clockwise from key0’s position on the ring. The other keys are
+not redistributed based on consistent hashing algorithm.
+
+**Remove a server**
+When a server is removed, only a small fraction of keys require redistribution with consistent
+hashing. In Figure 5-9, when server 1 is removed, only key1 must be remapped to server 2.
+The rest of the keys are unaffected.
+
+**Two issues in the basic approach**
+
+The consistent hashing algorithm basic steps are:
+
+- Map servers and keys on to the ring using a **uniformly distributed hash function**.
+- To find out which server a key is mapped to, go clockwise from the key position until the first server on the ring is found.
+
+Two problems are identified with this approach. 
+
+First, it is impossible to keep the same size of partitions on the ring for all servers considering a server can be added or removed. A partition is the hash space between adjacent servers. It is possible that the size of the partitions on the ring assigned to each server is very small or fairly large.
+
+Second, it is possible to have a **non-uniform key distribution** on the ring. A technique called virtual nodes or replicas is used to solve these problems.
+
+**Virtual nodes**
+A virtual node refers to the real node, and each server is represented by multiple virtual nodes on the ring. Suppose both server 0 and server 1 have 3 virtual nodes. Instead of using s0, we have s0_0, s0_1, and s0_2 to represent server 0 on the ring. Similarly,
+s1_0, s1_1, and s1_2 represent server 1 on the ring. With virtual nodes, <u>each server is responsible for multiple partitions</u>. 
+
+To find which server a key is stored on, we go clockwise from the key’s location and find the first virtual node encountered on the ring and which server it refers. As the number of virtual nodes increases, the distribution of keys becomes more balanced. This is because the <u>standard deviation gets smaller with more virtual nodes</u>, leading to balanced data distribution. Standard deviation measures how data are spread out. The standard deviation will be smaller when we increase the number of virtual nodes. However, more spaces are needed to store data about virtual nodes. This is a tradeoff, and we can tune the number of virtual nodes to fit our system requirements.
+
+**Find affected keys**
+When a server is added or removed, a fraction of data needs to be redistributed. How can we find the affected range to redistribute the keys?
+In Figure 5-14, server 4 is added onto the ring. The affected range starts from s4 (newly
+added node) and moves anticlockwise around the ring until a server is found (s3). Thus, keys
+located between s3 and s4 need to be redistributed to s4.
+When a server (s1) is removed as shown in Figure 5-15, the affected range starts from s1
+(removed node) and moves anticlockwise around the ring until a server is found (s0). Thus,
+keys located between s0 and s1 must be redistributed to s2.
+
+**Wrap up**
+
+The benefits of consistent hashing include:
+
+- Minimized keys are redistributed when servers are added or removed.
+- It is easy to scale horizontally because data are more evenly distributed.
+- Mitigate hotspot key problem. Excessive access to a specific shard could cause server Consistent hashing helps to mitigate the problem by distributing the data more evenly. Consistent hashing is widely used in real-world systems.
+
+
+
+------
+
+## 6: DESIGN A KEY-VALUE STORE
+
+A key-value store, also referred to as a key-value database, is a **non-relational database**. Examples are <u>Amazon dynamo, Memcached, Redis</u>, etc. Each unique identifier is stored as a key with its associated value. This data pairing is known as a “key-value” pair. In a key-value pair, the key must be unique. Keys can be plain text or hashed values. <u>For performance reasons, a short key works better</u>.
+
+Here we are designing a key-value store that supports the following operations:
 
 - put(key, value) // insert “value” associated with “key”
 - get(key) // get “value” associated with “key”
-Understand the problem and establish design scope
-There is no perfect design. Each design achieves a specific balance regarding the tradeoffs of
-the read, write, and memory usage. Another tradeoff has to be made was between consistency
-and availability. In this chapter, we design a key-value store that comprises of the following
-characteristics:
-• The size of a key-value pair is small: less than 10 KB.
-• Ability to store big data.
-• High availability: The system responds quickly, even during failures.
-• High scalability: The system can be scaled to support large data set.
-• Automatic scaling: The addition/deletion of servers should be automatic based on traffic.
-• Tunable consistency.
-• Low latency.
-Single server key-value store
-Developing a key-value store that resides in a single server is easy. An intuitive approach is
-to store key-value pairs in a hash table, which keeps everything in memory. Even though
-memory access is fast, fitting everything in memory may be impossible due to the space
-constraint. Two optimizations can be done to fit more data in a single server:
-• Data compression
-• Store only frequently used data in memory and the rest on disk
-Even with these optimizations, a single server can reach its capacity very quickly. A
-distributed key-value store is required to support big data.
-Distributed key-value store
-A distributed key-value store is also called a distributed hash table, which distributes keyvalue
-pairs across many servers. When designing a distributed system, it is important to
-understand CAP (Consistency, Availability, Partition Tolerance) theorem.
-CAP theorem
-CAP theorem states it is impossible for a distributed system to simultaneously provide more
-than two of these three guarantees: consistency, availability, and partition tolerance. Let us
-establish a few definitions.
-Consistency: consistency means all clients see the same data at the same time no matter
-which node they connect to.
-Availability: availability means any client which requests data gets a response even if some
-of the nodes are down.
-Partition Tolerance: a partition indicates a communication break between two nodes.
-Partition tolerance means the system continues to operate despite network partitions.
-CAP theorem states that one of the three properties must be sacrificed to support 2 of the 3
-properties as shown in Figure 6-1.
-Nowadays, key-value stores are classified based on the two CAP characteristics they support:
-CP (consistency and partition tolerance) systems: a CP key-value store supports
-consistency and partition tolerance while sacrificing availability.
-AP (availability and partition tolerance) systems: an AP key-value store supports
-availability and partition tolerance while sacrificing consistency.
-CA (consistency and availability) systems: a CA key-value store supports consistency and
-availability while sacrificing partition tolerance. Since network failure is unavoidable, a
-distributed system must tolerate network partition. Thus, a CA system cannot exist in realworld
-applications.
-What you read above is mostly the definition part. To make it easier to understand, let us take
-a look at some concrete examples. In distributed systems, data is usually replicated multiple
-times. Assume data are replicated on three replica nodes, n1, n2 and n3 as shown in Figure 6-
-2.
-Ideal situation
-In the ideal world, network partition never occurs. Data written to n1 is automatically
-replicated to n2 and n3. Both consistency and availability are achieved.
-Real-world distributed systems
-In a distributed system, partitions cannot be avoided, and when a partition occurs, we must
-choose between consistency and availability. In Figure 6-3, n3 goes down and cannot
-communicate with n1 and n2. If clients write data to n1 or n2, data cannot be propagated to
-n3. If data is written to n3 but not propagated to n1 and n2 yet, n1 and n2 would have stale
-data.
-If we choose consistency over availability (CP system), we must block all write operations to
-n1 and n2 to avoid data inconsistency among these three servers, which makes the system
-unavailable. Bank systems usually have extremely high consistent requirements. For
-example, it is crucial for a bank system to display the most up-to-date balance info. If
-inconsistency occurs due to a network partition, the bank system returns an error before the
-inconsistency is resolved.
-However, if we choose availability over consistency (AP system), the system keeps accepting
-reads, even though it might return stale data. For writes, n1 and n2 will keep accepting writes,
-and data will be synced to n3 when the network partition is resolved.
-Choosing the right CAP guarantees that fit your use case is an important step in building a
-distributed key-value store. You can discuss this with your interviewer and design the system
-accordingly.
-System components
-In this section, we will discuss the following core components and techniques used to build a
-key-value store:
-• Data partition
-• Data replication
-• Consistency
-• Inconsistency resolution
-• Handling failures
-• System architecture diagram
-• Write path
-• Read path
-The content below is largely based on three popular key-value store systems: Dynamo [4],
-Cassandra [5], and BigTable [6].
-Data partition
-For large applications, it is infeasible to fit the complete data set in a single server. The
-simplest way to accomplish this is to split the data into smaller partitions and store them in
-multiple servers. There are two challenges while partitioning the data:
-• Distribute data across multiple servers evenly.
-• Minimize data movement when nodes are added or removed.
-Consistent hashing discussed in Chapter 5 is a great technique to solve these problems. Let us
-revisit how consistent hashing works at a high-level.
-• First, servers are placed on a hash ring. In Figure 6-4, eight servers, represented by s0,
-s1, …, s7, are placed on the hash ring.
-• Next, a key is hashed onto the same ring, and it is stored on the first server encountered
-while moving in the clockwise direction. For instance, key0 is stored in s1 using this logic.
-Using consistent hashing to partition data has the following advantages:
-Automatic scaling: servers could be added and removed automatically depending on the
-load.
-Heterogeneity: the number of virtual nodes for a server is proportional to the server capacity.
-For example, servers with higher capacity are assigned with more virtual nodes.
-Data replication
-To achieve high availability and reliability, data must be replicated asynchronously over N
-servers, where N is a configurable parameter. These N servers are chosen using the following
-logic: after a key is mapped to a position on the hash ring, walk clockwise from that position
-and choose the first N servers on the ring to store data copies. In Figure 6-5 (N = 3), key0 is
-replicated at s1, s2, and s3.
-With virtual nodes, the first N nodes on the ring may be owned by fewer than N physical
-servers. To avoid this issue, we only choose unique servers while performing the clockwise
-walk logic.
-Nodes in the same data center often fail at the same time due to power outages, network
-issues, natural disasters, etc. For better reliability, replicas are placed in distinct data centers,
-and data centers are connected through high-speed networks.
-Consistency
-Since data is replicated at multiple nodes, it must be synchronized across replicas. Quorum
-consensus can guarantee consistency for both read and write operations. Let us establish a
-few definitions first.
-N = The number of replicas
-W = A write quorum of size W. For a write operation to be considered as successful, write
-operation must be acknowledged from W replicas.
-R = A read quorum of size R. For a read operation to be considered as successful, read
-operation must wait for responses from at least R replicas.
-Consider the following example shown in Figure 6-6 with N = 3.
-W = 1 does not mean data is written on one server. For instance, with the configuration in
-Figure 6-6, data is replicated at s0, s1, and s2. W = 1 means that the coordinator must receive
-at least one acknowledgment before the write operation is considered as successful. For
-instance, if we get an acknowledgment from s1, we no longer need to wait for
-acknowledgements from s0 and s2. A coordinator acts as a proxy between the client and the
-nodes.
-The configuration of W, R and N is a typical tradeoff between latency and consistency. If W =
-1 or R = 1, an operation is returned quickly because a coordinator only needs to wait for a
-response from any of the replicas. If W or R > 1, the system offers better consistency;
-however, the query will be slower because the coordinator must wait for the response from
-the slowest replica.
-If W + R > N, strong consistency is guaranteed because there must be at least one
-overlapping node that has the latest data to ensure consistency.
-How to configure N, W, and R to fit our use cases? Here are some of the possible setups:
-If R = 1 and W = N, the system is optimized for a fast read.
-If W = 1 and R = N, the system is optimized for fast write.
-If W + R > N, strong consistency is guaranteed (Usually N = 3, W = R = 2).
-If W + R <= N, strong consistency is not guaranteed.
-Depending on the requirement, we can tune the values of W, R, N to achieve the desired level
-of consistency.
-Consistency models
-Consistency model is other important factor to consider when designing a key-value store. A
-consistency model defines the degree of data consistency, and a wide spectrum of possible
-consistency models exist:
-• Strong consistency: any read operation returns a value corresponding to the result of the
-most updated write data item. A client never sees out-of-date data.
-• Weak consistency: subsequent read operations may not see the most updated value.
-• Eventual consistency: this is a specific form of weak consistency. Given enough time, all
-updates are propagated, and all replicas are consistent.
-Strong consistency is usually achieved by forcing a replica not to accept new reads/writes
-until every replica has agreed on current write. This approach is not ideal for highly available
-systems because it could block new operations. Dynamo and Cassandra adopt eventual
-consistency, which is our recommended consistency model for our key-value store. From
-concurrent writes, eventual consistency allows inconsistent values to enter the system and
-force the client to read the values to reconcile. The next section explains how reconciliation
-works with versioning.
-Inconsistency resolution: versioning
-Replication gives high availability but causes inconsistencies among replicas. Versioning and
-vector locks are used to solve inconsistency problems. Versioning means treating each data
-modification as a new immutable version of data. Before we talk about versioning, let us use
-an example to explain how inconsistency happens:
-As shown in Figure 6-7, both replica nodes n1 and n2 have the same value. Let us call this
-value the original value. Server 1 and server 2 get the same value for get(“name”) operation.
-Next, server 1 changes the name to “johnSanFrancisco”, and server 2 changes the name to
-“johnNewYork” as shown in Figure 6-8. These two changes are performed simultaneously.
-Now, we have conflicting values, called versions v1 and v2.
-In this example, the original value could be ignored because the modifications were based on
-it. However, there is no clear way to resolve the conflict of the last two versions. To resolve
-this issue, we need a versioning system that can detect conflicts and reconcile conflicts. A
-vector clock is a common technique to solve this problem. Let us examine how vector clocks
-work.
-A vector clock is a [server, version] pair associated with a data item. It can be used to check
-if one version precedes, succeeds, or in conflict with others.
-Assume a vector clock is represented by D([S1, v1], [S2, v2], …, [Sn, vn]), where D is a data
-item, v1 is a version counter, and s1 is a server number, etc. If data item D is written to server
-Si, the system must perform one of the following tasks.
-• Increment vi if [Si, vi] exists.
-• Otherwise, create a new entry [Si, 1].
-The above abstract logic is explained with a concrete example as shown in Figure 6-9.
-1. A client writes a data item D1 to the system, and the write is handled by server Sx,
-which now has the vector clock D1[(Sx, 1)].
-2. Another client reads the latest D1, updates it to D2, and writes it back. D2 descends
-from D1 so it overwrites D1. Assume the write is handled by the same server Sx, which
-now has vector clock D2([Sx, 2]).
-3. Another client reads the latest D2, updates it to D3, and writes it back. Assume the write
-is handled by server Sy, which now has vector clock D3([Sx, 2], [Sy, 1])).
-4. Another client reads the latest D2, updates it to D4, and writes it back. Assume the write
-is handled by server Sz, which now has D4([Sx, 2], [Sz, 1])).
-5. When another client reads D3 and D4, it discovers a conflict, which is caused by data
-item D2 being modified by both Sy and Sz. The conflict is resolved by the client and
-updated data is sent to the server. Assume the write is handled by Sx, which now has
-D5([Sx, 3], [Sy, 1], [Sz, 1]). We will explain how to detect conflict shortly.
-Using vector clocks, it is easy to tell that a version X is an ancestor (i.e. no conflict) of
-version Y if the version counters for each participant in the vector clock of Y is greater than or
-equal to the ones in version X. For example, the vector clock D([s0, 1], [s1, 1])] is an
-ancestor of D([s0, 1], [s1, 2]). Therefore, no conflict is recorded.
-Similarly, you can tell that a version X is a sibling (i.e., a conflict exists) of Y if there is any
-participant in Y's vector clock who has a counter that is less than its corresponding counter in
-X. For example, the following two vector clocks indicate there is a conflict: D([s0, 1], [s1,
-2]) and D([s0, 2], [s1, 1]).
-Even though vector clocks can resolve conflicts, there are two notable downsides. First,
-vector clocks add complexity to the client because it needs to implement conflict resolution
-logic.
-Second, the [server: version] pairs in the vector clock could grow rapidly. To fix this
-problem, we set a threshold for the length, and if it exceeds the limit, the oldest pairs are
-removed. This can lead to inefficiencies in reconciliation because the descendant relationship
-cannot be determined accurately. However, based on Dynamo paper [4], Amazon has not yet
-encountered this problem in production; therefore, it is probably an acceptable solution for
-most companies.
-Handling failures
-As with any large system at scale, failures are not only inevitable but common. Handling
-failure scenarios is very important. In this section, we first introduce techniques to detect
-failures. Then, we go over common failure resolution strategies.
-Failure detection
-In a distributed system, it is insufficient to believe that a server is down because another
-server says so. Usually, it requires at least two independent sources of information to mark a
-server down.
-As shown in Figure 6-10, all-to-all multicasting is a straightforward solution. However, this is
-inefficient when many servers are in the system.
-A better solution is to use decentralized failure detection methods like gossip protocol.
-Gossip protocol works as follows:
-• Each node maintains a node membership list, which contains member IDs and heartbeat
-counters.
-• Each node periodically increments its heartbeat counter.
-• Each node periodically sends heartbeats to a set of random nodes, which in turn
-propagate to another set of nodes.
-• Once nodes receive heartbeats, membership list is updated to the latest info.
-• If the heartbeat has not increased for more than predefined periods, the member is
-considered as offline.
-As shown in Figure 6-11:
-• Node s0 maintains a node membership list shown on the left side.
-• Node s0 notices that node s2’s (member ID = 2) heartbeat counter has not increased for a
-long time.
-• Node s0 sends heartbeats that include s2’s info to a set of random nodes. Once other
-nodes confirm that s2’s heartbeat counter has not been updated for a long time, node s2 is
-marked down, and this information is propagated to other nodes.
-Handling temporary failures
-After failures have been detected through the gossip protocol, the system needs to deploy
-certain mechanisms to ensure availability. In the strict quorum approach, read and write
-operations could be blocked as illustrated in the quorum consensus section.
-A technique called “sloppy quorum” [4] is used to improve availability. Instead of enforcing
-the quorum requirement, the system chooses the first W healthy servers for writes and first R
-healthy servers for reads on the hash ring. Offline servers are ignored.
-If a server is unavailable due to network or server failures, another server will process
-requests temporarily. When the down server is up, changes will be pushed back to achieve
-data consistency. This process is called hinted handoff. Since s2 is unavailable in Figure 6-
-12, reads and writes will be handled by s3 temporarily. When s2 comes back online, s3 will
-hand the data back to s2.
-Handling permanent failures
-Hinted handoff is used to handle temporary failures. What if a replica is permanently
-unavailable? To handle such a situation, we implement an anti-entropy protocol to keep
-replicas in sync. Anti-entropy involves comparing each piece of data on replicas and updating
-each replica to the newest version. A Merkle tree is used for inconsistency detection and
-minimizing the amount of data transferred.
-Quoted from Wikipedia [7]: “A hash tree or Merkle tree is a tree in which every non-leaf
-node is labeled with the hash of the labels or values (in case of leaves) of its child nodes.
-Hash trees allow efficient and secure verification of the contents of large data structures”.
-Assuming key space is from 1 to 12, the following steps show how to build a Merkle tree.
-Highlighted boxes indicate inconsistency.
-Step 1: Divide key space into buckets (4 in our example) as shown in Figure 6-13. A bucket
-is used as the root level node to maintain a limited depth of the tree.
-Step 2: Once the buckets are created, hash each key in a bucket using a uniform hashing
-method (Figure 6-14).
-Step 3: Create a single hash node per bucket (Figure 6-15).
-Step 4: Build the tree upwards till root by calculating hashes of children (Figure 6-16).
-To compare two Merkle trees, start by comparing the root hashes. If root hashes match, both
-servers have the same data. If root hashes disagree, then the left child hashes are compared
-followed by right child hashes. You can traverse the tree to find which buckets are not
-synchronized and synchronize those buckets only.
-Using Merkle trees, the amount of data needed to be synchronized is proportional to the
-differences between the two replicas, and not the amount of data they contain. In real-world
-systems, the bucket size is quite big. For instance, a possible configuration is one million
-buckets per one billion keys, so each bucket only contains 1000 keys.
-Handling data center outage
-Data center outage could happen due to power outage, network outage, natural disaster, etc.
-To build a system capable of handling data center outage, it is important to replicate data
-across multiple data centers. Even if a data center is completely offline, users can still access
-data through the other data centers.
-System architecture diagram
-Now that we have discussed different technical considerations in designing a key-value store,
-we can shift our focus on the architecture diagram, shown in Figure 6-17.
-Main features of the architecture are listed as follows:
-• Clients communicate with the key-value store through simple APIs: get(key) and put(key,
-value).
-• A coordinator is a node that acts as a proxy between the client and the key-value store.
-• Nodes are distributed on a ring using consistent hashing.
-• The system is completely decentralized so adding and moving nodes can be automatic.
-• Data is replicated at multiple nodes.
-• There is no single point of failure as every node has the same set of responsibilities.
-As the design is decentralized, each node performs many tasks as presented in Figure 6-18.
-Write path
-Figure 6-19 explains what happens after a write request is directed to a specific node. Please
-note the proposed designs for write/read paths are primary based on the architecture of
-Cassandra [8].
-1. The write request is persisted on a commit log file.
-2. Data is saved in the memory cache.
-3. When the memory cache is full or reaches a predefined threshold, data is flushed to
-SSTable [9] on disk. Note: A sorted-string table (SSTable) is a sorted list of <key, value>
-pairs. For readers interested in learning more about SStable, refer to the reference material
-[9].
-Read path
-After a read request is directed to a specific node, it first checks if data is in the memory
-cache. If so, the data is returned to the client as shown in Figure 6-20.
-If the data is not in memory, it will be retrieved from the disk instead. We need an efficient
-way to find out which SSTable contains the key. Bloom filter [10] is commonly used to solve
-this problem.
-The read path is shown in Figure 6-21 when data is not in memory.
-1. The system first checks if data is in memory. If not, go to step 2.
-2. If data is not in memory, the system checks the bloom filter.
-3. The bloom filter is used to figure out which SSTables might contain the key.
-4. SSTables return the result of the data set.
-13. The result of the data set is returned to the client.
-      Summary
-      This chapter covers many concepts and techniques. To refresh your memory, the following
-      table summarizes features and corresponding techniques used for a distributed key-value
-      store.
-      Reference materials
-      [1] Amazon DynamoDB: https://aws.amazon.com/dynamodb/
-      [2] memcached: https://memcached.org/
-      [3] Redis: https://redis.io/
-      [4] Dynamo: Amazon’s Highly Available Key-value Store:
-      https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf
-      [5] Cassandra: https://cassandra.apache.org/
-      [6] Bigtable: A Distributed Storage System for Structured Data:
-      https://static.googleusercontent.com/media/research.google.com/en//archive/bigtableosdi06.
-      pdf
-      [7] Merkle tree: https://en.wikipedia.org/wiki/Merkle_tree
-      [8] Cassandra architecture: https://cassandra.apache.org/doc/latest/architecture/
-      [9] SStable: https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/
-      [10] Bloom filter https://en.wikipedia.org/wiki/Bloom_filter
 
-   ## CHAPTER 7: DESIGN A UNIQUE ID GENERATOR IN
+Each design achieves a specific balance regarding the <u>tradeoffs of the read, write, and memory usage</u>. Another tradeoff has to be made was between consistency and availability.
 
-   DISTRIBUTED SYSTEMS
-   In this chapter, you are asked to design a unique ID generator in distributed systems. Your
-   first thought might be to use a primary key with the auto_increment attribute in a traditional
-   database. However, auto_increment does not work in a distributed environment because a
-   single database server is not large enough and generating unique IDs across multiple
-   databases with minimal delay is challenging.
-   Here are a few examples of unique IDs:
-   Step 1 - Understand the problem and establish design scope
-   Asking clarification questions is the first step to tackle any system design interview question.
-   Here is an example of candidate-interviewer interaction:
-   Candidate: What are the characteristics of unique IDs?
-   Interviewer: IDs must be unique and sortable.
-   Candidate: For each new record, does ID increment by 1?
-   Interviewer: The ID increments by time but not necessarily only increments by 1. IDs
-   created in the evening are larger than those created in the morning on the same day.
-   Candidate: Do IDs only contain numerical values?
-   Interviewer: Yes, that is correct.
-   Candidate: What is the ID length requirement?
-   Interviewer: IDs should fit into 64-bit.
-   Candidate: What is the scale of the system?
-   Interviewer: The system should be able to generate 10,000 IDs per second.
-   Above are some of the sample questions that you can ask your interviewer. It is important to
-   understand the requirements and clarify ambiguities. For this interview question, the
-   requirements are listed as follows:
-   • IDs must be unique.
-   • IDs are numerical values only.
-   • IDs fit into 64-bit.
-   • IDs are ordered by date.
-   • Ability to generate over 10,000 unique IDs per second.
-   Step 2 - Propose high-level design and get buy-in
-   Multiple options can be used to generate unique IDs in distributed systems. The options we
-   considered are:
-   • Multi-master replication
-   • Universally unique identifier (UUID)
-   • Ticket server
-   • Twitter snowflake approach
-   Let us look at each of them, how they work, and the pros/cons of each option.
-   Multi-master replication
-   As shown in Figure 7-2, the first approach is multi-master replication.
-   This approach uses the databases’ auto_increment feature. Instead of increasing the next ID
-   by 1, we increase it by k, where k is the number of database servers in use. As illustrated in
-   Figure 7-2, next ID to be generated is equal to the previous ID in the same server plus 2. This
-   solves some scalability issues because IDs can scale with the number of database servers.
-   However, this strategy has some major drawbacks:
-   • Hard to scale with multiple data centers
-   • IDs do not go up with time across multiple servers.
-   • It does not scale well when a server is added or removed.
-   UUID
-   A UUID is another easy way to obtain unique IDs. UUID is a 128-bit number used to identify
-   information in computer systems. UUID has a very low probability of getting collusion.
-   Quoted from Wikipedia, “after generating 1 billion UUIDs every second for approximately
-   100 years would the probability of creating a single duplicate reach 50%” [1].
-   Here is an example of UUID: 09c93e62-50b4-468d-bf8a-c07e1040bfb2. UUIDs can be
-   generated independently without coordination between servers. Figure 7-3 presents the
-   UUIDs design.
-   In this design, each web server contains an ID generator, and a web server is responsible for
-   generating IDs independently.
-   Pros:
-   • Generating UUID is simple. No coordination between servers is needed so there will not
-   be any synchronization issues.
-   • The system is easy to scale because each web server is responsible for generating IDs
-   they consume. ID generator can easily scale with web servers.
-   Cons:
-   • IDs are 128 bits long, but our requirement is 64 bits.
-   • IDs do not go up with time.
-   • IDs could be non-numeric.
-   Ticket Server
-   Ticket servers are another interesting way to generate unique IDs. Flicker developed ticket
-   servers to generate distributed primary keys [2]. It is worth mentioning how the system
-   works.
-   The idea is to use a centralized auto_increment feature in a single database server (Ticket
-   Server). To learn more about this, refer to flicker’s engineering blog article [2].
-   Pros:
-   • Numeric IDs.
-   • It is easy to implement, and it works for small to medium-scale applications.
-   Cons:
-   • Single point of failure. Single ticket server means if the ticket server goes down, all
-   systems that depend on it will face issues. To avoid a single point of failure, we can set up
-   multiple ticket servers. However, this will introduce new challenges such as data
-   synchronization.
-   Twitter snowflake approach
-   Approaches mentioned above give us some ideas about how different ID generation systems
-   work. However, none of them meet our specific requirements; thus, we need another
-   approach. Twitter’s unique ID generation system called “snowflake” [3] is inspiring and can
-   satisfy our requirements.
-   Divide and conquer is our friend. Instead of generating an ID directly, we divide an ID into
-   different sections. Figure 7-5 shows the layout of a 64-bit ID.
-   Each section is explained below.
-   • Sign bit: 1 bit. It will always be 0. This is reserved for future uses. It can potentially be
-   used to distinguish between signed and unsigned numbers.
-   • Timestamp: 41 bits. Milliseconds since the epoch or custom epoch. We use Twitter
-   snowflake default epoch 1288834974657, equivalent to Nov 04, 2010, 01:42:54 UTC.
-   • Datacenter ID: 5 bits, which gives us 2 ^ 5 = 32 datacenters.
-   • Machine ID: 5 bits, which gives us 2 ^ 5 = 32 machines per datacenter.
-   • Sequence number: 12 bits. For every ID generated on that machine/process, the sequence
-   number is incremented by 1. The number is reset to 0 every millisecond.
-   Step 3 - Design deep dive
-   In the high-level design, we discussed various options to design a unique ID generator in
-   distributed systems. We settle on an approach that is based on the Twitter snowflake ID
-   generator. Let us dive deep into the design. To refresh our memory, the design diagram is
-   relisted below.
-   Datacenter IDs and machine IDs are chosen at the startup time, generally fixed once the
-   system is up running. Any changes in datacenter IDs and machine IDs require careful review
-   since an accidental change in those values can lead to ID conflicts. Timestamp and sequence
-   numbers are generated when the ID generator is running.
-   Timestamp
-   The most important 41 bits make up the timestamp section. As timestamps grow with time,
-   IDs are sortable by time. Figure 7-7 shows an example of how binary representation is
-   converted to UTC. You can also convert UTC back to binary representation using a similar
-   method.
-   The maximum timestamp that can be represented in 41 bits is
-   2 ^ 41 - 1 = 2199023255551 milliseconds (ms), which gives us: ~ 69 years =
-   2199023255551 ms / 1000 seconds / 365 days / 24 hours/ 3600 seconds. This means the ID
-   generator will work for 69 years and having a custom epoch time close to today’s date delays
-   the overflow time. After 69 years, we will need a new epoch time or adopt other techniques
-   to migrate IDs.
-   Sequence number
-   Sequence number is 12 bits, which give us 2 ^ 12 = 4096 combinations. This field is 0 unless
-   more than one ID is generated in a millisecond on the same server. In theory, a machine can
-   support a maximum of 4096 new IDs per millisecond.
-   Step 4 - Wrap up
-   In this chapter, we discussed different approaches to design a unique ID generator: multimaster
-   replication, UUID, ticket server, and Twitter snowflake-like unique ID generator. We
-   settle on snowflake as it supports all our use cases and is scalable in a distributed
-   environment.
-   If there is extra time at the end of the interview, here are a few additional talking points:
-   • Clock synchronization. In our design, we assume ID generation servers have the same
-   clock. This assumption might not be true when a server is running on multiple cores. The
-   same challenge exists in multi-machine scenarios. Solutions to clock synchronization are
-   out of the scope of this book; however, it is important to understand the problem exists.
-   Network Time Protocol is the most popular solution to this problem. For interested
-   readers, refer to the reference material [4].
-   • Section length tuning. For example, fewer sequence numbers but more timestamp bits
-   are effective for low concurrency and long-term applications.
-   • High availability. Since an ID generator is a mission-critical system, it must be highly
-   available.
-   Congratulations on getting this far! Now give yourself a pat on the back. Good job!
-   Reference materials
-   [1] Universally unique identifier: https://en.wikipedia.org/wiki/Universally_unique_identifier
-   [2] Ticket Servers: Distributed Unique Primary Keys on the Cheap:
-   https://code.flickr.net/2010/02/08/ticket-servers-distributed-unique-primary-keys-on-thecheap/
-   [3] Announcing Snowflake: https://blog.twitter.com/engineering/en_us/a/2010/announcingsnowflake.
-   html
-   [4] Network time protocol: https://en.wikipedia.org/wiki/Network_Time_Protocol
+we design a key-value store that comprises of the following characteristics:
 
-   ## CHAPTER 8: DESIGN A URL SHORTENER
+- The size of a key-value pair is small: less than 10 KB
+- Ability to store big data.
+- High availability: The system responds quickly, even during failures.
+- High scalability: The system can be scaled to support large data set.
+- Automatic scaling: The addition/deletion of servers should be automatic based on traffic.
+- Tunable consistency.
+- Low latency.
 
-   In this chapter, we will tackle an interesting and classic system design interview question:
-   designing a URL shortening service like tinyurl.
-   Step 1 - Understand the problem and establish design scope
-   System design interview questions are intentionally left open-ended. To design a well-crafted
-   system, it is critical to ask clarification questions.
-   Candidate: Can you give an example of how a URL shortener work?
-   Interviewer: Assume URL
-   https://www.systeminterview.com/q=chatsystem&c=loggedin&v=v3&l=long is the original
-   URL. Your service creates an alias with shorter length: https://tinyurl.com/ y7keocwj. If you
-   click the alias, it redirects you to the original URL.
-   Candidate: What is the traffic volume?
-   Interviewer: 100 million URLs are generated per day.
-   Candidate: How long is the shortened URL?
-   Interviewer: As short as possible.
-   Candidate: What characters are allowed in the shortened URL?
-   Interviewer: Shortened URL can be a combination of numbers (0-9) and characters (a-z, AZ).
-   Candidate: Can shortened URLs be deleted or updated?
-   Interviewer: For simplicity, let us assume shortened URLs cannot be deleted or updated.
-   Here are the basic use cases:
-   1.URL shortening: given a long URL => return a much shorter URL
-   2.URL redirecting: given a shorter URL => redirect to the original URL
-   3.High availability, scalability, and fault tolerance considerations
-   Back of the envelope estimation
-   • Write operation: 100 million URLs are generated per day.
-   • Write operation per second: 100 million / 24 /3600 = 1160
-   • Read operation: Assuming ratio of read operation to write operation is 10:1, read
-   operation per second: 1160 * 10 = 11,600
-   • Assuming the URL shortener service will run for 10 years, this means we must support
-   100 million * 365 * 10 = 365 billion records.
-   • Assume average URL length is 100.
-   • Storage requirement over 10 years: 365 billion * 100 bytes * 10 years = 365 TB
-   It is important for you to walk through the assumptions and calculations with your
-   interviewer so that both of you are on the same page.
-   Step 2 - Propose high-level design and get buy-in
-   In this section, we discuss the API endpoints, URL redirecting, and URL shortening flows.
-   API Endpoints
-   API endpoints facilitate the communication between clients and servers. We will design the
-   APIs REST-style. If you are unfamiliar with restful API, you can consult external materials,
-   such as the one in the reference material [1]. A URL shortener primary needs two API
-   endpoints.
-   1.URL shortening. To create a new short URL, a client sends a POST request, which contains
-   one parameter: the original long URL. The API looks like this:
-   POST api/v1/data/shorten
-   • request parameter: {longUrl: longURLString}
-   • return shortURL
-   2.URL redirecting. To redirect a short URL to the corresponding long URL, a client sends a
-   GET request. The API looks like this:
-   GET api/v1/shortUrl
-   • Return longURL for HTTP redirection
-   URL redirecting
-   Figure 8-1 shows what happens when you enter a tinyurl onto the browser. Once the server
-   receives a tinyurl request, it changes the short URL to the long URL with 301 redirect.
-   The detailed communication between clients and servers is shown in Figure 8-2.
-   One thing worth discussing here is 301 redirect vs 302 redirect.
-   301 redirect. A 301 redirect shows that the requested URL is “permanently” moved to the
-   long URL. Since it is permanently redirected, the browser caches the response, and
-   subsequent requests for the same URL will not be sent to the URL shortening service.
-   Instead, requests are redirected to the long URL server directly.
-   302 redirect. A 302 redirect means that the URL is “temporarily” moved to the long URL,
-   meaning that subsequent requests for the same URL will be sent to the URL shortening
-   service first. Then, they are redirected to the long URL server.
-   Each redirection method has its pros and cons. If the priority is to reduce the server load,
-   using 301 redirect makes sense as only the first request of the same URL is sent to URL
-   shortening servers. However, if analytics is important, 302 redirect is a better choice as it can
-   track click rate and source of the click more easily.
-   The most intuitive way to implement URL redirecting is to use hash tables. Assuming the
-   hash table stores <shortURL, longURL> pairs, URL redirecting can be implemented by the
-   following:
-   • Get longURL: longURL = hashTable.get(shortURL)
-   • Once you get the longURL, perform the URL redirect.
-   URL shortening
-   Let us assume the short URL looks like this: www.tinyurl.com/{hashValue}. To support the
-   URL shortening use case, we must find a hash function fx that maps a long URL to the
-   hashValue, as shown in Figure 8-3.
-   The hash function must satisfy the following requirements:
-   • Each longURL must be hashed to one hashValue.
-   • Each hashValue can be mapped back to the longURL.
-   Detailed design for the hash function is discussed in deep dive.
-   Step 3 - Design deep dive
-   Up until now, we have discussed the high-level design of URL shortening and URL
-   redirecting. In this section, we dive deep into the following: data model, hash function, URL
-   shortening and URL redirecting.
-   Data model
-   In the high-level design, everything is stored in a hash table. This is a good starting point;
-   however, this approach is not feasible for real-world systems as memory resources are limited
-   and expensive. A better option is to store <shortURL, longURL> mapping in a relational
-   database. Figure 8-4 shows a simple database table design. The simplified version of the table
-   contains 3 columns: id, shortURL, longURL.
-   Hash function
-   Hash function is used to hash a long URL to a short URL, also known as hashValue.
-   Hash value length
-   The hashValue consists of characters from [0-9, a-z, A-Z], containing 10 + 26 + 26 = 62
-   possible characters. To figure out the length of hashValue, find the smallest n such that 62^n
-   ≥ 365 billion. The system must support up to 365 billion URLs based on the back of the
-   envelope estimation. Table 8-1 shows the length of hashValue and the corresponding
-   maximal number of URLs it can support.
-   When n = 7, 62 ^ n = ~3.5 trillion, 3.5 trillion is more than enough to hold 365 billion URLs,
-   so the length of hashValue is 7.
-   We will explore two types of hash functions for a URL shortener. The first one is “hash +
-   collision resolution”, and the second one is “base 62 conversion.” Let us look at them one by
-   one.
-   Hash + collision resolution
-   To shorten a long URL, we should implement a hash function that hashes a long URL to a 7-
-   character string. A straightforward solution is to use well-known hash functions like CRC32,
-   MD5, or SHA-1. The following table compares the hash results after applying different hash
-   functions on this URL: https://en.wikipedia.org/wiki/Systems_design.
-   As shown in Table 8-2, even the shortest hash value (from CRC32) is too long (more than 7
-   characters). How can we make it shorter?
-   The first approach is to collect the first 7 characters of a hash value; however, this method
-   can lead to hash collisions. To resolve hash collisions, we can recursively append a new
-   predefined string until no more collision is discovered. This process is explained in Figure 8-
-   5.
-   This method can eliminate collision; however, it is expensive to query the database to check
-   if a shortURL exists for every request. A technique called bloom filters [2] can improve
-   performance. A bloom filter is a space-efficient probabilistic technique to test if an element is
-   a member of a set. Refer to the reference material [2] for more details.
-   Base 62 conversion
-   Base conversion is another approach commonly used for URL shorteners. Base conversion
-   helps to convert the same number between its different number representation systems. Base
-   62 conversion is used as there are 62 possible characters for hashValue. Let us use an
-   example to explain how the conversion works: convert 1115710 to base 62 representation
-   (1115710 represents 11157 in a base 10 system).
-   • From its name, base 62 is a way of using 62 characters for encoding. The mappings are:
-   0-0, ..., 9-9, 10-a, 11-b, ..., 35-z, 36-A, ..., 61-Z, where ‘a’ stands for 10, ‘Z’ stands for 61,
-   etc.
-   • 1115710 = 2 x 622 + 55 x 621 + 59 x 620 = [2, 55, 59] -> [2, T, X] in base 62
-   representation. Figure 8-6 shows the conversation process.
-   • Thus, the short URL is https://tinyurl.com /2TX
-   Comparison of the two approaches
-   Table 8-3 shows the differences of the two approaches.
-   URL shortening deep dive
-   As one of the core pieces of the system, we want the URL shortening flow to be logically
-   simple and functional. Base 62 conversion is used in our design. We build the following
-   diagram (Figure 8-7) to demonstrate the flow.
-1. longURL is the input.
+**Single server key-value store**
+
+Developing a key-value store in a single server can be done by storing key-value pairs in a hash table, which keeps everything in memory. Even though memory access is fast, fitting big data is impossible due to the **space constraint**. Two optimizations can be done to fit more data in a single server:
+
+- Data compression
+- Store only frequently used data in memory and the rest on disk
+
+Even with these optimizations, a single server can reach its capacity very quickly. A distributed key-value store is required to support big data.
+
+**Distributed key-value store**
+
+A distributed key-value store is also called a **distributed hash table**, which distributes keyvalue pairs across many servers.
+
+**CAP theorem**
+
+When designing a distributed system, it is important to understand **CAP (Consistency, Availability, Partition Tolerance) theorem**. Choosing the right CAP guarantees that fit your use case is an important step in building a distributed key-value store. 
+
+> CAP theorem states it is impossible for a distributed system to simultaneously provide more than two of these three guarantees: consistency, availability, and partition tolerance.
+
+- **Consistency**: consistency means all clients see the <u>same data at the same time</u> no matter which node they connect to.
+- **Availability**: availability means any client which requests data <u>gets a response even if some of the nodes are down</u>.
+- **Partition Tolerance**: a partition indicates a communication break between two nodes. Partition tolerance means the <u>system continues to operate despite network partitions</u>.
+
+CAP theorem states that one of the three properties must be sacrificed to support 2 of the 3 properties.
+
+A key-value stores are classified based on the two CAP characteristics they support:
+
+- CP (consistency and partition tolerance) systems: a CP key-value store supports consistency and partition tolerance while sacrificing availability.
+- AP (availability and partition tolerance) systems: an AP key-value store supports availability and partition tolerance while sacrificing consistency.
+- CA (consistency and availability) systems: a CA key-value store supports consistency and availability while sacrificing partition tolerance. Since network failure is unavoidable, a distributed system must tolerate network partition. Thus, a <u>CA system cannot exist in realworld applications</u>.
+
+**Real-world distributed systems**
+
+In distributed systems, data is usually replicated multiple times. Assume data are replicated on three replica nodes, n1, n2 and n3. In the ideal world, network partition never occurs. Data written to n1 is automatically replicated to n2 and n3. Both consistency and availability are achieved. <u>In a distributed system, partitions cannot be avoided</u>, and when a partition occurs, we must <u>choose between consistency and availability</u>. 
+
+**Consistency over availability (CP system)** : If n3 goes down and cannot communicate with n1 and n2. If clients write data to n1 or n2, data cannot be propagated to n3. If data is written to n3 but not propagated to n1 and n2 yet, n1 and n2 would have stale data. If we choose consistency over availability (CP system), we must block all write operations to n1 and n2 to avoid data inconsistency among these three servers, which makes the system unavailable. <u>Bank systems usually have high consistent requirements</u>. It is crucial for a bank system to display the most up-to-date balance info. If inconsistency occurs due to a network partition, the bank system returns an error before the inconsistency is resolved.
+
+**Availability over consistency (AP system)** : If we choose availability over consistency (AP system), the system keeps accepting reads, even though it might return stale data. For writes, n1 and n2 will keep accepting writes, and data will be synced to n3 when the network partition is resolved.
+
+**System components**
+Now we will discuss the <u>core components and techniques</u> used to build a key-value store. These are largely based on three popular key-value store systems: Dynamo, Cassandra, and BigTable.
+
+- **Data partition**
+
+  For large applications, thesimplest way is to split the data into smaller partitions and store them in multiple servers. There are two challenges while partitioning the data:
+
+  - Distribute data across multiple servers evenly.
+  - Minimize data movement when nodes are added or removed.
+
+  Consistent hashing is a great technique to solve these problems. Using consistent hashing to partition data has the following advantages:
+
+  - **Automatic scaling**: servers could be added and removed automatically depending on the load.
+  - **Heterogeneity**: the number of virtual nodes for a server is proportional to the server capacity.
+
+- **Data replication**
+  To achieve high availability and reliability, data must be replicated asynchronously over N servers, where N is a configurable parameter. These N servers are chosen using the following logic: after a <u>key is mapped to a position on the hash ring, walk clockwise from that position and choose the first N servers</u> on the ring to store data copies. With virtual nodes, the first N nodes on the ring may be owned by fewer than N physical servers. To avoid this issue, we only <u>choose unique servers while performing the clockwise walk logic</u>. Nodes in the same data center often fail at the same time due to power outages, network issues, natural disasters, etc. For better reliability, replicas are placed in distinct data centers, and data centers are connected through high-speed networks.
+
+- **Consistency**
+  Since data is replicated at multiple nodes, it must be synchronized across replicas. **Quorum consensus** can guarantee consistency for both read and write operations.
+
+  - N = The number of replicas.
+  - W = A write quorum of size W. For a write operation to be considered as successful, <u>write operation must be acknowledged from W replicas</u>.
+  - R = A read quorum of size R. For a read operation to be considered as successful, <u>read operation must wait for responses from at least R replicas</u>.
+
+  W = 1 does not mean data is written on one server, it means that the coordinator must receive at least one acknowledgment before the write operation is considered as successful. A coordinator acts as a proxy between the client and the nodes.
+
+  The configuration of W, R and N is a typical **tradeoff between latency and consistency**. If W =1 or R = 1, an operation is returned quickly because a coordinator only needs to wait for a response from any of the replicas. If W or R > 1, the system offers better consistency; however, the query will be slower because the coordinator must wait for the response from the slowest replica. <u>If W + R > N, strong consistency is guaranteed</u> because there must be at least **one overlapping node** that has the latest data to ensure consistency.
+
+  - If R = 1 and W = N, the system is optimized for a fast read.
+  - If W = 1 and R = N, the system is optimized for fast write.
+  - If W + R > N, **strong consistency is guaranteed** (Usually N = 3, W = R = 2).
+  - If W + R <= N, strong consistency is not guaranteed.
+
+- **Consistency models**
+  A consistency model defines the **degree of data consistency**, and a wide spectrum of possible consistency models exist:
+
+  - Strong consistency: any read operation returns a value corresponding to the result of the most updated write data item. A client <u>never sees out-of-date data</u>.
+  - Weak consistency: subsequent read operations may not see the most updated value.
+  - Eventual consistency: this is a specific form of weak consistency. Given enough time, all updates are propagated, and all replicas are consistent.
+
+  Strong consistency is usually achieved by forcing a replica not to accept new reads/writes until every replica has agreed on current write. This approach is not ideal for highly available systems because it could block new operations. <u>Dynamo and Cassandra adopt eventualconsistency</u>, which is our recommended consistency model for our key-value store. From concurrent writes, eventual consistency allows inconsistent values to enter the system and force the client to read the values to reconcile.
+
+- **Inconsistency resolution: versioning**
+
+  Replication gives high availability but causes inconsistencies among replicas. **Versioning and vector locks** are used to solve inconsistency problems. Versioning means treating each data modification as a new immutable version of data. 
+
+  <u>How inconsistency happens</u>: Both replica nodes n1 and n2 have the same data.  Server 1 reads from n1 and server 2 reads from n2 and get the same value for get(“name”) operation. Next, server 1 changes the name to “johnSanFrancisco”, and server 2 changes the name to “johnNewYork”. These two changes are performed simultaneously. Now, we have conflicting values, called versions v1 and v2. The original value could be ignored because the modifications were based on it. However, there is no clear way to resolve the conflict of the last two versions. 
+
+  To resolve this issue, we need a <u>versioning system that can detect conflicts and reconcile conflicts</u>. A **vector clock** is a common technique to solve this problem. <u>A vector clock is a [server, version] pair associated with a data item</u>. It can be used to check if one version precedes, succeeds, or in conflict with others.
+
+  Assume a vector clock is represented by D([S1, v1], [S2, v2], …, [Sn, vn]), where D is a data item, v1 is a version counter, and s1 is a server number, etc. If data item D is written to server Si, the system must perform one of the following tasks.
+
+  - Increment vi if [Si, vi] exists.
+  - Otherwise, create a new entry [Si, 1].
+
+  1. A client writes a data item D1 to the system, and the write is handled by server Sx, which now has the vector clock D1[(Sx, 1)].
+  2. Another client reads the latest D1, updates it to D2, and writes it back. D2 descends from D1 so it overwrites D1. Assume the write is handled by the same server Sx, which now has vector clock D2([Sx, 2]).
+  3. Another client reads the latest D2, updates it to D3, and writes it back. Assume the write is handled by server Sy, which now has vector clock D3([Sx, 2], [Sy, 1])).
+  4. Another client reads the latest D2, updates it to D4, and writes it back. Assume the write is handled by server Sz, which now has D4([Sx, 2], [Sz, 1])).
+
+  When another client reads D3 and D4, it discovers a conflict, which is caused by data item D2 being modified by both Sy and Sz. The conflict is resolved by the client and updated data is sent to the server. Assume the write is handled by Sx, which now has D5([Sx, 3], [Sy, 1], [Sz, 1]). 
+
+  - Using vector clocks, it is easy to tell that a version X is an ancestor (i.e. no conflict) of version Y if the version counters for each participant in the vector clock of Y is greater than or equal to the ones in version X. For example, the vector clock D([s0, 1], [s1, 1])] is an ancestor of D([s0, 1], [s1, 2]). Therefore, no conflict is recorded.
+
+  - Similarly, you can tell that a version X is a sibling (i.e., a conflict exists) of Y if there is any participant in Y's vector clock who has a counter that is less than its corresponding counter in X. For example, the following two vector clocks indicate there is a conflict: D([s0, 1], [s1,2]) and D([s0, 2], [s1, 1]).
+
+  Even though vector clocks can resolve conflicts, there are <u>two notable downsides</u>. First, vector clocks add complexity to the client because it needs to implement conflict resolution logic. Second, the [server: version] pairs in the vector clock could grow rapidly. To fix this problem, we set a threshold for the length, and if it exceeds the limit, the oldest pairs are removed. This can lead to inefficiencies in reconciliation because the descendant relationship cannot be determined accurately. However, based on Dynamo paper, Amazon has not yet encountered this problem in production; therefore, it is probably an acceptable solution for most companies.
+
+- **Handling failures**
+
+  **Failure detection**
+  In a distributed system, it is insufficient to believe that a server is down because another server says so. Usually, it requires at least two independent sources of information to mark a server down. **All-to-all multicasting** is a straightforward solution. However, this is inefficient when many servers are in the system. A better solution is to use <u>decentralized failure detection methods like gossip protocol</u>. **Gossip protocol** works as follows:
+
+  - Each node maintains a node membership list, which contains member IDs and heartbeat counters.
+  - Each node periodically increments its heartbeat counter.
+  - Each node periodically sends heartbeats to a set of random nodes, which in turn propagate to another set of nodes.
+  - Once nodes receive heartbeats, membership list is updated to the latest info.
+  - If the heartbeat has not increased for more than predefined periods, the member is considered as offline.
+
+  Detected Node S2 is down:
+
+  - Node s0 maintains a node membership list shown on the left side.
+  - Node s0 notices that node s2’s (member ID = 2) <u>heartbeat counter has not increased for a long time</u>.
+  - Node s0 sends heartbeats that include s2’s info to a set of random nodes. Once other nodes confirm that s2’s heartbeat counter has not been updated for a long time, node s2 is marked down, and this information is propagated to other nodes.
+
+  **Handling temporary failures**
+
+  After failures have been detected through the gossip protocol, the system needs to deploy certain mechanisms to ensure availability. In the strict quorum approach, read and write operations could be blocked. A technique called “**sloppy quorum**” is used to improve availability. Instead of enforcing the quorum requirement, the system chooses the first W healthy servers for writes and first R healthy servers for reads on the hash ring. Offline servers are ignored.
+
+  If a server is unavailable due to network or server failures, another server will process requests temporarily. When the down server is up, changes will be pushed back to achieve data consistency. This process is called **hinted handoff**.
+
+  **Handling permanent failures**
+
+  What if a replica is permanently unavailable? To handle such a situation, we implement an **anti-entropy protocol** to keep replicas in sync. Anti-entropy involves comparing each piece of data on replicas and updating each replica to the newest version. A **Merkle tree** is used for inconsistency detection and minimizing the amount of data transferred.
+
+  >  “A hash tree or Merkle tree is a tree in which every non-leaf node is labeled with the hash of the labels or values (in case of leaves) of its child nodes. Hash trees allow efficient and secure verification of the contents of large data structures”
+
+  Assuming key space is from 1 to 12, the following steps show how to build a Merkle tree.
+  Highlighted boxes indicate inconsistency.
+  Step 1: Divide key space into buckets (4 in our example) as shown in Figure 6-13. A bucket
+  is used as the root level node to maintain a limited depth of the tree.
+  Step 2: Once the buckets are created, hash each key in a bucket using a uniform hashing
+  method (Figure 6-14).
+  Step 3: Create a single hash node per bucket (Figure 6-15).
+  Step 4: Build the tree upwards till root by calculating hashes of children (Figure 6-16).
+  To compare two Merkle trees, start by comparing the root hashes. If root hashes match, both
+  servers have the same data. If root hashes disagree, then the left child hashes are compared
+  followed by right child hashes. You can traverse the tree to find which buckets are not
+  synchronized and synchronize those buckets only.
+  Using Merkle trees, the amount of data needed to be synchronized is proportional to the
+  differences between the two replicas, and not the amount of data they contain. In real-world
+  systems, the bucket size is quite big. For instance, a possible configuration is one million
+  buckets per one billion keys, so each bucket only contains 1000 keys.
+
+  **Handling data center outage**
+  Data center outage could happen due to power outage, network outage, natural disaster, etc. To build a system capable of handling data center outage, it is important to <u>replicate data across multiple data centers</u>. Even if a data center is completely offline, users can still access data through the other data centers.
+
+**System architecture**
+
+- Clients communicate with the key-value store through simple APIs: get(key) and put(key, value).
+
+- A coordinator is a node that acts as a proxy between the client and the key-value store.
+
+- Nodes are distributed on a ring using consistent hashing.
+
+- The system is completely decentralized so adding and moving nodes can be automatic.
+
+- Data is replicated at multiple nodes.
+
+- There is no single point of failure as every node has the same set of responsibilities. As the design is decentralized, each node performs many tasks.
+
+  
+
+  **Write path**
+
+  - The write request is persisted on a commit log file.
+  - Data is saved in the memory cache.
+  - When the memory cache is full or reaches a predefined threshold, data is flushed to SSTable on disk. Note: A **sorted-string table (SSTable)** is a sorted list of <key, value> pairs. 
+
+  **Read path**
+
+  - After a read request is directed to a specific node, it first checks if data is in the memory cache. If so, the data is returned to the client.
+  - If the data is not in memory, it will be retrieved from the disk instead. The system checks the bloom filter. The bloom filter is used to figure out which SSTables might contain the key. SSTables return the result of the data set. The result of the data set is returned to the client.
+
+**Summary**
+
+Summarizes the features and corresponding techniques used for a distributed key-value store.
+
+
+
+------
+
+   ## 7: DESIGN A UNIQUE ID GENERATOR
+
+A simple solution can be use a primary key with the auto_increment attribute in a traditional database. However, <u>auto_increment does not work in a distributed environment</u> because a single database server is not large enough and generating unique IDs across multiple databases with minimal delay is challenging.
+
+**Step 1 - Understand the problem and establish design scope**
+
+| Questions                                    | Answers                                                      |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| What are the characteristics of unique IDs?  | IDs must be unique and sortable.                             |
+| For each new record, does ID increment by 1? | The ID increments by time but not necessarily only increments by 1. <br />IDs created in  the evening are larger than those created in the <br />morning on the same day. |
+| Do IDs only contain numerical values?        | Yes                                                          |
+| What is the ID length requirement?           | IDs should fit into 64-bit.                                  |
+| What is the scale of the system?             | The system should be able to generate 10,000 IDs per second. |
+
+The requirements are listed below:
+
+- IDs must be unique.
+- IDs are numerical values only.
+- IDs fit into 64-bit.
+- IDs are ordered by date.
+- Ability to generate over 10,000 unique IDs per second.
+
+**Step 2 - Propose high-level design**
+Multiple options can be used to generate unique IDs in distributed systems. The options are:
+
+**1. Multi-master replication**
+
+This approach uses the <u>databases’ auto_increment feature</u>. Instead of increasing the next ID by 1, we increase it by k, where k is the number of database servers in use. This solves some scalability issues because IDs can scale with the number of database servers. However, this strategy has some major drawbacks:
+
+- Hard to scale with multiple data centers
+
+- <u>IDs do not go up with time across multiple servers.</u>
+- It does not scale well when a server is added or removed.
+
+**2. Universally unique identifier (UUID)**   
+
+UUID is a 128-bit number used to identify information in computer systems. UUID has a very low probability of getting collusion.
+
+> Wikipedia: “after generating 1 billion UUIDs every second for approximately 100 years would the probability of creating a single duplicate reach 50%”.
+
+UUIDs can be <u>generated independently without coordination between servers</u>. So in this design, each web server contains an ID generator, and a web server is responsible for generating IDs independently.
+
+**Pros:**
+
+- Generating UUID is simple. No coordination between servers is needed so there will not be any synchronization issues.
+- The system is <u>easy to scale</u> because each web server is responsible for generating IDs they consume. ID generator can easily scale with web servers.  
+
+**Cons:**
+
+- IDs are 128 bits long, but our requirement is 64 bits.
+- IDs do not go up with time.
+- IDs could be non-numeric.   
+
+**3. Ticket Server**
+
+Ticket servers are another way to generate distributed unique IDs. The idea is to use a <u>centralized *auto_increment* feature</u> in a single database server (Ticket Server).
+
+**Pros:**
+
+- Numeric IDs.
+- It is easy to implement, and it works for small to medium-scale applications.
+
+**Cons:**
+
+- <u>Single point of failure</u>. Single ticket server means if the ticket server goes down, all systems that depend on it will face issues. To avoid a single point of failure, we can set up multiple ticket servers. However, this will introduce new challenges such as data synchronization.
+
+**4. Twitter snowflake approach**
+
+Twitter’s unique ID generation system called “snowflake” uses <u>Divide and conquer</u>. Instead of generating an ID directly, we divide an ID into different sections. Each section is explained below.
+
+- **Sign bit**: 1 bit. It will always be 0. This is <u>reserved for future uses</u>. It can potentially be used to distinguish between signed and unsigned numbers.
+- **Timestamp**: 41 bits. As timestamps grow with time, IDs are sortable by time. The maximum timestamp that can be represented in 41 bits is 2 ^ 41 - 1 = 2199023255551 milliseconds (ms) : ~ **69 years**. This means the ID generator will work for 69 years and having a <u>custom epoch time close to today’s date delays the overflow time</u>. We can also use Twitter snowflake default epoch 1288834974657, equivalent to Nov 04, 2010, 01:42:54 UTC. After 69 years, we will need a new epoch time or adopt other techniques to migrate IDs.
+- **Datacenter ID**: 5 bits, which gives us *2 ^ 5 = 32* datacenters.
+- **Machine ID**: 5 bits, which gives us *2 ^ 5 = 32* machines per datacenter.
+- **Sequence number**: Sequence number is 12 bits, which give us 2 ^ 12 = 4096 combinations. In theory, a <u>machine can support a maximum of 4096 new IDs per millisecond</u>. This field is 0 unless more than one ID is generated in a millisecond on the same server. For every ID generated on that machine/process, the sequence number is incremented by 1. The <u>number is reset to 0 every millisecond</u>.
+
+**Step 3 - Design deep dive**
+
+In the high-level design, we decide to use Twitter snowflake ID generator, as it can satisfy our requirements. 
+
+- <u>Datacenter IDs and machine IDs</u> are chosen at the startup time, generally fixed once the system is up running. Any changes in datacenter IDs and machine IDs require careful review since an accidental change in those values can lead to ID conflicts. 
+- <u>Timestamp and sequence numbers</u> are generated when the ID generator is running.
+
+**Step 4 - Wrap up**
+
+We discussed different approaches to design a unique ID generator: multi- master replication, UUID, ticket server, and Twitter snowflake-like unique ID generator. We settle on snowflake as it supports all our use cases and is scalable in a distributed environment. A few additional talking points:
+
+- **Clock synchronization**. In our design, we assume ID generation servers have the same clock. This assumption might not be true when a server is running on multiple cores. The same challenge exists in multi-machine scenarios. **Network Time Protocol** is the most popular solution to this problem.
+- **Section length tuning**. For example, fewer sequence numbers but more timestamp bits are effective for low concurrency and long-term applications.
+- **High availability**. Since an ID generator is a mission-critical system, it must be highly available.
+
+
+
+------
+
+   ## 8: DESIGN A URL SHORTENER (tinyurl)
+
+**Step 1 - Understand the problem and establish design scope**
+
+- Can you give an example of how a URL shortener work?
+  - Assume URL https://www.systeminterview.com/q=chatsystem&c=loggedin&v=v3 is the original URL. Your service creates an alias with shorter length: https://tinyurl.com/ y7keocwj. If you click the alias, it redirects you to the original URL.
+- What is the <u>traffic volume</u>?
+  - 100 million URLs are generated per day.
+- How long is the shortened URL? 
+  - As short as possible.
+- What characters are allowed in the shortened URL?
+  - Shortened URL can be a combination of numbers (0-9) and characters (a-z, A- Z).
+- Can shortened URLs be deleted or updated?
+  - For simplicity, let us assume shortened URLs cannot be deleted or updated.
+
+Here are the <u>basic use cases</u>:
+
+- URL shortening: given a long URL => return a much shorter URL.
+- URL redirecting: given a shorter URL => redirect to the original URL.
+- High availability, scalability, and fault tolerance considerations
+
+**Back of the envelope estimation**
+
+- Write operation: 100 million URLs are generated per day.
+  - Write operation per second: 100 million / 24 /3600 = 1160
+- Read operation: Assuming ratio of read operation to write operation is 10:1.
+  - read operation per second: 1160 * 10 = 11,600
+- Assuming the URL shortener service will run for 10 years. 
+  - This means we must support 100 million * 365 * 10 = 365 billion records.
+- Assume average URL length is 100.
+  - Storage requirement over 10 years: 365 billion * 100 bytes * 10 years = 365 TB
+
+**Step 2 - Propose high-level design and get buy-in**
+
+- **API Endpoints**
+
+  API endpoints facilitate the communication between clients and servers. A URL shortener primary needs two API endpoints.
+
+  - **URL shortening**. To create a new short URL, a client sends a POST request, which contains one parameter: the long URL.
+    - *POST api/v1/data/shorten*
+    - request parameter: {longUrl: String}
+    - return shortURL
+  - **URL redirecting**. To redirect a short URL to the corresponding long URL, a client sends a GET request.
+    - *GET api/v1/shortUrl*
+    - Return longURL for HTTP redirection
+
+**301 redirect vs 302 redirect.**
+
+When you enter a tinyurl onto the browser. Once the server receives a tinyurl request, it changes the short URL to the long URL with **301 redirect**.
+
+- **301 redirect**. A 301 redirect shows that the requested URL is “permanently” moved to the long URL. Since it is <u>permanently redirected</u>, the browser caches the response, and subsequent requests for the same URL will not be sent to the URL shortening service. Instead, requests are redirected to the long URL server directly.
+- **302 redirect**. A 302 redirect means that the URL is “temporarily” moved to the long URL, meaning that subsequent requests for the same URL will be sent to the URL shortening service first. Then, they are redirected to the long URL server.
+
+Each redirection method has its pros and cons. If the priority is to <u>reduce the server load, using 301</u> redirect makes sense as only the first request of the same URL is sent to URL shortening servers. However, if <u>analytics is important, 302 redirect</u> is a better choice as it can track click rate and source of the click more easily.
+
+**Hash Table Implementation**
+
+The most intuitive way to implement URL redirecting is to use hash tables. Assuming the hash table stores *<shortURL, longURL>* pairs, URL redirecting can be implemented by the following:
+
+- Get longURL: longURL = hashTable.get(shortURL)
+- Once you get the longURL, perform the URL redirect.
+
+**URL shortening**
+
+Let us assume the short URL looks like this: www.tinyurl.com/**{hashValue}**. To support the URL shortening use case, we must find a hash function *fx* that maps a long URL to the *hashValue*. The hash function must satisfy the following requirements:
+
+- Each *longURL* must be hashed to one *hashValue*.
+- Each *hashValue* can be mapped back to the *longURL*.
+
+**Step 3 - Design deep dive**
+
+- **Data model**
+
+  In the high-level design, everything is stored in a hash table. However, this approach is not feasible for real-world systems as memory resources are limited and expensive. A better option is to store *<shortURL, longURL>* mapping in a relational database. The simplified version of the table contains 3 columns: *id*, *shortURL, longURL*.
+
+- **Hash function**
+
+  Hash function is used to hash a long URL to a short URL, also known as *hashValue*. 
+
+  **Hash value length**
+
+  The *hashValue* consists of characters from [0-9, a-z, A-Z], containing 10 + 26 + 26 = 62 possible characters. The system must support up to 365 billion URLs based on the back of the envelope estimation. To figure out the length of *hashValue*, find the smallest *n* such that *62^n ≥ 365 billion*. When *n = 7, 62 ^ n = ~3.5 trillion*, 3.5 trillion is more than enough to hold 365 billion URLs, so the length of *hashValue* is 7.
+
+  To shorten a long URL, we should implement a hash function that hashes a long URL to a 7- character string. We will explore <u>two types of hash functions for a URL shortener</u>.
+
+  **Hash + collision resolution**
+
+  A straightforward solution is to use <u>well-known hash functions like CRC32, MD5, or SHA-1</u>. But these hash values are too long (more than 7 characters). The first approach is to collect the first 7 characters of a hash value; however, this method can lead to hash collisions. To resolve hash collisions, we can recursively append a new predefined string until no more collision is discovered. This process is explained in Figure 8-
+
+5.
+
+This method can eliminate collision; however, it is expensive to query the database to check if a shortURL exists for every request. A technique called bloom filters [2] can improve performance. A bloom filter is a space-efficient probabilistic technique to test if an element is a member of a set. Refer to the reference material [2] for more details.
+
+**Base 62 conversion**
+
+Base conversion is another approach commonly used for URL shorteners. Base conversion helps to convert the same number between its different number representation systems. Base 62 conversion is used as there are 62 possible characters for *hashValue*. Let us use an example to explain how the conversion works: convert 1115710 to base 62 representation
+
+(1115710 represents 11157 in a base 10 system).
+
+• From its name, base 62 is a way of using 62 characters for encoding. The mappings are: *0-0, ..., 9-9, 10-a, 11-b, ..., 35-z, 36-A, ..., 61-Z, where* ‘a’ stands for 10, ‘Z’ stands for 61, etc.
+
+= 2 x 622 + 55 x 621 + 59 x 620 = [2, 55, 59] -> [2, T, X] in base 62
+
+• 11157
+ representation. Figure 8-6 shows the conversation process.
+
+10
+
+• Thus, the short URL is https://tinyurl.com /**2TX Comparison of the two approaches**
+
+Table 8-3 shows the differences of the two approaches.
+
+**URL shortening deep dive**
+
+The **distributed unique ID generator** is used to generate globally unique IDs, which are used for creating shortURLs. Also we want the <u>URL shortening flow to be logically simple and functional</u>. **Base 62 conversion** is used in our design.
+
+1. LongURL is the input.
 2. The system checks if the longURL is in the database.
-3. If it is, it means the longURL was converted to shortURL before. In this case, fetch the
-shortURL from the database and return it to the client.
-4. If not, the longURL is new. A new unique ID (primary key) Is generated by the unique
-ID generator.
-5. Convert the ID to shortURL with base 62 conversion.
+3. If it is, it means the longURL was converted to shortURL before. In this case, fetch the shortURL from the database and return it to the client.
+4. If not, the longURL is new. A new unique ID (primary key) Is generated by the unique ID generator.
+5. <u>Convert the ID to shortURL with base 62 conversion</u>.
 6. Create a new database row with the ID, shortURL, and longURL.
-To make the flow easier to understand, let us look at a concrete example.
-• Assuming the input longURL is: https://en.wikipedia.org/wiki/Systems_design
-• Unique ID generator returns ID: 2009215674938.
-• Convert the ID to shortURL using the base 62 conversion. ID (2009215674938) is
-converted to “zn9edcu”.
-• Save ID, shortURL, and longURL to the database as shown in Table 8-4.
-The distributed unique ID generator is worth mentioning. Its primary function is to generate
-globally unique IDs, which are used for creating shortURLs. In a highly distributed
-environment, implementing a unique ID generator is challenging. Luckily, we have already
-discussed a few solutions in “Chapter 7: Design A Unique ID Generator in Distributed
-Systems”. You can refer back to it to refresh your memory.
-URL redirecting deep dive
-Figure 8-8 shows the detailed design of the URL redirecting. As there are more reads than
-writes, <shortURL, longURL> mapping is stored in a cache to improve performance.
-The flow of URL redirecting is summarized as follows:
+
+**URL redirecting deep dive**
+
+As there are more reads than writes, *<shortURL, longURL>* mapping is stored in a cache to improve performance.
+
 1. A user clicks a short URL link: https://tinyurl.com/zn9edcu
 2. The load balancer forwards the request to web servers.
 3. If a shortURL is already in the cache, return the longURL directly.
-4. If a shortURL is not in the cache, fetch the longURL from the database. If it is not in the
-database, it is likely a user entered an invalid shortURL.
-24. The longURL is returned to the user.
-      Step 4 - Wrap up
-      In this chapter, we talked about the API design, data model, hash function, URL shortening,
-      and URL redirecting.
-      If there is extra time at the end of the interview, here are a few additional talking points.
-      • Rate limiter: A potential security problem we could face is that malicious users send an
-      overwhelmingly large number of URL shortening requests. Rate limiter helps to filter out
-      requests based on IP address or other filtering rules. If you want to refresh your memory
-      about rate limiting, refer to “Chapter 4: Design a rate limiter”.
-      • Web server scaling: Since the web tier is stateless, it is easy to scale the web tier by
-      adding or removing web servers.
-      • Database scaling: Database replication and sharding are common techniques.
-      • Analytics: Data is increasingly important for business success. Integrating an analytics
-      solution to the URL shortener could help to answer important questions like how many
-      people click on a link? When do they click the link? etc.
-      • Availability, consistency, and reliability. These concepts are at the core of any large
-      system’s success. We discussed them in detail in Chapter 1, please refresh your memory
-      on these topics.
-      Congratulations on getting this far! Now give yourself a pat on the back. Good job!
-      Reference materials
-      [1] A RESTful Tutorial: https://www.restapitutorial.com/index.html
-      [2] Bloom filter: https://en.wikipedia.org/wiki/Bloom_filter
+4. If a shortURL is not in the cache, fetch the longURL from the database. If it is not in the database, it is likely a user entered an invalid shortURL.
+5. The longURL is returned to the user.
 
-   ## CHAPTER 9: DESIGN A WEB CRAWLER
+**Step 4 - Wrap up**
+
+Here we discussed about the API design, data model, hash function, URL shortening, and URL redirecting.
+
+**Few additional talking points:**
+
+- **Rate limiter**: A potential security problem we could face is that malicious users send an overwhelmingly large number of URL shortening requests. Rate limiter helps to filter out requests based on IP address or other filtering rules.
+- Web server scaling: Since the web tier is stateless, it is easy to scale the web tier by adding or removing web servers.
+- Database scaling: Database replication and sharding are common techniques.
+- **Analytics**: Data is increasingly important for business success. Integrating an analytics solution to the URL shortener could help to answer important questions like how many people click on a link? When do they click the link? etc.
+- Availability, consistency, and reliability. These concepts are at the core of any large system’s success.
+
+
+
+------
+
+   ## 9: DESIGN A WEB CRAWLER
 
    In this chapter, we focus on web crawler design: an interesting and classic system design
    interview question.
@@ -4224,19 +3546,153 @@ blocks.
       https://www.dropbox.com/static/business/resources/Security_Whitepaper.pdf
       [11] Amazon S3 Glacier: https://aws.amazon.com/glacier/faqs/
 
+
+
+------
+
    ## 16: THE LEARNING CONTINUES
 
-Pay attention to both the <u>shared principles and the underlying technologies</u>. Researching each technology and understanding what problems it solves is a great way to strengthen your knowledge base and refine the design process.
+Dive into real-world system architectures, pay attention to both the <u>shared principles and the underlying technologies</u>. Researching each technology and understanding what problems it solves is a great way to strengthen your knowledge base and refine the design process.
 
 
 
-
-
-
-
-
+------
 
 ## References
 
 - System Design Interview By Alex Xu
+
+
+
+
+
+# Biilie
+
+
+
+Billie offers **"buy now, pay later" (BNPL) payment methods** for B2B, providing solutions from liquidity to automation to digital payments for companies large and small - whether **online stores or SMEs**.
+
+**Small and medium-sized enterprises** (SMEs) 
+
+
+
+1. Basic talk with HR about **my previous experience and expectations.** Very political without stupid questions and HR was really experienced and versed in the field of conversation. 
+2. The technical task, with two parts. Problem resolving code challenge and the task with purpose generally mind about a suggested problem, describe difficulties, and propose ways to resolve it. I was asked to resolve it within 3 days. After review, I was invited to the next stage. 
+3. Technical interview. Interviewers were real hands-on team leads. We did some screenings, discussed architectural solutions, spoke about previous experience and how I developing currently. 
+   2. 4. Interviews with Senior Project Manager and CTO. After the last round of interviews, the decision and the offer were made very fast. I enjoyed with every stage of the hiring process and conversations with great professionals. Now my expectations from work are really high! :)
+
+
+
+
+
+I am a **Java Engineering Manager with 5+ years of management/Leadership experience**, ability to simultaneously manage various projects and teams. 
+
+16+ years of hands-on experience in Java/J2EE Technologies and Frameworks. I also worked extensively on Micro services, GoLang, Cassandra, Redis, MongoDB, Kafka etc.
+
+I am actively looking for a Senior Java Engineering job.
+
+
+
+16+ years of hands-on experience in **Java/J2EE Technologies and Frameworks.**
+
+-   Defining project scope, goals, and deliverables to ensure consistency with company strategy and commitments.
+-   Manage and supervise IT professionals (employees and Op Teams). Managing day- to-day IT operations, planning, researching and executing IT projects.
+-   **Experience in architecting high performing , scalable, multi tenant cloud based systems.**
+
+
+
+***************
+
+ENGINEERING MANAGER / ARCHITECT
+
+DailyHunt ( www.dailyhunt.in ) Dec-2010 to Till date
+
+ Design and Implementation of MDM, a **high throughput, high availability system for managing Meta data** for DailyHunt system
+
+which holds info of Hashtags, Topics and Pages/Tabs. MDM controls the look and feel of each tabs by deciding the layout, images, feed algorithm etc. It also keep track of story count, followers count and language level config for each entity.
+
+-   Design and Implementation of Content enrichment, a stream based application responsible for enriching the content with meta information in an asynchronous way so that content publishing speed is not affected. Post content enrichment stage, the metadata is pinged to News serving layer & Relevance engine.
+-   Managed team of size 5-8, defining project scope, goals, and deliverables. Identify areas of process improvements.
+
+
+
+************
+
+
+
+
+
+
+
+ 
+
+SKILLS
+
+TECHNICAL LEAD
+
+HUAWEI Technologies Aug-2007 to Nov-2010
+
+Java
+
+Data structures & Algorithms
+
+-   Worked on DPI-BI, a distributed ETL solution for handling large amount of data, loading into database, creating aggregation for faster analysis, cleaning datsabase on regular intervals to prevent db crash. DPI enables a network device to inspect the high end layers of an IP packet. DPI is used for defining new traffic policies.
+-   Implemented a distributed system to handle a high volume of data generated by telecom devices and implementation of UniBI system
+
+Spring boot
+
+Redis
+
+MongoDB
+
+Micro services
+
+GoLang
+
+Cassandra
+
+EDUCATION
+
+B. Tech in Computer Science and Engineering Cochin University of Science and Technology May 2005
+
+Kafka
+
+Elastic Search
+
+which provides an AJAX-based rich web client where the user can analyze the data using a pivot table and chart.
+
+SOFTWARE DEVELOPER
+
+Mindtree Consulting
+
+Aug -2005 to July-2007
+
+-   Responsible for the implementation of ACS, a Java based framework – used for implementing complex calculations. Used xml (calculation model) to specify a calculation. It allows changing the calculation by changing the xml without affecting the code.
+-   The calculation kernel component provide services for maintaining and executing calculation models. Maintenance module used to view, create, delete or update calculation models.
+
+
+
+
+
+situational leadership
+
+adopt my leadership style
+
+graph based on - Skill / confidence.
+
+Support, direct instructions.
+
+Low confidence - 
+
+tell me a
+
+
+
+
+
+
+
+
+
+
 
